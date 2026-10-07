@@ -1,0 +1,1588 @@
+/*
+ * IELTS Upgrade Notebook: shared stylesheet for the static concept mockups.
+ *
+ * Mirrors the real design system in src/styles/index.css and src/components/**.
+ * Every color comes from a CSS variable, so <html data-theme="dark"> switches the theme.
+ *
+ * Rules (brief §6–14):
+ *   - Radii 4 / 6 / 8 / 10px only. 9999px only for small tags and the mobile Add button.
+ *   - One shadow (--shadow-float), on dialogs, menus, toasts and tooltips only.
+ *   - Gold and sage are never small text. Graphite and crimson text never sit on --stone.
+ *   - Spacing on a 4px grid: 4 8 12 16 24 32 48 64.
+ *   - States for static mockups: add .is-hover, .is-focus or .is-active to show them.
+ *   - No transitions here (static). The app uses 150-220ms fades (brief §37).
+ *
+ * Contents
+ *   1. Tokens            8. Tags, fields, checkbox, switch
+ *   2. Base              9. Dialog, menu, tooltip, toast
+ *   3. Type             10. Note pair, quote, marks (mastery, star, mode, ornament)
+ *   4. Layout           11. Note rows, list head, table
+ *   5. Sidebar          12. Page header, section, empty state, surfaces
+ *   6. Buttons, keys    13. Mobile shell (top bar, bottom nav)
+ *   7. Tabs, segmented  14. Utilities, small screens
+ */
+
+/* ======================================================================
+   1. Tokens (exact values from src/styles/index.css)
+   ====================================================================== */
+
+:root {
+  color-scheme: light;
+  --page: #f5f1e8; /* Parchment: page background */
+  --paper: #fbf9f4; /* Paper: writing areas, important content */
+  --stone: #ece7de; /* Stone: grouped sections, hover. Graphite and crimson text fail AA on it */
+  --ink: #211f24; /* Primary text */
+  --graphite: #6d6870; /* Secondary text, metadata */
+  --indigo: #38334f; /* Brand accent: active nav, primary buttons, selected */
+  --plum: #665466; /* Speaking accent */
+  --gold: #aa8d50; /* Ornaments, favorites, mastery mark. Never text */
+  --sage: #747b69; /* Writing accent, mastered state. Icons and large text only */
+  --crimson: #9a565c; /* The learner's mistake */
+  --upgrade: #596d59; /* Deep Sage: improved language */
+  --line: rgba(33, 31, 36, 0.1); /* Borders and separators */
+  --line-strong: rgba(33, 31, 36, 0.18);
+  --on-accent: #fbf9f4; /* Text on indigo fills */
+  --scrim: rgba(20, 19, 25, 0.32); /* Behind dialogs */
+
+  /* Derived (same recipes as the Tailwind classes in the app) */
+  --hover: color-mix(in srgb, var(--stone) 60%, transparent); /* hover:bg-stone/60 */
+  --scrim-fill: color-mix(in srgb, var(--scrim) 75%, transparent); /* bg-scrim/75 (light) */
+  --mark: color-mix(in srgb, var(--gold) 25%, transparent); /* search highlight */
+
+  --font-sans: "Inter", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Serif", "Libre Baskerville", Georgia, ui-serif, serif;
+  --font-mono: ui-monospace, "Cascadia Mono", "SFMono-Regular", Menlo, monospace;
+
+  --r-xs: 4px;
+  --r-sm: 6px; /* inputs, buttons, small controls */
+  --r-md: 8px; /* cards, menus, toasts */
+  --r-lg: 10px; /* dialogs, large containers */
+  --r-full: 9999px; /* tags and the mobile Add only */
+
+  --shadow-float: 0 12px 32px -16px rgb(20 19 25 / 0.28), 0 1px 3px rgb(20 19 25 / 0.08);
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --dur: 180ms;
+
+  --sidebar-w: 232px;
+  --reading-w: 760px;
+
+  /* A very faint paper grain (same SVG as src/app/AppShell.tsx) */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.13 0 0 0 0 0.12 0 0 0 0 0.14 0 0 0 1.2 -0.25'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)' opacity='0.05'/%3E%3C/svg%3E");
+
+  /* Drawn glyphs used as CSS masks (they take the current color) */
+  --m-new: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Ccircle cx='6' cy='6' r='4.6' fill='none' stroke='%23000' stroke-width='1.1'/%3E%3C/svg%3E");
+  --m-learning: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Ccircle cx='6' cy='6' r='4.6' fill='none' stroke='%23000' stroke-width='1.1'/%3E%3Cpath d='M6 6V1.4A4.6 4.6 0 0 1 10.6 6Z' fill='%23000'/%3E%3C/svg%3E");
+  --m-familiar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Ccircle cx='6' cy='6' r='4.6' fill='none' stroke='%23000' stroke-width='1.1'/%3E%3Cpath d='M6 1.4A4.6 4.6 0 0 1 6 10.6Z' fill='%23000'/%3E%3C/svg%3E");
+  --m-mastered: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M6 0.6C6.25 3.6 8.4 5.75 11.4 6C8.4 6.25 6.25 8.4 6 11.4C5.75 8.4 3.6 6.25 0.6 6C3.6 5.75 5.75 3.6 6 0.6Z' fill='%23000'/%3E%3C/svg%3E");
+  --m-spark-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.75C12.45 8.1 15.9 11.55 21.25 12C15.9 12.45 12.45 15.9 12 21.25C11.55 15.9 8.1 12.45 2.75 12C8.1 11.55 11.55 8.1 12 2.75Z' fill='%23000' stroke='%23000' stroke-width='1.25' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --m-spark-line: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.75C12.45 8.1 15.9 11.55 21.25 12C15.9 12.45 12.45 15.9 12 21.25C11.55 15.9 8.1 12.45 2.75 12C8.1 11.55 11.55 8.1 12 2.75Z' fill='none' stroke='%23000' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --m-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #141319;
+  --paper: #1c1a21;
+  --stone: #242129;
+  --ink: #eae5db;
+  --graphite: #aaa4ac;
+  --indigo: #918ab2; /* Brief #8A82AA lightened slightly to pass AA on Stone */
+  --plum: #a08aa0;
+  --gold: #b69d66;
+  --sage: #89927e;
+  --crimson: #c07a82; /* Brief #B66B73 lightened slightly to pass AA on Paper */
+  --upgrade: #93a390;
+  --line: rgba(255, 255, 255, 0.1);
+  --line-strong: rgba(255, 255, 255, 0.18);
+  --on-accent: #141319;
+  --scrim: rgba(0, 0, 0, 0.5);
+  --scrim-fill: var(--scrim); /* dark:bg-scrim */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.92 0 0 0 0 0.9 0 0 0 0 0.86 0 0 0 1.2 -0.25'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)' opacity='0.035'/%3E%3C/svg%3E");
+}
+
+/* ======================================================================
+   2. Base
+   ====================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: var(--page);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--page);
+  background-image: var(--grain);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, blockquote, dl, dd {
+  margin: 0;
+  padding: 0;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+ul, ol {
+  list-style: none;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+input, textarea, select {
+  margin: 0;
+  color: inherit;
+  font: inherit;
+}
+strong, b {
+  font-weight: 600;
+}
+kbd {
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--indigo) 22%, transparent);
+}
+
+:focus-visible,
+.is-focus {
+  outline: 2px solid var(--indigo);
+  outline-offset: 2px;
+}
+
+hr,
+.divider {
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background: var(--line);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Inline SVG icons, lucide style. Default 18px; sizes: xs 14, sm 16, lg 20, xl 24. */
+.icon {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: middle;
+}
+.icon-xs { width: 14px; height: 14px; }
+.icon-sm { width: 16px; height: 16px; }
+.icon-lg { width: 20px; height: 20px; }
+.icon-xl { width: 24px; height: 24px; }
+.icon .gold,
+.gold-fill { fill: var(--gold); stroke: none; }
+
+/* ======================================================================
+   3. Type (brief §10, sizes from the locked Tailwind scale)
+   ====================================================================== */
+
+.t-title { font-family: var(--font-serif); font-size: 32px; line-height: 1.15; font-weight: 400; letter-spacing: -0.005em; }
+.t-recall { font-size: 28px; line-height: 1.35; }
+.t-section { font-size: 21px; line-height: 1.35; }
+.t-note { font-size: 18px; line-height: 1.55; }
+.t-body-lg { font-size: 16px; line-height: 1.65; }
+.t-body { font-size: 15px; line-height: 1.6; }
+.t-small { font-size: 13px; line-height: 1.5; }
+.t-meta { font-size: 12px; line-height: 1.45; }
+
+.serif { font-family: var(--font-serif); font-weight: 400; }
+.sans { font-family: var(--font-sans); }
+.italic { font-style: italic; }
+.medium { font-weight: 500; }
+.tnum { font-variant-numeric: tabular-nums; }
+.muted { color: var(--graphite); }
+
+/* Decorative italic serif label above a title ("Error Ledger", "Essential Notes") */
+.eyebrow {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--plum);
+}
+.eyebrow-quiet { color: var(--graphite); }
+
+/* Small uppercase field label ("WHAT I SAID"). Same as NOTE_LABEL in NotePair.tsx */
+.label-caps,
+.pair-label {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--graphite);
+}
+
+/* Text colors */
+.c-ink { color: var(--ink); }
+.c-graphite { color: var(--graphite); }
+.c-indigo { color: var(--indigo); }
+.c-plum { color: var(--plum); }
+.c-crimson { color: var(--crimson); }
+.c-upgrade { color: var(--upgrade); }
+.c-gold { color: var(--gold); } /* icons and glyphs only, never text */
+.c-sage { color: var(--sage); } /* icons and large text only */
+
+/* Search highlight and pattern slot ("___") */
+mark,
+.mark {
+  border-radius: var(--r-xs);
+  background: var(--mark);
+  color: inherit;
+}
+.slot {
+  display: inline-block;
+  min-width: 48px;
+  border-bottom: 1px solid currentColor;
+  vertical-align: baseline;
+}
+
+/* Serif reading text for model paragraphs and the occasional quote */
+.serif-prose {
+  font-family: var(--font-serif);
+  font-size: 21px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+/* ======================================================================
+   4. Layout
+   ====================================================================== */
+
+/* Desktop shell: 232px sidebar + main. The sidebar stays in view while the page scrolls. */
+.app {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.main {
+  min-width: 0;
+  min-height: 100vh;
+  border-left: 1px solid var(--line);
+  padding: 64px 56px 80px;
+}
+
+/* Reading column (brief §38: 720–900px). Centered in the main area. */
+.page {
+  max-width: var(--reading-w);
+  margin: 0 auto;
+}
+/* Wider column for tables and two-column layouts */
+.page-wide {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+/* Full screen (Review, focus editor): no sidebar */
+.focus-screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ======================================================================
+   5. Sidebar (src/app/Sidebar.tsx)
+   ====================================================================== */
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 24px 12px 16px;
+}
+
+.sidebar-head {
+  padding: 0 8px 24px;
+}
+
+/* Wordmark: crescent with a gold spark + serif name */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: var(--r-sm);
+  color: var(--ink);
+}
+.brand-mark {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  color: var(--indigo);
+}
+.brand-name {
+  font-family: var(--font-serif);
+  font-size: 21px;
+  line-height: 1;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+}
+
+.sidebar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* "New note  N" and "Search  Ctrl K" */
+.side-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 36px;
+  padding: 0 8px 0 12px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--graphite);
+}
+.side-btn .icon { width: 16px; height: 16px; }
+.side-btn-text { flex: 1; text-align: left; }
+.side-btn:hover,
+.side-btn.is-hover { background: var(--hover); color: var(--ink); }
+.side-btn-new {
+  border-color: var(--line-strong);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.sidebar-nav {
+  flex: 1;
+  min-height: 0;
+  margin-top: 24px;
+  overflow-y: auto;
+}
+.nav-group + .nav-group { margin-top: 20px; }
+.nav-label {
+  margin-bottom: 4px;
+  padding-left: 12px;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.65;
+  color: var(--graphite);
+}
+.nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* Nav item. Active: ink text, indigo icon, 2px indigo bar on the left. No fill. */
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 36px;
+  padding: 0 10px 0 12px;
+  border-radius: var(--r-sm);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--graphite);
+}
+.nav-item .icon { color: var(--graphite); }
+.nav-item:hover,
+.nav-item.is-hover { background: var(--hover); color: var(--ink); }
+.nav-item:hover .icon,
+.nav-item.is-hover .icon { color: var(--ink); }
+.nav-item.is-active { color: var(--ink); background: none; }
+.nav-item.is-active .icon { color: var(--indigo); }
+.nav-item.is-active::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
+  width: 2px;
+  border-radius: var(--r-full);
+  background: var(--indigo);
+}
+.nav-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nav-count {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--graphite);
+  font-variant-numeric: tabular-nums;
+}
+
+.sidebar-foot {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.streak {
+  margin-top: 8px;
+  padding: 0 12px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--graphite);
+}
+
+/* ======================================================================
+   6. Buttons and keys (src/components/ui/Button.tsx, IconButton.tsx, Kbd.tsx)
+   ====================================================================== */
+
+.btn {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+}
+.btn .icon { width: 18px; height: 18px; }
+
+.btn-primary { background: var(--indigo); color: var(--on-accent); font-weight: 500; }
+.btn-primary:hover,
+.btn-primary.is-hover { background: color-mix(in srgb, var(--indigo) 90%, transparent); }
+
+.btn-secondary { border-color: var(--line-strong); background: var(--paper); color: var(--ink); }
+.btn-secondary:hover,
+.btn-secondary.is-hover { background: color-mix(in srgb, var(--stone) 60%, var(--paper)); }
+
+.btn-ghost { color: var(--graphite); }
+.btn-ghost:hover,
+.btn-ghost.is-hover { background: var(--stone); color: var(--ink); }
+
+.btn-danger {
+  border-color: color-mix(in srgb, var(--crimson) 40%, transparent);
+  background: var(--paper);
+  color: var(--crimson);
+}
+.btn-danger:hover,
+.btn-danger.is-hover {
+  border-color: color-mix(in srgb, var(--crimson) 70%, transparent);
+  background: color-mix(in srgb, var(--crimson) 6%, var(--paper));
+}
+
+.btn-sm { height: 32px; gap: 6px; padding: 0 12px; font-size: 13px; line-height: 1.5; }
+.btn-sm .icon { width: 16px; height: 16px; }
+.btn-lg { height: 48px; gap: 10px; padding: 0 24px; font-size: 16px; line-height: 1.65; }
+
+.btn[disabled],
+.btn.is-disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-block { width: 100%; }
+.btn .keys,
+.btn > .kbd { margin-left: 4px; }
+
+/* Icon-only button (always give it aria-label) */
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  color: var(--graphite);
+}
+.btn-icon:hover,
+.btn-icon.is-hover,
+.btn-icon.is-active { background: var(--stone); color: var(--ink); }
+.btn-icon.btn-sm { width: 32px; height: 32px; }
+
+/* Text link with an optional arrow ("Related notes →") */
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: var(--r-xs);
+  color: var(--indigo);
+}
+.link .icon { width: 14px; height: 14px; }
+.link:hover { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.link-quiet { color: var(--graphite); }
+.link-quiet:hover { color: var(--ink); text-decoration: none; }
+
+/* Key cap */
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  min-width: 20px;
+  padding: 0 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-xs);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--graphite);
+}
+.btn-primary .kbd,
+.kbd-on-accent {
+  border-color: color-mix(in srgb, var(--on-accent) 35%, transparent);
+  color: color-mix(in srgb, var(--on-accent) 85%, transparent);
+}
+.keys {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+/* "Ctrl Enter to save" */
+.key-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--graphite);
+}
+
+/* ======================================================================
+   7. Tabs and segmented control (src/components/ui/Tabs.tsx)
+   ====================================================================== */
+
+/* Underline tabs (brief §4): graphite text; active = ink + 1.5px indigo underline */
+.tabs {
+  position: relative;
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs-lg { gap: 32px; }
+.tab {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 0 10px;
+  font-size: 15px;
+  line-height: 1.6;
+  white-space: nowrap;
+  color: var(--graphite);
+}
+.tabs-lg .tab { font-size: 16px; line-height: 1.65; }
+.tab:hover { color: var(--ink); }
+.tab.is-active { color: var(--ink); }
+/* Underline sits under the label only. Wrap the label in .tab-label when the tab has a count. */
+.tab-label { position: relative; }
+.tab.is-active:not(:has(.tab-label))::after,
+.tab.is-active .tab-label::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1.5px;
+  background: var(--indigo);
+}
+.tab.is-active .tab-label::after { bottom: -10px; }
+.tab .count {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--graphite);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Small segmented control (view switches, review start) */
+.seg {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 2px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--paper);
+}
+.seg-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: var(--r-xs);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: nowrap;
+  color: var(--graphite);
+}
+.seg-item .icon { width: 14px; height: 14px; }
+.seg-item:hover { color: var(--ink); }
+.seg-item.is-active { background: var(--stone); color: var(--ink); }
+
+/* ======================================================================
+   8. Tags, fields, checkbox, switch (Tag.tsx, Field.tsx, TagInput.tsx)
+   ====================================================================== */
+
+/* Small rounded tag: the one place a full radius is allowed (brief §12) */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  max-width: 100%;
+  padding: 0 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-full);
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--graphite);
+}
+.tag-plum { border-color: color-mix(in srgb, var(--plum) 30%, transparent); background: color-mix(in srgb, var(--plum) 7%, transparent); color: var(--plum); }
+.tag-sage { border-color: color-mix(in srgb, var(--sage) 40%, transparent); background: color-mix(in srgb, var(--sage) 10%, transparent); color: var(--upgrade); }
+.tag-indigo { border-color: color-mix(in srgb, var(--indigo) 30%, transparent); background: color-mix(in srgb, var(--indigo) 7%, transparent); color: var(--indigo); }
+.tag-gold { border-color: color-mix(in srgb, var(--gold) 55%, transparent); background: color-mix(in srgb, var(--gold) 10%, transparent); color: var(--ink); }
+.tag:has(.tag-remove) { padding-right: 4px; }
+.tag-remove {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--r-full);
+  opacity: 0.7;
+}
+.tag-remove .icon { width: 12px; height: 12px; }
+.tag-remove:hover { background: color-mix(in srgb, var(--ink) 10%, transparent); opacity: 1; }
+
+/* Field = label + control + hint/error */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.label {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--graphite);
+}
+.label .optional { font-size: 12px; color: var(--graphite); }
+
+/* Text controls: paper, hairline border, 6px radius. Work as <input>, <textarea> or a static <div>. */
+.input,
+.textarea,
+.select,
+.tag-input {
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--paper);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.input,
+.select {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 12px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.textarea {
+  display: block;
+  min-height: 66px; /* 2 rows */
+  padding: 8px 12px;
+  resize: none;
+  white-space: pre-wrap;
+}
+.input::placeholder,
+.textarea::placeholder,
+.placeholder { color: var(--graphite); }
+.input:hover,
+.textarea:hover,
+.select:hover,
+.tag-input:hover { border-color: color-mix(in srgb, var(--ink) 30%, transparent); }
+/* Focus: indigo border + 1px indigo outline (a crisp 2px edge, no glow) */
+.input:focus-visible,
+.textarea:focus-visible,
+.input.is-focus,
+.textarea.is-focus,
+.select.is-focus,
+.tag-input.is-focus {
+  border-color: var(--indigo);
+  outline: 1px solid var(--indigo);
+  outline-offset: 0;
+}
+.input.is-invalid,
+.textarea.is-invalid { border-color: color-mix(in srgb, var(--crimson) 70%, transparent); }
+.input.is-disabled,
+.input[disabled] { opacity: 0.5; cursor: not-allowed; }
+.caret {
+  display: inline-block;
+  width: 1px;
+  height: 1.15em;
+  margin-left: 1px;
+  background: var(--ink);
+  vertical-align: text-bottom;
+}
+
+/* Static select: <div class="select">Travel</div> */
+.select {
+  position: relative;
+  padding-right: 36px;
+  cursor: pointer;
+}
+.select::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 16px;
+  height: 16px;
+  transform: translateY(-50%);
+  background: var(--graphite);
+  -webkit-mask: var(--m-chevron) center / 16px 16px no-repeat;
+  mask: var(--m-chevron) center / 16px 16px no-repeat;
+}
+
+.tag-input {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 6px 8px;
+}
+.tag-input .placeholder { padding: 0 4px; }
+
+.hint { font-size: 12px; line-height: 1.45; color: var(--graphite); }
+.error-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--crimson);
+}
+.error-text .icon { width: 14px; height: 14px; }
+
+/* Checkbox: <label class="check is-on"><span class="check-box">svg check</span>Label</label> */
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+  font-size: 15px;
+  color: var(--ink);
+  cursor: pointer;
+  user-select: none;
+}
+.check-box {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-xs);
+  background: var(--paper);
+  color: var(--on-accent);
+}
+.check-box .icon { width: 12px; height: 12px; stroke-width: 2; opacity: 0; }
+.check.is-on .check-box { border-color: var(--indigo); background: var(--indigo); }
+.check.is-on .check-box .icon { opacity: 1; }
+
+/* Switch: <span class="switch is-on"><span class="switch-track"></span>Label</span> */
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 32px;
+  font-size: 15px;
+  color: var(--ink);
+  cursor: pointer;
+}
+.switch-track {
+  position: relative;
+  flex-shrink: 0;
+  width: 36px;
+  height: 20px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--stone);
+}
+.switch-track::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  transform: translateY(-50%);
+  border-radius: var(--r-xs);
+  background: var(--graphite);
+}
+.switch.is-on .switch-track { border-color: var(--indigo); background: var(--indigo); }
+.switch.is-on .switch-track::after { left: 18px; background: var(--on-accent); }
+
+/* ======================================================================
+   9. Dialog, menu, tooltip, toast (the only surfaces with a shadow)
+   ====================================================================== */
+
+/* Scrim covers the viewport. Use .is-contained inside a position:relative box for demos. */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12vh 16px 16px;
+  background: var(--scrim-fill);
+}
+.scrim.is-contained { position: absolute; }
+.scrim.is-center { align-items: center; padding-top: 16px; }
+
+.dialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 640px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow-float);
+}
+.dialog-sm { max-width: 420px; }
+.dialog-lg { max-width: 720px; }
+.dialog-header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px 4px;
+}
+.dialog-header .btn-icon { margin-right: -8px; }
+.dialog-title {
+  padding-top: 2px;
+  font-family: var(--font-serif);
+  font-size: 21px;
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--ink);
+}
+.dialog-desc { margin-top: 4px; font-size: 13px; line-height: 1.5; color: var(--graphite); }
+.dialog-body { flex: 1; min-height: 0; padding: 20px 24px; overflow-y: auto; }
+.dialog-footer {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 24px;
+  border-top: 1px solid var(--line);
+}
+.dialog-footer .key-hint { margin-right: auto; }
+
+/* Popover menu */
+.menu {
+  min-width: 208px;
+  padding: 4px 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--paper);
+  box-shadow: var(--shadow-float);
+}
+.menu-heading {
+  padding: 8px 12px 4px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--graphite);
+}
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: left;
+  color: var(--ink);
+}
+.menu-item .icon { width: 16px; height: 16px; color: var(--graphite); }
+.menu-item:hover,
+.menu-item.is-active { background: var(--hover); }
+.menu-item.is-danger,
+.menu-item.is-danger .icon { color: var(--crimson); }
+.menu-item.is-danger:hover,
+.menu-item.is-danger.is-active { background: color-mix(in srgb, var(--crimson) 7%, transparent); }
+.menu-item .menu-check { margin-left: auto; color: var(--indigo); }
+.menu-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.menu-shortcut { margin-left: auto; font-size: 12px; color: var(--graphite); }
+.menu-sep { height: 1px; margin: 4px 0; background: var(--line); }
+
+/* Tooltip */
+.tooltip {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: var(--r-xs);
+  background: var(--ink);
+  box-shadow: var(--shadow-float);
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: nowrap;
+  color: var(--page);
+}
+
+/* Toast: quiet message at the bottom center */
+.toast-region {
+  position: fixed;
+  right: 0;
+  bottom: 24px;
+  left: 0;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 44px;
+  max-width: min(440px, 100%);
+  padding: 8px 8px 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--paper);
+  box-shadow: var(--shadow-float);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink);
+  pointer-events: auto;
+}
+.toast:not(:has(.toast-action)) { padding-right: 16px; }
+.toast-msg { flex: 1; min-width: 0; padding: 4px 0; }
+.toast-action {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--indigo);
+}
+.toast-action:hover { background: color-mix(in srgb, var(--indigo) 7%, transparent); }
+
+/* ======================================================================
+   10. Note pair, quote, marks (NotePair.tsx, Quote.tsx, MasteryMark.tsx, FavoriteStar.tsx,
+       ModeMark.tsx, Ornament.tsx). Brief §18: the upgrade stands out more than the mistake.
+   ====================================================================== */
+
+/* Typographic quotes: <span class="quote">We enjoyed the scenario.</span> */
+.quote::before { content: "\201C"; }
+.quote::after { content: "\201D"; }
+
+.pair { min-width: 0; }
+.pair .mistake,
+.pair .upgrade,
+.pair .example { overflow-wrap: anywhere; }
+.pair .mistake { color: var(--crimson); }
+.pair .upgrade { color: var(--ink); }
+.pair .example { color: var(--graphite); }
+
+/* Reading (default): label inline before the mistake, upgrade 18px, example below */
+.pair .mistake { font-size: 15px; line-height: 1.6; }
+.pair .mistake .pair-label { margin-right: 10px; vertical-align: 0.08em; }
+.pair .upgrade { font-size: 18px; line-height: 1.55; text-indent: -0.36em; }
+.pair .mistake + .upgrade { margin-top: 4px; }
+.pair .example { margin-top: 6px; font-size: 13px; line-height: 1.5; }
+.pair .example strong { font-weight: 600; }
+
+/* Compact: one line each, truncated (list rows) */
+.pair-compact .mistake,
+.pair-compact .upgrade {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-indent: 0;
+}
+.pair-compact .mistake { font-size: 13px; line-height: 1.5; }
+.pair-compact .upgrade { font-size: 15px; line-height: 1.6; }
+.pair-compact .mistake + .upgrade { margin-top: 2px; }
+
+/* Detail: labels above, mistake 16px crimson, upgrade 21px deep sage */
+.pair-detail .pair-label { display: block; margin-bottom: 8px; }
+.pair-detail .mistake { font-size: 16px; line-height: 1.65; text-indent: -0.36em; }
+.pair-detail .upgrade { font-size: 21px; line-height: 1.35; color: var(--upgrade); }
+.pair-detail .pair-part + .pair-part { margin-top: 28px; }
+
+/* Large recall size (Review) */
+.pair-recall .mistake { font-size: 28px; line-height: 1.35; }
+.pair-recall .upgrade { font-size: 28px; line-height: 1.35; }
+
+/* Mastery: symbol + word, always both (brief §27, §39) */
+.mastery {
+  display: inline-flex;
+  align-items: baseline; /* the word sets the baseline, so marks line up with nearby text */
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: nowrap;
+  color: var(--graphite);
+}
+.mastery::before {
+  content: "";
+  flex-shrink: 0;
+  align-self: center;
+  width: 12px;
+  height: 12px;
+  background: currentColor;
+  -webkit-mask: var(--m-new) center / 12px 12px no-repeat;
+  mask: var(--m-new) center / 12px 12px no-repeat;
+}
+.mastery-learning::before { -webkit-mask-image: var(--m-learning); mask-image: var(--m-learning); }
+.mastery-familiar::before { -webkit-mask-image: var(--m-familiar); mask-image: var(--m-familiar); }
+.mastery-mastered::before { background: var(--gold); -webkit-mask-image: var(--m-mastered); mask-image: var(--m-mastered); }
+.mastery.t-meta { font-size: 12px; line-height: 1.45; }
+
+/* Must Remember star (brief §29): small antique-gold four-point star */
+.star {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  background: var(--gold);
+  -webkit-mask: var(--m-spark-fill) center / contain no-repeat;
+  mask: var(--m-spark-fill) center / contain no-repeat;
+  vertical-align: middle;
+}
+.star-outline { background: var(--graphite); -webkit-mask-image: var(--m-spark-line); mask-image: var(--m-spark-line); }
+/* Toggle button: outline graphite -> filled gold */
+.star-btn {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-sm);
+  color: var(--graphite);
+}
+.star-btn::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  background: currentColor;
+  -webkit-mask: var(--m-spark-line) center / contain no-repeat;
+  mask: var(--m-spark-line) center / contain no-repeat;
+}
+.star-btn:hover { background: var(--stone); color: var(--ink); }
+.star-btn.is-on { color: var(--gold); }
+.star-btn.is-on::before { -webkit-mask-image: var(--m-spark-fill); mask-image: var(--m-spark-fill); }
+
+/* A bare spark glyph in gold (decorative) */
+.spark {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  background: var(--gold);
+  -webkit-mask: var(--m-spark-fill) center / contain no-repeat;
+  mask: var(--m-spark-fill) center / contain no-repeat;
+}
+
+/* Speaking (plum speech mark) / Writing (sage pen). The word stays graphite. */
+.mode {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: nowrap;
+  color: var(--graphite);
+}
+.mode .icon { width: 14px; height: 14px; align-self: center; }
+.mode-speaking .icon { color: var(--plum); }
+.mode-writing .icon { color: var(--sage); }
+
+/* Meta line: "Travel · Correction · Due today". Put <span class="sep">·</span> between parts. */
+.meta-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--graphite);
+}
+.sep { color: var(--graphite); }
+
+/* Ornament: hairline, gold spark, hairline. <div class="ornament" aria-hidden="true"><span></span></div> */
+.ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.ornament::before,
+.ornament::after {
+  content: "";
+  flex: 1;
+  max-width: 80px;
+  height: 1px;
+  background: var(--line-strong);
+}
+.ornament > span {
+  width: 10px;
+  height: 10px;
+  background: var(--gold);
+  -webkit-mask: var(--m-spark-fill) center / contain no-repeat;
+  mask: var(--m-spark-fill) center / contain no-repeat;
+}
+
+/* ======================================================================
+   11. Note rows, list head, table (NoteRow.tsx, brief §32)
+   ====================================================================== */
+
+/* List header: "24 notes" on the left, view switch or filter on the right */
+.list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--graphite);
+}
+
+/*
+ * Note row. The hover surface reaches 12px past the text column; the hairline stays aligned.
+ * <a class="row"><div class="row-inner"><div class="row-body">pair</div><div class="row-meta">…</div><span class="row-star">…</span></div></a>
+ */
+.row {
+  display: flex;
+  margin: 0 -12px;
+  padding: 0 12px;
+  border-radius: var(--r-sm);
+}
+.row:hover,
+.row.is-hover { background: var(--hover); }
+.row-inner {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  gap: 24px;
+  min-width: 0;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.row-body { flex: 1; min-width: 0; }
+.row-meta {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  align-self: center;
+  gap: 16px;
+}
+.row-topic {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--graphite);
+}
+.row-mastery { width: 88px; } /* fixed so mastery words line up row to row */
+.row-star { display: flex; flex-shrink: 0; align-self: center; width: 14px; }
+.row-sub { display: none; }
+
+.row-reading .row-inner { padding: 20px 0; }
+.row-reading .row-meta {
+  flex-direction: column;
+  align-items: flex-end;
+  align-self: flex-start;
+  gap: 6px;
+  padding-top: 2px;
+}
+.row-reading .row-meta > span:first-child { display: flex; align-items: center; gap: 8px; }
+
+/* Table (hairline rows, small caps header). Like note rows, the hover surface reaches
+   12px past the text column while the hairlines stay aligned with it. */
+.table {
+  width: calc(100% + 24px);
+  margin-left: -12px;
+  margin-right: -12px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.table th {
+  padding: 0 16px 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: 0.08em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--graphite);
+}
+.table td {
+  padding: 14px 16px 14px 0;
+  border-bottom: 1px solid var(--line);
+  vertical-align: baseline;
+}
+.table th:first-child,
+.table td:first-child { padding-left: 12px; }
+.table th:last-child,
+.table td:last-child { padding-right: 12px; }
+.table th:first-child,
+.table td:first-child,
+.table th:last-child,
+.table td:last-child {
+  border-bottom-color: transparent;
+  background-image: linear-gradient(var(--line), var(--line));
+  background-repeat: no-repeat;
+  background-size: calc(100% - 12px) 1px;
+  background-origin: border-box;
+}
+.table th:first-child,
+.table td:first-child { background-position: right bottom; }
+.table th:last-child,
+.table td:last-child { background-position: left bottom; }
+.table tbody tr:hover td,
+.table tbody tr.is-hover td { background-color: var(--hover); }
+.table tbody tr:hover td:first-child,
+.table tbody tr.is-hover td:first-child { border-radius: var(--r-sm) 0 0 var(--r-sm); }
+.table tbody tr:hover td:last-child,
+.table tbody tr.is-hover td:last-child { border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+.table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.table .cell-meta { font-size: 13px; line-height: 1.5; color: var(--graphite); white-space: nowrap; }
+
+/* ======================================================================
+   12. Page header, section, empty state, surfaces (PageHeader.tsx, Section.tsx, EmptyState.tsx)
+   ====================================================================== */
+
+.page-header { margin-bottom: 40px; }
+.page-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 24px;
+}
+.page-header .eyebrow { margin-bottom: 4px; }
+.page-title { font-family: var(--font-serif); font-size: 32px; font-weight: 400; line-height: 1.15; letter-spacing: -0.005em; color: var(--ink); }
+.page-desc { max-width: 62ch; margin-top: 8px; font-size: 15px; line-height: 1.6; color: var(--graphite); }
+.page-actions { display: flex; flex-shrink: 0; flex-wrap: wrap; align-items: center; gap: 8px; }
+.page-header > .tabs,
+.page-header-below { margin-top: 24px; }
+
+/* Section: serif title with a hairline under it. No box. */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 4px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.section-title { font-family: var(--font-serif); font-size: 21px; font-weight: 400; line-height: 1.35; color: var(--ink); }
+.section-action { flex-shrink: 0; font-size: 13px; line-height: 1.5; color: var(--graphite); }
+
+/* Empty state: thin-line drawing, serif title, one calm sentence, one action */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 64px 16px;
+  text-align: center;
+}
+.empty-art { width: 64px; height: 64px; margin-bottom: 24px; color: var(--graphite); }
+.empty-title { font-family: var(--font-serif); font-size: 21px; font-weight: 400; line-height: 1.35; color: var(--ink); }
+.empty-body { margin-top: 8px; font-size: 15px; line-height: 1.6; color: var(--graphite); }
+.empty-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin-top: 28px; }
+
+/* Surfaces. Use sparingly (brief §2: reduce containers). No shadow. */
+.surface {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--paper);
+}
+.surface-lg { border-radius: var(--r-lg); }
+/* Stone group: only ink text on it (graphite and crimson fail AA on stone) */
+.surface-stone {
+  border-radius: var(--r-md);
+  background: var(--stone);
+  color: var(--ink);
+}
+
+/* ======================================================================
+   13. Mobile shell (MobileTopBar.tsx, BottomNav.tsx). Designed at 390 x 844.
+       The top bar and bottom nav sit in the page flow so full-page screenshots
+       show them at the top and the very bottom, like a tall design frame.
+   ====================================================================== */
+
+.m-app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.m-main {
+  flex: 1;
+  min-width: 0;
+  padding: 32px 16px 40px;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding: 0 6px 0 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--page);
+}
+.topbar .brand { min-height: 44px; }
+.topbar-actions { display: flex; align-items: center; }
+.topbar .btn-icon { width: 44px; height: 44px; }
+.topbar-title { font-family: var(--font-serif); font-size: 21px; line-height: 1; }
+
+.bottom-nav {
+  flex-shrink: 0;
+  border-top: 1px solid var(--line);
+  background: var(--page);
+}
+.bottom-nav-list {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  max-width: 448px;
+  height: 64px;
+  margin: 0 auto;
+}
+.bn-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 64px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--graphite);
+}
+.bn-item .icon { width: 20px; height: 20px; color: var(--graphite); }
+.bn-item.is-active { color: var(--ink); }
+.bn-item.is-active .icon { color: var(--indigo); }
+.bn-item.is-active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 24px;
+  height: 2px;
+  transform: translateX(-50%);
+  border-radius: 0 0 var(--r-full) var(--r-full);
+  background: var(--indigo);
+}
+.bn-icon { position: relative; display: inline-flex; }
+.bn-count {
+  position: absolute;
+  top: -4px;
+  left: 100%;
+  margin-left: 2px;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--graphite);
+  font-variant-numeric: tabular-nums;
+}
+.bn-add-cell { display: flex; align-items: center; justify-content: center; }
+/* The one round control in the app */
+.bn-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-full);
+  background: var(--indigo);
+  color: var(--on-accent);
+}
+.bn-add .icon { width: 24px; height: 24px; }
+
+/* ======================================================================
+   14. Utilities (4px grid) and small screens
+   ====================================================================== */
+
+.flex { display: flex; }
+.inline-flex { display: inline-flex; }
+.col { display: flex; flex-direction: column; }
+.wrap { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.items-end { align-items: flex-end; }
+.items-baseline { align-items: baseline; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.flex-1 { flex: 1; min-width: 0; }
+.shrink-0 { flex-shrink: 0; }
+.w-full { width: 100%; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nowrap { white-space: nowrap; }
+.relative { position: relative; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.hairline-top { border-top: 1px solid var(--line); }
+.hairline-bottom { border-bottom: 1px solid var(--line); }
+
+.gap-1 { gap: 4px; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+.gap-6 { gap: 24px; }
+.gap-8 { gap: 32px; }
+
+.mt-1 { margin-top: 4px; }
+.mt-2 { margin-top: 8px; }
+.mt-3 { margin-top: 12px; }
+.mt-4 { margin-top: 16px; }
+.mt-6 { margin-top: 24px; }
+.mt-8 { margin-top: 32px; }
+.mt-12 { margin-top: 48px; }
+.mt-16 { margin-top: 64px; }
+.mb-1 { margin-bottom: 4px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-3 { margin-bottom: 12px; }
+.mb-4 { margin-bottom: 16px; }
+.mb-6 { margin-bottom: 24px; }
+.mb-8 { margin-bottom: 32px; }
+.mb-12 { margin-bottom: 48px; }
+.mb-16 { margin-bottom: 64px; }
+
+/* Under 640px: 44px touch targets, 16px inputs (no zoom on iOS), compact rows */
+@media (max-width: 639px) {
+  .btn { min-height: 44px; }
+  .btn-icon { min-width: 44px; min-height: 44px; }
+  .input,
+  .select { height: 44px; font-size: 16px; }
+  .textarea,
+  .tag-input { font-size: 16px; }
+  .tag-input { min-height: 44px; }
+  .seg-item { height: 40px; }
+  .tab { padding-top: 10px; } /* 10 + 24 + 10 = 44px tall, underline stays on the hairline */
+  .nav-item,
+  .side-btn { height: 44px; }
+  .menu-item { min-height: 44px; }
+  .star-btn { width: 44px; height: 44px; }
+  .toast-action { min-height: 44px; }
+  .check,
+  .switch { min-height: 44px; }
+  .toast-region { bottom: 76px; }
+  .page-header { margin-bottom: 32px; }
+  .row-meta,
+  .row-star { display: none; }
+  .row-sub {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--graphite);
+  }
+  .row-sub .mastery { font-size: 12px; }
+  .grid-2,
+  .grid-3 { grid-template-columns: minmax(0, 1fr); }
+  .dialog-header,
+  .dialog-body,
+  .dialog-footer { padding-left: 16px; padding-right: 16px; }
+}
+
+/* Motion: the real app uses 150-220ms fades and underline moves (brief §37). These static
+   mockups have no transitions, so a theme switch before a screenshot is never caught mid-fade. */

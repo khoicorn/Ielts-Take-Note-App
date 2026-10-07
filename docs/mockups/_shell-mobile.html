@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mobile shell (mockup)</title>
+<meta name="description" content="Copy-paste markup for the mobile app shell at 390 x 844: top bar with search and menu, and the bottom bar with a centered Add button.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mockup.css">
+</head>
+<body>
+<!--
+  MOBILE SHELL (390 x 844 viewport)
+
+  How to use:
+  1. Copy everything between "BEGIN SHELL" and "END SHELL" into your page body.
+  2. Put the screen inside <main class="m-main"> (16px side padding, 32px top).
+  3. Mark the current tab: put class "is-active" and aria-current="page" on ONE .bn-item.
+     Today is active in this sample. Pages that are not in the bar (Mistakes, All Notes, ...)
+     have no active tab; they open from the Menu button in the top bar.
+  4. The top bar and bottom bar sit in the page flow, so a full-page screenshot shows the
+     top bar first and the bottom bar last, like a tall design frame. In the real app the
+     bottom bar is fixed to the bottom of the screen.
+  5. Full-screen flows (Review, Quick Add sheet, focus editor) use no shell.
+  6. Every control is at least 44px tall (mockup.css enlarges them under 640px).
+-->
+
+<!-- ==================== BEGIN SHELL ==================== -->
+<div class="m-app">
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Upgrade Notebook, Today"><svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.2 4.1A8.4 8.4 0 1 0 19.9 15.4A6.8 6.8 0 0 1 13.2 4.1Z"/><path class="gold-fill" d="M18.6 1.4C18.86 4.3 20.3 5.74 23.2 6C20.3 6.26 18.86 7.7 18.6 10.6C18.34 7.7 16.9 6.26 14 6C16.9 5.74 18.34 4.3 18.6 1.4Z"/></svg><span class="brand-name">Upgrade Notebook</span></a>
+    <div class="topbar-actions">
+      <button class="btn btn-icon" type="button" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg></button>
+      <button class="btn btn-icon" type="button" aria-label="Menu"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h16"/></svg></button>
+    </div>
+  </header>
+
+  <main class="m-main" id="main">
+    <!-- ========== SCREEN CONTENT GOES HERE ========== -->
+    <header class="page-header">
+      <h1 class="page-title">Wednesday, 7 October</h1>
+      <p class="page-desc">Your notebook has 12 items waiting for review.</p>
+    </header>
+    <!-- ========== END SCREEN CONTENT ========== -->
+  </main>
+
+  <nav class="bottom-nav" aria-label="Primary">
+    <ul class="bottom-nav-list">
+      <!-- ACTIVE TAB: put class="bn-item is-active" aria-current="page" on the current tab (Today here). -->
+      <li><a class="bn-item is-active" aria-current="page" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v16"/><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/></svg><span>Today</span></a></li>
+      <li><a class="bn-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg><span>Speaking</span></a></li>
+      <li class="bn-add-cell"><button class="bn-add" type="button" aria-label="New note"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg></button></li>
+      <li><a class="bn-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Writing</span></a></li>
+      <li><a class="bn-item" href="#" aria-label="Review, 12 due"><span class="bn-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span class="bn-count" aria-hidden="true">12</span></span><span>Review</span></a></li>
+    </ul>
+  </nav>
+</div>
+<!-- ==================== END SHELL ==================== -->
+</body>
+</html>

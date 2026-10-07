@@ -1,0 +1,910 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Components (mockup)</title>
+<meta name="description" content="Every shared component of the IELTS Upgrade Notebook design system with real notes, for copying into screen mockups.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mockup.css">
+<style>
+  /* Page-only layout for this reference sheet */
+  .doc { max-width: 880px; margin: 0 auto; }
+  .doc-section { margin-top: 72px; }
+  .doc-intro { margin: 12px 0 0; font-size: 13px; line-height: 1.5; color: var(--graphite); }
+  .spec {
+    display: grid;
+    grid-template-columns: 172px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .spec-label { padding-top: 2px; font-size: 13px; line-height: 1.5; color: var(--graphite); }
+  .spec-label code { display: block; margin-top: 2px; font-family: var(--font-mono); font-size: 11.5px; line-height: 1.5; color: var(--graphite); opacity: 0.85; }
+  .demo { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
+  .demo-col { display: flex; flex-direction: column; gap: 12px; }
+
+  /* Color */
+  .swatches { display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px; margin-top: 4px; }
+  .swatch { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .chip { flex-shrink: 0; width: 32px; height: 32px; border: 1px solid var(--line); border-radius: var(--r-xs); }
+  .chip-page { background: var(--page); }
+  .chip-paper { background: var(--paper); }
+  .chip-stone { background: var(--stone); }
+  .chip-ink { background: var(--ink); }
+  .chip-graphite { background: var(--graphite); }
+  .chip-indigo { background: var(--indigo); }
+  .chip-plum { background: var(--plum); }
+  .chip-sage { background: var(--sage); }
+  .chip-gold { background: var(--gold); }
+  .chip-crimson { background: var(--crimson); }
+  .chip-upgrade { background: var(--upgrade); }
+  .chip-line-strong { background: var(--line-strong); }
+  .swatch-name { font-size: 13px; line-height: 1.5; color: var(--ink); }
+  .swatch-use { font-size: 12px; line-height: 1.45; color: var(--graphite); }
+
+  /* Detail note sample */
+  .note-block + .note-block { margin-top: 28px; }
+  .note-text { margin-top: 8px; font-size: 16px; line-height: 1.65; color: var(--ink); }
+  .note-text.hang { text-indent: -0.36em; }
+
+  /* Navigation sample */
+  .nav-sample { width: 232px; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-md); }
+  .phone { width: 390px; overflow: hidden; border: 1px solid var(--line-strong); border-radius: var(--r-lg); background: var(--page); background-image: var(--grain); }
+  .phone .topbar { position: static; }
+  .phone-body { height: 132px; padding: 24px 16px; }
+
+  /* Overlay stage: a dimmed page with a dialog over it */
+  .stage {
+    position: relative;
+    overflow: hidden;
+    min-height: 724px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--page);
+    background-image: var(--grain);
+  }
+  .stage-page { padding: 40px 48px; }
+  .stage .scrim { padding-top: 40px; }
+  .stage .dialog { max-width: 600px; }
+  .more-toggle { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 13px; color: var(--graphite); }
+  .more-toggle .icon { width: 14px; height: 14px; }
+  .float-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 32px; }
+
+  /* Table sample */
+  .table-fixed { table-layout: fixed; }
+  .col-topic { width: 112px; }
+  .col-type { width: 128px; }
+  .col-due { width: 104px; }
+  .col-mastery { width: 104px; }
+  .surface-pad { padding: 20px 24px; }
+  .table .cell-mistake { font-size: 13px; color: var(--crimson); }
+
+  /* Empty states grid */
+  .empty-grid { display: grid; grid-template-columns: 1fr 1fr; }
+  .empty-grid > div { border-bottom: 1px solid var(--line); }
+  .empty-grid > div:nth-child(odd) { border-right: 1px solid var(--line); }
+  .empty-grid .empty { padding: 56px 16px; }
+
+  /* Page header sample */
+  .frame { padding: 40px; }
+  .ledger-pattern { padding: 20px 0; border-bottom: 1px solid var(--line); }
+  .ledger-wrong { font-size: 15px; line-height: 1.6; color: var(--crimson); }
+  .ledger-fix { margin-top: 4px; font-size: 18px; line-height: 1.55; color: var(--upgrade); }
+
+  .symbol-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; color: var(--ink); }
+  .symbol-strip .icon { width: 20px; height: 20px; }
+  .star-lg { width: 20px; height: 20px; }
+
+  /* Theme switch sample follows the real theme of the page */
+  [data-theme="dark"] .seg-theme .is-light { background: none; color: var(--graphite); }
+  [data-theme="dark"] .seg-theme .is-dark { background: var(--stone); color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" aria-label="Sidebar">
+    <div class="sidebar-head">
+      <a class="brand" href="#" aria-label="Upgrade Notebook, Today"><svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.2 4.1A8.4 8.4 0 1 0 19.9 15.4A6.8 6.8 0 0 1 13.2 4.1Z"/><path class="gold-fill" d="M18.6 1.4C18.86 4.3 20.3 5.74 23.2 6C20.3 6.26 18.86 7.7 18.6 10.6C18.34 7.7 16.9 6.26 14 6C16.9 5.74 18.34 4.3 18.6 1.4Z"/></svg><span class="brand-name">Upgrade Notebook</span></a>
+    </div>
+    <div class="sidebar-actions">
+      <button class="side-btn side-btn-new" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span class="side-btn-text">New note</span><kbd class="kbd">N</kbd></button>
+      <button class="side-btn" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg><span class="side-btn-text">Search</span><span class="keys" aria-hidden="true"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">K</kbd></span></button>
+    </div>
+    <nav class="sidebar-nav" aria-label="Main">
+      <div class="nav-group">
+        <ul class="nav-list">
+          <!-- This reference page is not in the navigation, so no item is active. -->
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v16"/><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/></svg><span class="nav-text">Today</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span class="nav-text">Review</span><span class="nav-count" aria-label="12 due">12</span></a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label" aria-hidden="true">Notebooks</p>
+        <ul class="nav-list">
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg><span class="nav-text">Speaking</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span class="nav-text">Writing</span></a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label" aria-hidden="true">Library</p>
+        <ul class="nav-list">
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg><span class="nav-text">Mistakes</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.75C12.45 8.1 15.9 11.55 21.25 12C15.9 12.45 12.45 15.9 12 21.25C11.55 15.9 8.1 12.45 2.75 12C8.1 11.55 11.55 8.1 12 2.75Z"/></svg><span class="nav-text">Must Remember</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg><span class="nav-text">All Notes</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M8 13h.01"/><path d="M12 13h.01"/><path d="M16 13h.01"/><path d="M8 17h.01"/><path d="M12 17h.01"/><path d="M16 17h.01"/></svg><span class="nav-text">Calendar</span></a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="sidebar-foot">
+      <a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg><span class="nav-text">Settings</span></a>
+      <p class="streak">4 days of consistent study.</p>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="doc">
+
+      <!-- ================= Header ================= -->
+      <header class="page-header">
+        <div class="page-header-row">
+          <div>
+            <p class="eyebrow">Design system</p>
+            <h1 class="page-title">Components</h1>
+            <p class="page-desc">Every shared class in mockup.css, shown with real notes. Copy the markup from here when you build a screen.</p>
+          </div>
+          <div class="page-actions">
+            <div class="seg seg-theme" role="radiogroup" aria-label="Theme">
+              <button class="seg-item" type="button" role="radio" aria-checked="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>System</button>
+              <button class="seg-item is-active is-light" type="button" role="radio" aria-checked="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>Light</button>
+              <button class="seg-item is-dark" type="button" role="radio" aria-checked="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>Dark</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ================= Color ================= -->
+      <section>
+        <div class="section-head"><h2 class="section-title">Color</h2><span class="section-action">70% neutral surfaces, 20% type and borders, 10% accent</span></div>
+        <div class="swatches">
+          <div class="swatch"><span class="chip chip-page"></span><div><p class="swatch-name">page</p><p class="swatch-use">Parchment. Page background</p></div></div>
+          <div class="swatch"><span class="chip chip-paper"></span><div><p class="swatch-name">paper</p><p class="swatch-use">Paper. Writing areas, dialogs</p></div></div>
+          <div class="swatch"><span class="chip chip-stone"></span><div><p class="swatch-name">stone</p><p class="swatch-use">Stone. Hover, grouped sections</p></div></div>
+          <div class="swatch"><span class="chip chip-ink"></span><div><p class="swatch-name">ink</p><p class="swatch-use">Ink. Primary text</p></div></div>
+          <div class="swatch"><span class="chip chip-graphite"></span><div><p class="swatch-name">graphite</p><p class="swatch-use">Graphite. Metadata, labels</p></div></div>
+          <div class="swatch"><span class="chip chip-indigo"></span><div><p class="swatch-name">indigo</p><p class="swatch-use">Midnight Indigo. Active nav, primary action</p></div></div>
+          <div class="swatch"><span class="chip chip-plum"></span><div><p class="swatch-name">plum</p><p class="swatch-use">Dusty Plum. Speaking accent</p></div></div>
+          <div class="swatch"><span class="chip chip-sage"></span><div><p class="swatch-name">sage</p><p class="swatch-use">Sage. Writing accent (icons only)</p></div></div>
+          <div class="swatch"><span class="chip chip-gold"></span><div><p class="swatch-name">gold</p><p class="swatch-use">Antique Gold. Ornaments, favorites (never text)</p></div></div>
+          <div class="swatch"><span class="chip chip-crimson"></span><div><p class="swatch-name">crimson</p><p class="swatch-use">Muted Crimson. The mistake</p></div></div>
+          <div class="swatch"><span class="chip chip-upgrade"></span><div><p class="swatch-name">upgrade</p><p class="swatch-use">Deep Sage. The better English</p></div></div>
+          <div class="swatch"><span class="chip chip-line-strong"></span><div><p class="swatch-name">line, line-strong</p><p class="swatch-use">Hairlines and control borders</p></div></div>
+        </div>
+      </section>
+
+      <!-- ================= Type ================= -->
+      <section class="doc-section">
+        <div class="section-head"><h2 class="section-title">Type</h2><span class="section-action">Instrument Serif for titles and quotes, Inter for everything else</span></div>
+        <div class="spec"><p class="spec-label">Page title, serif 32<code>.t-title</code></p><p class="t-title">Wednesday, 7 October</p></div>
+        <div class="spec"><p class="spec-label">Recall, 28<code>.t-recall</code></p><p class="t-recall">We enjoyed the scenario.</p></div>
+        <div class="spec"><p class="spec-label">Section, serif 21<code>.t-section .serif</code></p><p class="t-section serif">Recent notes</p></div>
+        <div class="spec"><p class="spec-label">Note, 18<code>.t-note</code></p><p class="t-note">The scenery was beautiful.</p></div>
+        <div class="spec"><p class="spec-label">Body large, 16<code>.t-body-lg</code></p><p class="t-body-lg">The scenery along the coast was beautiful.</p></div>
+        <div class="spec"><p class="spec-label">Body, 15<code>.t-body</code></p><p class="t-body">Your notebook has 12 items waiting for review.</p></div>
+        <div class="spec"><p class="spec-label">Small, 13<code>.t-small .muted</code></p><p class="t-small muted">Travel · Correction · Due today</p></div>
+        <div class="spec"><p class="spec-label">Meta, 12<code>.t-meta .muted</code></p><p class="t-meta muted">Last studied yesterday</p></div>
+        <div class="spec"><p class="spec-label">Eyebrow, italic serif 18<code>.eyebrow</code></p><p class="eyebrow">Error Ledger</p></div>
+        <div class="spec"><p class="spec-label">Field label, caps 12<code>.label-caps</code></p><p class="label-caps">What I Said</p></div>
+        <div class="spec"><p class="spec-label">Serif prose, 21<code>.serif-prose</code></p><p class="serif-prose">From 2012 to 2022, the three attractions showed markedly different trends. The National Gallery <mark>experienced a steady decline</mark> in attendance from 75,000 to 42,000.</p></div>
+      </section>
+
+      <!-- ================= Notes ================= -->
+      <section class="doc-section">
+        <div class="section-head"><h2 class="section-title">Notes</h2><span class="section-action">.pair .mistake .upgrade</span></div>
+        <p class="doc-intro">Brief §18. The mistake comes first, smaller, in muted crimson, with its field label. The upgrade is larger and stands out more.</p>
+
+        <div class="spec">
+          <p class="spec-label">Detail, Speaking<code>.pair-detail</code></p>
+          <div>
+            <p class="meta-line mb-6"><span class="mode mode-speaking"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg>Speaking</span><span class="sep" aria-hidden="true">·</span><span>Travel</span><span class="sep" aria-hidden="true">·</span><span>Nha Trang trip</span></p>
+            <div class="pair pair-detail">
+              <div class="pair-part">
+                <p class="pair-label">What I Said</p>
+                <p class="mistake"><span class="quote">We enjoyed the scenario.</span></p>
+              </div>
+              <div class="pair-part">
+                <p class="pair-label">Native Upgrade</p>
+                <p class="upgrade"><span class="quote">The scenery was beautiful.</span></p>
+              </div>
+            </div>
+            <div class="ornament mt-8 mb-8" aria-hidden="true"><span></span></div>
+            <div class="note-block">
+              <p class="label-caps">Why</p>
+              <p class="note-text">“Scenery” refers to the landscape or views. “Scenario” refers to a situation.</p>
+            </div>
+            <div class="note-block">
+              <p class="label-caps">In context</p>
+              <p class="note-text hang"><span class="quote">The <strong>scenery</strong> along the coast was beautiful.</span></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="spec">
+          <p class="spec-label">Detail, Writing<code>.pair-detail</code></p>
+          <div>
+            <p class="meta-line mb-6"><span class="mode mode-writing"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Writing</span><span class="sep" aria-hidden="true">·</span><span>Academic Task 1</span><span class="sep" aria-hidden="true">·</span><span>Increase</span></p>
+            <div class="pair pair-detail">
+              <div class="pair-part">
+                <p class="pair-label">My Sentence</p>
+                <p class="mistake"><span class="quote">The number of visitors of the City Zoo increased steadily.</span></p>
+              </div>
+              <div class="pair-part">
+                <p class="pair-label">Band 7+ Upgrade</p>
+                <p class="upgrade"><span class="quote">The number of visitors to the City Zoo increased steadily.</span></p>
+              </div>
+            </div>
+            <div class="note-block mt-8">
+              <p class="label-caps">Reusable pattern</p>
+              <p class="note-text">The number of visitors to <span class="slot" role="img" aria-label="blank"></span> increased steadily from <span class="slot" role="img" aria-label="blank"></span> to <span class="slot" role="img" aria-label="blank"></span>.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="spec">
+          <p class="spec-label">Reading<code>.pair</code></p>
+          <div class="demo-col">
+            <div class="pair">
+              <p class="mistake"><span class="pair-label">What I Said</span><span class="quote">We enjoyed the scenario.</span></p>
+              <p class="upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">The scenery was beautiful.</span></p>
+              <p class="example"><span class="sr-only">In context: </span>The <strong>scenery</strong> along the coast was beautiful.</p>
+            </div>
+            <div class="pair mt-3">
+              <p class="upgrade"><span class="sr-only">Band 7+ Upgrade: </span><span class="quote">remained relatively stable</span></p>
+              <p class="example">Visitor numbers at the Botanical Garden <strong>remained relatively stable</strong> at around 30,000.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="spec">
+          <p class="spec-label">Compact<code>.pair-compact</code></p>
+          <div class="demo-col">
+            <div class="pair pair-compact">
+              <p class="mistake"><span class="sr-only">My Sentence: </span>The number of visitors of the City Zoo increased steadily.</p>
+              <p class="upgrade"><span class="sr-only">Band 7+ Upgrade: </span>The number of visitors to the City Zoo increased steadily.</p>
+            </div>
+            <div class="pair pair-compact">
+              <p class="upgrade">experienced a steady decline</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="spec">
+          <p class="spec-label">Meta line<code>.meta-line .sep</code></p>
+          <div class="demo-col">
+            <p class="meta-line"><span>Travel</span><span class="sep" aria-hidden="true">·</span><span>Correction</span><span class="sep" aria-hidden="true">·</span><span>Due today</span></p>
+            <p class="meta-line"><span class="mode mode-writing"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Writing</span><span class="sep" aria-hidden="true">·</span><span>Increase</span><span class="sep" aria-hidden="true">·</span><span>Correction</span><span class="sep" aria-hidden="true">·</span><span>Due today</span><span class="sep" aria-hidden="true">·</span><span class="mastery mastery-new">New</span></p>
+            <p class="meta-line"><span class="mode mode-speaking"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg>Speaking</span><span class="sep" aria-hidden="true">·</span><span>Work</span><span class="sep" aria-hidden="true">·</span><span>Next review in 3 days</span><span class="sep" aria-hidden="true">·</span><span class="mastery mastery-familiar">Familiar</span></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Note rows ================= -->
+      <section class="doc-section">
+        <div class="section-head"><h2 class="section-title">Note rows</h2><span class="section-action">.row .row-inner</span></div>
+        <p class="doc-intro">Thin lines, no cards. The hover surface reaches 12px past the text column. The fifth row shows hover.</p>
+
+        <div class="list-head mt-6">
+          <span>6 notes</span>
+          <div class="seg" role="radiogroup" aria-label="View">
+            <button class="seg-item is-active" type="button" role="radio" aria-checked="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h.01"/><path d="M3 12h.01"/><path d="M3 19h.01"/><path d="M8 5h13"/><path d="M8 12h13"/><path d="M8 19h13"/></svg>Compact</button>
+            <button class="seg-item" type="button" role="radio" aria-checked="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h18"/></svg>Reading</button>
+          </div>
+        </div>
+        <div class="rows">
+          <a class="row" href="#">
+            <div class="row-inner">
+              <div class="row-body">
+                <div class="pair pair-compact">
+                  <p class="mistake"><span class="sr-only">What I Said: </span>We enjoyed the scenario.</p>
+                  <p class="upgrade"><span class="sr-only">Native Upgrade: </span>The scenery was beautiful.</p>
+                </div>
+                <p class="row-sub"><span>Travel</span><span class="sep" aria-hidden="true">·</span><span class="mastery mastery-learning">Learning</span></p>
+              </div>
+              <div class="row-meta"><span class="row-topic">Travel</span><span class="row-mastery"><span class="mastery mastery-learning">Learning</span></span></div>
+              <span class="row-star"><span class="star" role="img" aria-label="Must remember"></span></span>
+            </div>
+          </a>
+          <a class="row" href="#">
+            <div class="row-inner">
+              <div class="row-body">
+                <div class="pair pair-compact">
+                  <p class="mistake"><span class="sr-only">What I Said: </span>I don't customize other factors.</p>
+                  <p class="upgrade"><span class="sr-only">Native Upgrade: </span>I'm pretty flexible about the rest.</p>
+                </div>
+              </div>
+              <div class="row-meta"><span class="row-topic">Drinks</span><span class="row-mastery"><span class="mastery mastery-familiar">Familiar</span></span></div>
+              <span class="row-star"></span>
+            </div>
+          </a>
+          <a class="row" href="#">
+            <div class="row-inner">
+              <div class="row-body">
+                <div class="pair pair-compact">
+                  <p class="mistake"><span class="sr-only">My Sentence: </span>The number of visitors of the City Zoo increased steadily.</p>
+                  <p class="upgrade"><span class="sr-only">Band 7+ Upgrade: </span>The number of visitors to the City Zoo increased steadily.</p>
+                </div>
+              </div>
+              <div class="row-meta"><span class="row-topic">Increase</span><span class="row-mastery"><span class="mastery mastery-learning">Learning</span></span></div>
+              <span class="row-star"><span class="star" role="img" aria-label="Must remember"></span></span>
+            </div>
+          </a>
+          <a class="row" href="#">
+            <div class="row-inner">
+              <div class="row-body">
+                <div class="pair pair-compact">
+                  <p class="upgrade"><span class="sr-only">Band 7+ Upgrade: </span>remained relatively stable</p>
+                </div>
+              </div>
+              <div class="row-meta"><span class="row-topic">Stability</span><span class="row-mastery"><span class="mastery mastery-mastered">Mastered</span></span></div>
+              <span class="row-star"><span class="star" role="img" aria-label="Must remember"></span></span>
+            </div>
+          </a>
+          <a class="row is-hover" href="#">
+            <div class="row-inner">
+              <div class="row-body">
+                <div class="pair pair-compact">
+                  <p class="mistake"><span class="sr-only">What I Said: </span>I am working as an accountant since 2021.</p>
+                  <p class="upgrade"><span class="sr-only">Native Upgrade: </span>I've been working as an accountant since 2021.</p>
+                </div>
+              </div>
+              <div class="row-meta"><span class="row-topic">Work</span><span class="row-mastery"><span class="mastery mastery-familiar">Familiar</span></span></div>
+              <span class="row-star"></span>
+            </div>
+          </a>
+          <a class="row" href="#">
+            <div class="row-inner">
+              <div class="row-body">
+                <div class="pair pair-compact">
+                  <p class="upgrade"><span class="sr-only">Band 7+ Upgrade: </span>experienced a steady decline</p>
+                </div>
+              </div>
+              <div class="row-meta"><span class="row-topic">Decrease</span><span class="row-mastery"><span class="mastery mastery-new">New</span></span></div>
+              <span class="row-star"></span>
+            </div>
+          </a>
+        </div>
+
+        <div class="list-head mt-12">
+          <span>Reading view</span>
+          <div class="seg" role="radiogroup" aria-label="View">
+            <button class="seg-item" type="button" role="radio" aria-checked="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h.01"/><path d="M3 12h.01"/><path d="M3 19h.01"/><path d="M8 5h13"/><path d="M8 12h13"/><path d="M8 19h13"/></svg>Compact</button>
+            <button class="seg-item is-active" type="button" role="radio" aria-checked="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h18"/></svg>Reading</button>
+          </div>
+        </div>
+        <div class="rows">
+          <a class="row row-reading" href="#">
+            <div class="row-inner">
+              <div class="row-body">
+                <div class="pair">
+                  <p class="mistake"><span class="pair-label">What I Said</span><span class="quote">We enjoyed the scenario.</span></p>
+                  <p class="upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">The scenery was beautiful.</span></p>
+                  <p class="example"><span class="sr-only">In context: </span>The <strong>scenery</strong> along the coast was beautiful.</p>
+                </div>
+              </div>
+              <div class="row-meta">
+                <span><span class="row-topic">Travel</span><span class="star" role="img" aria-label="Must remember"></span></span>
+                <span class="mastery mastery-learning">Learning</span>
+              </div>
+            </div>
+          </a>
+          <a class="row row-reading" href="#">
+            <div class="row-inner">
+              <div class="row-body">
+                <div class="pair">
+                  <p class="mistake"><span class="pair-label">My Sentence</span><span class="quote">Although online learning is convenient, but it cannot replace teachers.</span></p>
+                  <p class="upgrade"><span class="sr-only">Band 7+ Upgrade: </span><span class="quote">Although online learning is convenient, it cannot fully replace teachers.</span></p>
+                  <p class="example"><span class="sr-only">Reusable pattern: </span>Although <span class="slot" role="img" aria-label="blank"></span>, <span class="slot" role="img" aria-label="blank"></span>.</p>
+                </div>
+              </div>
+              <div class="row-meta">
+                <span><span class="row-topic">Concession</span></span>
+                <span class="mastery mastery-familiar">Familiar</span>
+              </div>
+            </div>
+          </a>
+          <a class="row row-reading" href="#">
+            <div class="row-inner">
+              <div class="row-body">
+                <div class="pair">
+                  <p class="upgrade"><span class="sr-only">Band 7+ Upgrade: </span><span class="quote">remained relatively stable</span></p>
+                  <p class="example">Visitor numbers at the Botanical Garden <strong>remained relatively stable</strong> at around 30,000.</p>
+                </div>
+              </div>
+              <div class="row-meta">
+                <span><span class="row-topic">Stability</span><span class="star" role="img" aria-label="Must remember"></span></span>
+                <span class="mastery mastery-mastered">Mastered</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- ================= Buttons ================= -->
+      <section class="doc-section">
+        <div class="section-head"><h2 class="section-title">Buttons</h2><span class="section-action">.btn, radius 6px</span></div>
+        <div class="spec">
+          <p class="spec-label">Primary<code>.btn-primary .btn-lg</code></p>
+          <div class="demo">
+            <button class="btn btn-primary btn-lg" type="button">Begin Review<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+            <button class="btn btn-primary" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add first note<kbd class="kbd">N</kbd></button>
+            <button class="btn btn-primary btn-sm" type="button">Save</button>
+            <button class="btn btn-primary is-hover" type="button">Save note</button>
+            <button class="btn btn-primary" type="button" disabled>Save</button>
+          </div>
+        </div>
+        <div class="spec">
+          <p class="spec-label">Secondary<code>.btn-secondary</code></p>
+          <div class="demo">
+            <button class="btn btn-secondary" type="button">Review more</button>
+            <button class="btn btn-secondary btn-sm" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>Edit<kbd class="kbd">E</kbd></button>
+            <button class="btn btn-secondary btn-sm" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"/></svg>Filter</button>
+            <button class="btn btn-secondary is-hover" type="button">Hover</button>
+            <button class="btn btn-secondary is-focus" type="button">Focus</button>
+            <button class="btn btn-secondary" type="button" disabled>Disabled</button>
+          </div>
+        </div>
+        <div class="spec">
+          <p class="spec-label">Ghost<code>.btn-ghost</code></p>
+          <div class="demo">
+            <button class="btn btn-ghost" type="button">Cancel</button>
+            <button class="btn btn-ghost" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Load example notes</button>
+            <button class="btn btn-ghost btn-sm" type="button">All notes<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
+            <button class="btn btn-ghost btn-sm is-hover" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>Restore</button>
+          </div>
+        </div>
+        <div class="spec">
+          <p class="spec-label">Danger<code>.btn-danger</code></p>
+          <div class="demo">
+            <button class="btn btn-danger" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete note</button>
+            <button class="btn btn-danger btn-sm" type="button">Delete all data</button>
+          </div>
+        </div>
+        <div class="spec">
+          <p class="spec-label">Icon only<code>.btn .btn-icon</code></p>
+          <div class="demo">
+            <button class="btn btn-icon" type="button" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg></button>
+            <button class="btn btn-icon" type="button" aria-label="Edit"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg></button>
+            <button class="btn btn-icon" type="button" aria-label="Archive"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg></button>
+            <button class="btn btn-icon is-active" type="button" aria-label="More"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+            <button class="btn btn-icon btn-sm" type="button" aria-label="Close"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+            <button class="btn btn-icon btn-sm" type="button" aria-label="Duplicate"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+            <span class="star-btn" role="button" aria-pressed="false" aria-label="Must remember"></span>
+            <span class="star-btn is-on" role="button" aria-pressed="true" aria-label="Must remember"></span>
+          </div>
+        </div>
+        <div class="spec">
+          <p class="spec-label">Links<code>.link .link-quiet</code></p>
+          <div class="demo">
+            <a class="link t-small" href="#">Related notes<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+            <a class="link link-quiet t-small" href="#">See all 5 notes<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+          </div>
+        </div>
+        <div class="spec">
+          <p class="spec-label">Keys<code>.kbd .keys .key-hint</code></p>
+          <div class="demo">
+            <kbd class="kbd">N</kbd>
+            <span class="keys"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">K</kbd></span>
+            <span class="keys"><kbd class="kbd">G</kbd><kbd class="kbd">T</kbd></span>
+            <span class="keys"><kbd class="kbd">1</kbd><kbd class="kbd">2</kbd><kbd class="kbd">3</kbd><kbd class="kbd">4</kbd></span>
+            <kbd class="kbd">Space</kbd>
+            <kbd class="kbd">Esc</kbd>
+            <kbd class="kbd">?</kbd>
+            <span class="key-hint"><span class="keys"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">Enter</kbd></span>to save</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Tabs ================= -->
+      <section class="doc-section">
+        <div class="section-head"><h2 class="section-title">Tabs</h2><span class="section-action">.tabs .tab .seg</span></div>
+        <div class="spec">
+          <p class="spec-label">Mode tabs<code>.tabs .tabs-lg</code></p>
+          <nav class="tabs tabs-lg" aria-label="Notebook">
+            <a class="tab is-active" aria-current="page" href="#">Speaking</a>
+            <a class="tab" href="#">Writing</a>
+          </nav>
+        </div>
+        <div class="spec">
+          <p class="spec-label">With counts<code>.tab-label .count</code></p>
+          <div class="tabs" role="tablist" aria-label="Writing sections">
+            <button class="tab is-active" type="button" role="tab" aria-selected="true"><span class="tab-label">Academic Task 1</span><span class="count">14</span></button>
+            <button class="tab" type="button" role="tab" aria-selected="false"><span class="tab-label">Task 2</span><span class="count">5</span></button>
+            <button class="tab" type="button" role="tab" aria-selected="false"><span class="tab-label">Model Paragraphs</span><span class="count">2</span></button>
+          </div>
+        </div>
+        <div class="spec">
+          <p class="spec-label">Segmented<code>.seg .seg-item</code></p>
+          <div class="demo">
+            <div class="seg" role="radiogroup" aria-label="First review">
+              <button class="seg-item is-active" type="button" role="radio" aria-checked="true">Start today</button>
+              <button class="seg-item" type="button" role="radio" aria-checked="false">Start tomorrow</button>
+              <button class="seg-item" type="button" role="radio" aria-checked="false">Do not review</button>
+            </div>
+            <div class="seg" role="radiogroup" aria-label="Mode">
+              <button class="seg-item is-active" type="button" role="radio" aria-checked="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg>Speaking</button>
+              <button class="seg-item" type="button" role="radio" aria-checked="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Writing</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Fields ================= -->
+      <section class="doc-section">
+        <div class="section-head"><h2 class="section-title">Fields</h2><span class="section-action">.field .label .input .textarea .select</span></div>
+        <div class="grid-2 mt-6">
+          <div class="field">
+            <span class="label">Topic</span>
+            <div class="select">Travel</div>
+          </div>
+          <div class="field">
+            <span class="label">What I Said</span>
+            <div class="input">We enjoyed the scenario.</div>
+          </div>
+          <div class="field">
+            <span class="label">Native Upgrade</span>
+            <div class="input is-focus">The scenery was beautiful.<span class="caret" aria-hidden="true"></span></div>
+          </div>
+          <div class="field">
+            <span class="label">In context <span class="optional">optional</span></span>
+            <div class="input"><span class="placeholder">A full sentence that uses the upgrade</span></div>
+          </div>
+          <div class="field">
+            <span class="label">Band 7+ Upgrade</span>
+            <div class="input is-invalid"><span class="placeholder">The better version</span></div>
+            <p class="error-text"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>Add the better version first.</p>
+          </div>
+          <div class="field">
+            <span class="label">Reusable pattern</span>
+            <div class="input">The number of ___ rose sharply between ___ and ___.</div>
+            <p class="hint">Use ___ for a blank.</p>
+          </div>
+          <div class="field">
+            <span class="label">Tags</span>
+            <div class="tag-input">
+              <span class="tag">travel<button class="tag-remove" type="button" aria-label="Remove travel"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
+              <span class="tag">nha-trang<button class="tag-remove" type="button" aria-label="Remove nha-trang"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
+              <span class="placeholder">Add a tag</span>
+            </div>
+            <p class="hint">Enter or comma adds a tag.</p>
+          </div>
+          <div class="field">
+            <span class="label">Created</span>
+            <div class="input is-disabled">17 September 2026</div>
+          </div>
+        </div>
+        <div class="field mt-6">
+          <span class="label">Why</span>
+          <div class="textarea">“Scenery” refers to the landscape or views. “Scenario” refers to a situation.
+
+Pasted from ChatGPT: <strong>bold</strong>, lists and paragraphs are kept.</div>
+          <p class="hint">Paste keeps bold and lists. Ctrl B for bold.</p>
+        </div>
+        <div class="spec mt-4">
+          <p class="spec-label">Checkbox, switch<code>.check .switch</code></p>
+          <div class="demo">
+            <label class="check is-on"><span class="check-box"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>Must remember</label>
+            <label class="check"><span class="check-box"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>Due now</label>
+            <span class="switch is-on" role="switch" aria-checked="true"><span class="switch-track"></span>Mixed review types</span>
+            <span class="switch" role="switch" aria-checked="false"><span class="switch-track"></span>Start tomorrow</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Marks and tags ================= -->
+      <section class="doc-section">
+        <div class="section-head"><h2 class="section-title">Marks and tags</h2><span class="section-action">State is never color alone</span></div>
+        <div class="spec">
+          <p class="spec-label">Mastery<code>.mastery .mastery-*</code></p>
+          <div class="demo gap-6">
+            <span class="mastery mastery-new">New</span>
+            <span class="mastery mastery-learning">Learning</span>
+            <span class="mastery mastery-familiar">Familiar</span>
+            <span class="mastery mastery-mastered">Mastered</span>
+          </div>
+        </div>
+        <div class="spec">
+          <p class="spec-label">Must Remember<code>.star .star-btn</code></p>
+          <div class="demo">
+            <span class="star" role="img" aria-label="Must remember"></span>
+            <span class="star-btn" role="button" aria-pressed="false" aria-label="Add to Must Remember"></span>
+            <span class="star-btn is-on" role="button" aria-pressed="true" aria-label="Remove from Must Remember"></span>
+            <span class="t-small muted">Outline graphite, filled antique gold. Never a large yellow button.</span>
+          </div>
+        </div>
+        <div class="spec">
+          <p class="spec-label">Mode<code>.mode .mode-*</code></p>
+          <div class="demo gap-6">
+            <span class="mode mode-speaking"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg>Speaking</span>
+            <span class="mode mode-writing"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Writing</span>
+          </div>
+        </div>
+        <div class="spec">
+          <p class="spec-label">Tags<code>.tag .tag-*</code></p>
+          <div class="demo gap-2">
+            <span class="tag">travel</span>
+            <span class="tag tag-plum">Speaking</span>
+            <span class="tag tag-sage">Writing</span>
+            <span class="tag tag-indigo">Due today</span>
+            <span class="tag tag-gold">Seen 4 times</span>
+            <span class="tag">Prepositions<button class="tag-remove" type="button" aria-label="Remove Prepositions"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
+            <span class="tag">Mastery: Learning<button class="tag-remove" type="button" aria-label="Remove Mastery: Learning"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
+          </div>
+        </div>
+        <div class="spec">
+          <p class="spec-label">Ornament, divider<code>.ornament .divider</code></p>
+          <div class="demo-col gap-6">
+            <div class="ornament" aria-hidden="true"><span></span></div>
+            <hr class="divider">
+          </div>
+        </div>
+        <div class="spec">
+          <p class="spec-label">Highlight, blank<code>mark .slot</code></p>
+          <div class="demo-col">
+            <p class="t-body">Visitor numbers <mark>remained relatively stable</mark> at around 30,000.</p>
+            <p class="t-body">Overall, <span class="slot" role="img" aria-label="blank"></span> became the most <span class="slot" role="img" aria-label="blank"></span> by the end of the period.</p>
+          </div>
+        </div>
+        <div class="spec">
+          <p class="spec-label">Symbols<code>lucide, stroke 1.5</code></p>
+          <div class="symbol-strip">
+            <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.2 4.1A8.4 8.4 0 1 0 19.9 15.4A6.8 6.8 0 0 1 13.2 4.1Z"/><path class="gold-fill" d="M18.6 1.4C18.86 4.3 20.3 5.74 23.2 6C20.3 6.26 18.86 7.7 18.6 10.6C18.34 7.7 16.9 6.26 14 6C16.9 5.74 18.34 4.3 18.6 1.4Z"/></svg>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.75C12.45 8.1 15.9 11.55 21.25 12C15.9 12.45 12.45 15.9 12 21.25C11.55 15.9 8.1 12.45 2.75 12C8.1 11.55 11.55 8.1 12 2.75Z"/></svg>
+            <span class="star star-lg" role="img" aria-label="Spark"></span>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 3.2A9 9 0 1 0 20.8 15.6A7.2 7.2 0 0 1 14.5 3.2Z"/></svg>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 3.5C14 4.2 9.2 8.6 7.6 15.4C13.6 14.4 18.6 10 20.5 3.5Z"/><path d="M3.5 20.5L14.5 9.5"/><path d="M11 13H14.3"/><path d="M13.4 10.6H16.6"/></svg>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.6 16.1L7.9 12.4M10.8 11.4L12.6 12.3M15.3 11.4L17.7 7.7M15.6 14.6L17.8 16.9" stroke-width="1.2"/><circle cx="4.5" cy="18" r="1.6" fill="currentColor" stroke="none"/><circle cx="9" cy="10.6" r="1.6" fill="currentColor" stroke="none"/><circle cx="14" cy="13.2" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="5.6" r="1.6" fill="currentColor" stroke="none"/><circle cx="19.2" cy="18.4" r="1.6" fill="currentColor" stroke="none"/></svg>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v16"/><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/></svg>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M8 13h.01"/><path d="M12 13h.01"/><path d="M16 13h.01"/><path d="M8 17h.01"/><path d="M12 17h.01"/><path d="M16 17h.01"/></svg>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2 2 0 0 1 2 2v15a1 1 0 0 1-1.496.868l-4.512-2.578a2 2 0 0 0-1.984 0l-4.512 2.578A1 1 0 0 1 5 20V5a2 2 0 0 1 2-2z"/></svg>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Navigation ================= -->
+      <section class="doc-section">
+        <div class="section-head"><h2 class="section-title">Navigation</h2><span class="section-action">_shell-desktop.html, _shell-mobile.html</span></div>
+        <div class="spec">
+          <p class="spec-label">Sidebar items<code>.nav-item .is-active</code></p>
+          <div class="nav-sample">
+            <ul class="nav-list">
+              <li><a class="nav-item is-active" aria-current="page" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v16"/><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/></svg><span class="nav-text">Today</span></a></li>
+              <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span class="nav-text">Review</span><span class="nav-count" aria-label="12 due">12</span></a></li>
+              <li><a class="nav-item is-hover" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg><span class="nav-text">Speaking</span></a></li>
+              <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span class="nav-text">Writing</span></a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="spec">
+          <p class="spec-label">Mobile bars<code>.topbar .bottom-nav</code></p>
+          <div class="phone">
+            <header class="topbar">
+              <a class="brand" href="#" aria-label="Upgrade Notebook, Today"><svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.2 4.1A8.4 8.4 0 1 0 19.9 15.4A6.8 6.8 0 0 1 13.2 4.1Z"/><path class="gold-fill" d="M18.6 1.4C18.86 4.3 20.3 5.74 23.2 6C20.3 6.26 18.86 7.7 18.6 10.6C18.34 7.7 16.9 6.26 14 6C16.9 5.74 18.34 4.3 18.6 1.4Z"/></svg><span class="brand-name">Upgrade Notebook</span></a>
+              <div class="topbar-actions">
+                <button class="btn btn-icon" type="button" aria-label="Search"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg></button>
+                <button class="btn btn-icon" type="button" aria-label="Menu"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h16"/></svg></button>
+              </div>
+            </header>
+            <div class="phone-body">
+              <p class="page-title">Speaking</p>
+              <p class="t-small muted mt-1">14 notes · 8 due today</p>
+            </div>
+            <nav class="bottom-nav" aria-label="Primary">
+              <ul class="bottom-nav-list">
+                <li><a class="bn-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v16"/><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/></svg><span>Today</span></a></li>
+                <li><a class="bn-item is-active" aria-current="page" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg><span>Speaking</span></a></li>
+                <li class="bn-add-cell"><button class="bn-add" type="button" aria-label="New note"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg></button></li>
+                <li><a class="bn-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Writing</span></a></li>
+                <li><a class="bn-item" href="#" aria-label="Review, 12 due"><span class="bn-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span class="bn-count" aria-hidden="true">12</span></span><span>Review</span></a></li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Overlays ================= -->
+      <section class="doc-section">
+        <div class="section-head"><h2 class="section-title">Overlays</h2><span class="section-action">The only surfaces with a shadow</span></div>
+        <div class="spec">
+          <p class="spec-label">Dialog over scrim<code>.scrim .dialog</code></p>
+          <div class="stage">
+            <div class="stage-page" aria-hidden="true">
+              <p class="page-title">Wednesday, 7 October</p>
+              <p class="page-desc">Your notebook has 12 items waiting for review.</p>
+              <div class="mt-8"><span class="btn btn-primary btn-lg">Begin Review<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></div>
+            </div>
+            <div class="scrim is-contained">
+              <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="qa-title">
+                <div class="dialog-header">
+                  <div>
+                    <h2 class="dialog-title" id="qa-title">New Speaking note</h2>
+                    <p class="dialog-desc">What I said, then the native upgrade</p>
+                  </div>
+                  <button class="btn btn-icon btn-sm" type="button" aria-label="Close"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+                </div>
+                <div class="dialog-body col gap-4">
+                  <div class="field">
+                    <span class="label">Topic</span>
+                    <div class="select">Travel</div>
+                  </div>
+                  <div class="field">
+                    <span class="label">What I Said</span>
+                    <div class="textarea">We enjoyed the scenario.</div>
+                  </div>
+                  <div class="field">
+                    <span class="label">Native Upgrade</span>
+                    <div class="textarea is-focus">The scenery was beautiful.<span class="caret" aria-hidden="true"></span></div>
+                  </div>
+                  <div class="field">
+                    <span class="label">In context <span class="optional">optional</span></span>
+                    <div class="textarea">The scenery along the coast was beautiful.</div>
+                  </div>
+                  <button class="more-toggle" type="button" aria-expanded="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>More details</button>
+                </div>
+                <div class="dialog-footer">
+                  <span class="key-hint"><span class="keys"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">Enter</kbd></span>to save</span>
+                  <button class="btn btn-ghost" type="button">Cancel</button>
+                  <button class="btn btn-primary" type="button">Save</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="spec">
+          <p class="spec-label">Menus<code>.menu .menu-item</code></p>
+          <div class="float-row">
+            <div class="menu" role="menu" aria-label="Note actions">
+              <button class="menu-item" type="button" role="menuitem"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg><span class="menu-text">Edit</span><span class="menu-shortcut">E</span></button>
+              <button class="menu-item is-active" type="button" role="menuitem"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg><span class="menu-text">Duplicate</span></button>
+              <button class="menu-item" type="button" role="menuitem"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg><span class="menu-text">Archive</span></button>
+              <div class="menu-sep" role="separator"></div>
+              <button class="menu-item is-danger" type="button" role="menuitem"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span class="menu-text">Delete note</span></button>
+            </div>
+            <div class="menu" role="menu" aria-label="Save selection">
+              <p class="menu-heading">Save “experienced a steady decline” as</p>
+              <button class="menu-item is-active" type="button" role="menuitem"><span class="menu-text">Collocation</span></button>
+              <button class="menu-item" type="button" role="menuitem"><span class="menu-text">Sentence Pattern</span></button>
+              <button class="menu-item" type="button" role="menuitem"><span class="menu-text">Linking Phrase</span></button>
+              <button class="menu-item" type="button" role="menuitem"><span class="menu-text">Grammar Pattern</span></button>
+              <button class="menu-item" type="button" role="menuitem"><span class="menu-text">Useful Expression</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="spec">
+          <p class="spec-label">Toast, tooltip<code>.toast .tooltip</code></p>
+          <div class="demo-col gap-4">
+            <div class="toast" role="status"><span class="toast-msg">Note saved. Next review today.</span><button class="toast-action" type="button">Open</button></div>
+            <div class="toast" role="status"><span class="toast-msg">Marked as mastered.</span></div>
+            <div class="toast" role="status"><span class="toast-msg">Note archived.</span><button class="toast-action" type="button">Undo</button></div>
+            <span><span class="tooltip" role="tooltip">Review · 12 due</span></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Table ================= -->
+      <section class="doc-section">
+        <div class="section-head"><h2 class="section-title">Table</h2><span class="section-action">.table, for All Notes on wide screens</span></div>
+        <table class="table table-fixed mt-4">
+          <colgroup><col class="col-topic"><col><col><col class="col-type"><col class="col-due"><col class="col-mastery"></colgroup>
+          <thead>
+            <tr><th scope="col">Topic</th><th scope="col">Mistake</th><th scope="col">Upgrade</th><th scope="col">Type</th><th scope="col">Next review</th><th scope="col">Mastery</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="cell-meta">Travel</td><td class="cell-mistake">We enjoyed the scenario.</td><td>The scenery was beautiful.</td><td class="cell-meta">Correction</td><td class="cell-meta">In 6 days</td><td><span class="mastery mastery-learning">Learning</span></td></tr>
+            <tr><td class="cell-meta">Drinks</td><td class="cell-mistake">I don't customize other factors.</td><td>I'm pretty flexible about the rest.</td><td class="cell-meta">Correction</td><td class="cell-meta">Today</td><td><span class="mastery mastery-familiar">Familiar</span></td></tr>
+            <tr class="is-hover"><td class="cell-meta">Increase</td><td class="cell-mistake">The number of visitors of the City Zoo increased steadily.</td><td>The number of visitors to the City Zoo increased steadily.</td><td class="cell-meta">Correction</td><td class="cell-meta">Today</td><td><span class="mastery mastery-learning">Learning</span></td></tr>
+            <tr><td class="cell-meta">Stability</td><td class="cell-mistake"><span class="sr-only">No mistake</span></td><td>remained relatively stable</td><td class="cell-meta">Collocation</td><td class="cell-meta">In 24 days</td><td><span class="mastery mastery-mastered">Mastered</span></td></tr>
+            <tr><td class="cell-meta">Concession</td><td class="cell-mistake">Although online learning is convenient, but it cannot replace teachers.</td><td>Although online learning is convenient, it cannot fully replace teachers.</td><td class="cell-meta">Grammar Pattern</td><td class="cell-meta">Tomorrow</td><td><span class="mastery mastery-familiar">Familiar</span></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ================= Empty states ================= -->
+      <section class="doc-section">
+        <div class="section-head"><h2 class="section-title">Empty states</h2><span class="section-action">.empty, thin-line drawings only</span></div>
+        <div class="empty-grid">
+          <div>
+            <div class="empty">
+              <svg class="empty-art" viewBox="0 0 64 64" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" d="M51 8C35 10 23 22 19 40C35 37 47 26 51 8Z"/><path fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" d="M12 53L39 26"/><path fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" d="M24.5 36.5L32 35.6M29.5 31.4L37 30.6M34.5 26.2L41.6 25.4" opacity="0.6"/><path fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" d="M7 57H31" opacity="0.5" stroke-dasharray="1 3"/><path class="gold-fill" d="M50 43.4C50.648 46.352 50.648 46.352 53.6 47C50.648 47.648 50.648 47.648 50 50.6C49.352 47.648 49.352 47.648 46.4 47C49.352 46.352 49.352 46.352 50 43.4Z"/></svg>
+              <h3 class="empty-title">No Speaking notes yet</h3>
+              <p class="empty-body">Save the phrases you wish you had used.</p>
+              <div class="empty-actions"><button class="btn btn-primary" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add first note<kbd class="kbd">N</kbd></button></div>
+            </div>
+          </div>
+          <div>
+            <div class="empty">
+              <svg class="empty-art" viewBox="0 0 64 64" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" d="M9 45L21 30L34 37L46 16M34 37L54 33" opacity="0.75"/><circle cx="9" cy="45" r="1.6" fill="currentColor"/><circle cx="21" cy="30" r="1.6" fill="currentColor"/><circle cx="34" cy="37" r="1.6" fill="currentColor"/><circle cx="54" cy="33" r="1.6" fill="currentColor"/><path class="gold-fill" d="M46 11.8C46.756 15.244 46.756 15.244 50.2 16C46.756 16.756 46.756 16.756 46 20.2C45.244 16.756 45.244 16.756 41.8 16C45.244 15.244 45.244 15.244 46 11.8Z"/><circle cx="15" cy="14" r="0.8" fill="currentColor" opacity="0.5"/><circle cx="57" cy="50" r="0.8" fill="currentColor" opacity="0.5"/></svg>
+              <h3 class="empty-title">No mistakes logged yet</h3>
+              <p class="empty-body">When you save a correction, add its error type. Repeated habits appear here.</p>
+            </div>
+          </div>
+          <div>
+            <div class="empty">
+              <svg class="empty-art" viewBox="0 0 64 64" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" d="M37 13.5A18.5 18.5 0 1 0 50.5 39.5A15 15 0 0 1 37 13.5Z"/><path class="gold-fill" d="M49 12.2C49.684 15.316 49.684 15.316 52.8 16C49.684 16.684 49.684 16.684 49 19.8C48.316 16.684 48.316 16.684 45.2 16C48.316 15.316 48.316 15.316 49 12.2Z"/><circle cx="56" cy="27" r="0.9" fill="currentColor" opacity="0.55"/><circle cx="42" cy="7" r="0.8" fill="currentColor" opacity="0.45"/></svg>
+              <h3 class="empty-title">Nothing is waiting for review.</h3>
+              <p class="empty-body">Next review tomorrow · 3 notes</p>
+            </div>
+          </div>
+          <div>
+            <div class="empty">
+              <svg class="empty-art" viewBox="0 0 64 64" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" d="M32 22C26 18 17 17 9 19V48C17 46 26 47 32 51C38 47 47 46 55 48V19C47 17 38 18 32 22Z"/><path fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" d="M32 22V51"/><path fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" d="M14 26H26M14 31H26M14 36H23M38 26H50M38 31H50M38 36H47" opacity="0.5"/><path class="gold-fill" d="M32 6.4C32.648 9.352 32.648 9.352 35.6 10C32.648 10.648 32.648 10.648 32 13.6C31.352 10.648 31.352 10.648 28.4 10C31.352 9.352 31.352 9.352 32 6.4Z"/></svg>
+              <h3 class="empty-title">No model paragraphs yet</h3>
+              <p class="empty-body">Save full paragraphs you want to learn from.</p>
+              <div class="empty-actions"><button class="btn btn-secondary" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add paragraph</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Page header and section ================= -->
+      <section class="doc-section">
+        <div class="section-head"><h2 class="section-title">Page header and section</h2><span class="section-action">.page-header .section-head</span></div>
+        <div class="surface surface-lg frame mt-6">
+          <header class="page-header">
+            <div class="page-header-row">
+              <div>
+                <p class="eyebrow">Error Ledger</p>
+                <h2 class="page-title">My Mistakes</h2>
+                <p class="page-desc">Your repeated habits, grouped. Fix the most frequent first.</p>
+              </div>
+              <div class="page-actions"><button class="btn btn-secondary btn-sm" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>New note</button></div>
+            </div>
+            <nav class="tabs" aria-label="Mode">
+              <a class="tab is-active" aria-current="page" href="#"><span class="tab-label">All</span><span class="count">23</span></a>
+              <a class="tab" href="#"><span class="tab-label">Speaking</span><span class="count">10</span></a>
+              <a class="tab" href="#"><span class="tab-label">Writing</span><span class="count">13</span></a>
+            </nav>
+          </header>
+          <div class="section-head"><h3 class="section-title">Prepositions</h3><span class="section-action">5 notes</span></div>
+          <div class="ledger-pattern">
+            <div class="flex items-baseline justify-between gap-4">
+              <p class="ledger-wrong">visitors of + place</p>
+              <span class="tag tag-gold">Seen 4 times</span>
+            </div>
+            <p class="label-caps mt-3">Use instead</p>
+            <p class="ledger-fix">visitors to + place</p>
+            <p class="mt-2"><a class="link t-small" href="#">Related notes<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Surfaces ================= -->
+      <section class="doc-section">
+        <div class="section-head"><h2 class="section-title">Surfaces</h2><span class="section-action">Use rarely. Lines and space come first.</span></div>
+        <div class="grid-2 mt-6">
+          <div class="surface surface-pad">
+            <p class="t-meta muted">Continue studying</p>
+            <p class="t-section serif mt-1">Academic Task 1 · Trend Language</p>
+            <p class="t-small muted mt-1">Last studied yesterday</p>
+          </div>
+          <div class="surface-stone surface-pad">
+            <p class="t-meta">Most repeated issue this week</p>
+            <p class="t-section serif mt-1">Prepositions</p>
+            <p class="t-small mt-1">4 notes</p>
+          </div>
+        </div>
+        <p class="doc-intro mt-4">.surface is paper with a hairline, radius 8. .surface-stone groups content; only ink text sits on stone.</p>
+      </section>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>
