@@ -1,0 +1,63 @@
+name: Deploy to GitHub Pages
+
+# Every push to main is checked (typecheck + unit tests), built for the
+# /Ielts-Take-Note-App/ sub-path and published to
+# https://khoicorn.github.io/Ielts-Take-Note-App/
+# Notes are never uploaded: the site only serves the app; each browser keeps its own data.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npx vitest run
+
+      - name: Build
+        run: npx vite build
+        env:
+          BASE_PATH: /Ielts-Take-Note-App/
+
+      # GitHub Pages has no SPA rewrites: serving index.html as 404.html lets
+      # deep links such as /notes/123 load the app, which then routes itself.
+      - name: SPA fallback
+        run: cp dist/index.html dist/404.html
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
