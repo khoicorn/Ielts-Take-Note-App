@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Review · Reveal (Concept C)</title>
+<meta name="description" content="Concept C, Herbarium Grimoire: review state 2. The note sits on a framed folio with line-only corner flourishes and a gold-foil Must Remember ribbon. The top bar is a strip of the aubergine cover; its foil line is the progress.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="concept.css">
+<style>
+  /* ---------- Review screen. Full screen: no sidebar. ---------- */
+  .rv { display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* Top bar: a strip of the aubergine cover. The foil line along its lower edge is the progress. */
+  .rv-bar {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    height: 56px;
+    padding: 0 24px;
+    background-color: var(--cover);
+    background-image: var(--cover-grain);
+    color: var(--cover-ink);
+  }
+  .rv-track { position: absolute; right: 0; bottom: 0; left: 0; height: 2px; background: var(--foil-faint); }
+  .rv-progress { position: absolute; left: 0; bottom: 0; height: 2px; background: var(--foil); }
+  .rv-end { justify-self: start; margin-left: -8px; padding: 0 10px 0 8px; color: var(--cover-ink); }
+  .rv-end:hover { background: var(--cover-raised); color: var(--cover-ink); }
+  .rv-end .kbd { margin-left: 4px; border-color: rgba(241, 232, 214, 0.22); color: var(--cover-muted); }
+  .rv-end :focus-visible, .rv-bar :focus-visible { outline-color: var(--foil); }
+  .rv-count { font-size: 13px; line-height: 1.5; color: var(--cover-ink); font-variant-numeric: tabular-nums; }
+  .rv-type { justify-self: end; font-size: 13px; line-height: 1.5; color: var(--cover-muted); }
+
+  /* One note at a time, on a framed folio. The action row stays at the same height in both states. */
+  .rv-stage {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    width: 100%;
+    max-width: 848px;
+    margin: 0 auto;
+    padding: 48px 0 64px;
+  }
+  .rv-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 640px;
+    padding: 56px 64px 40px;
+  }
+  .rv-card .mr-ribbon { right: 112px; }
+  .rv-heading {
+    margin-top: 16px;
+    font-family: var(--font-serif);
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+  .rv-block { margin-top: 40px; }
+  .rv-block .label-caps { margin-bottom: 12px; }
+  .rv-block-tight { margin-top: 32px; }
+
+  /* A rule in the left margin marks each sentence: thin rosehip for what I said, a thicker moss rule for the upgrade. */
+  .rv-ruled { position: relative; overflow-wrap: anywhere; text-indent: -0.36em; }
+  .rv-ruled::before {
+    content: "";
+    position: absolute;
+    top: 0.22em;
+    bottom: 0.22em;
+    left: -24px;
+    width: 2px;
+    border-radius: var(--r-full);
+    background: var(--crimson);
+  }
+  .rv-said-small { font-size: 16px; line-height: 1.65; color: var(--crimson); }
+
+  /* The answer: a pressed-leaf panel. Moss text, a faint moss wash and a 3px moss rule. */
+  .rv-answer {
+    margin-left: -24px;
+    padding: 16px 20px 18px 24px;
+    border-radius: 0 var(--r-sm) var(--r-sm) 0;
+    background: var(--upgrade-wash);
+    box-shadow: inset 3px 0 0 var(--upgrade);
+  }
+  .rv-answer .label-caps { color: var(--upgrade); }
+  .rv-better { font-size: 30px; line-height: 1.3; color: var(--upgrade); overflow-wrap: anywhere; text-indent: -0.36em; }
+
+  .rv-context { font-size: 16px; line-height: 1.65; color: var(--ink); }
+  .rv-context strong { font-weight: 600; }
+
+  .rv-why {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    margin-top: 20px;
+    margin-left: -8px;
+    padding: 0 8px;
+    border-radius: var(--r-sm);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--graphite);
+  }
+  .rv-why .icon { width: 14px; height: 14px; }
+  .rv-why:hover { background: var(--hover); color: var(--ink); }
+
+  .rv-spacer { flex: 1; min-height: 48px; }
+  .rv-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    height: 85px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+  .rv-hint { font-size: 13px; line-height: 1.5; color: var(--graphite); }
+
+  /* Ratings: compact, all the same weight. Key and next gap in small text. Good has the default focus. */
+  .rate-row { display: flex; gap: 8px; }
+  .rate {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    width: 120px;
+    height: 60px;
+    padding: 0 12px 0 14px;
+    border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+    border-radius: var(--r-sm);
+    background: var(--page);
+    text-align: left;
+  }
+  .rate:hover { background: var(--stone); }
+  .rate-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .rate-name { font-size: 15px; font-weight: 500; line-height: 1.4; color: var(--ink); }
+  .rate-gap { font-size: 12px; line-height: 1.45; color: var(--graphite); }
+
+  .safe-area { display: none; }
+
+  /* ---------- Phone (390 x 844): same content, ratings in the thumb zone ---------- */
+  @media (max-width: 639px) {
+    .rv-bar { padding: 0 16px 0 6px; }
+    .rv-end { width: 44px; height: 44px; min-height: 44px; margin-left: 0; padding: 0; }
+    .rv-end .icon { width: 20px; height: 20px; }
+    .rv-end-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+    .rv-end .kbd { display: none; }
+    .rv-type { font-size: 12px; line-height: 1.45; }
+
+    .rv-stage { max-width: none; padding: 16px 12px 12px; }
+    .rv-card { min-height: calc(100vh - 56px - 28px - 34px); padding: 32px 20px 40px 30px; }
+    .rv-card .mr-ribbon { right: 18px; height: 48px; width: 18px; }
+    .rv-heading { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+    .rv-block { margin-top: 32px; }
+    .rv-block .label-caps { margin-bottom: 8px; }
+    .rv-block-tight { margin-top: 28px; }
+    .rv-ruled::before { left: -18px; }
+    .rv-answer { margin-left: -18px; padding: 12px 14px 14px 18px; }
+    .rv-better { font-size: 28px; }
+    .rv-why { height: 44px; margin-top: 12px; margin-left: -10px; padding: 0 10px; }
+
+    .rv-spacer { min-height: 32px; }
+    .rv-actions { flex-direction: column; align-items: stretch; gap: 12px; height: auto; margin: 0 -6px 0 -16px; padding-top: 16px; }
+    .rv-hint { text-align: center; }
+    .rate-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+    .rate { width: auto; height: 48px; align-items: center; gap: 1px; padding: 0; text-align: center; }
+    .rate-top { justify-content: center; }
+    .rate-top .kbd { display: none; }
+    .rate-name { line-height: 1.2; }
+    .rate-gap { line-height: 1.2; }
+
+    /* Mockup only: the iPhone home indicator area (34px). Not app UI. */
+    .safe-area { display: flex; align-items: flex-end; justify-content: center; height: 34px; padding-bottom: 8px; }
+    .safe-area::after { content: ""; width: 134px; height: 5px; border-radius: var(--r-full); background: color-mix(in srgb, var(--ink) 28%, transparent); }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- Corner flourish (top-left; the other corners are mirrored): an outer bracket with scroll
+         terminals, a short inner fillet and a single leaf at the corner. 1px lines. -->
+    <symbol id="c-corner" viewBox="0 0 56 56"><g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M0.5 46V12.5A12 12 0 0 1 12.5 0.5H46"/><path d="M46 0.5C49.6 0.5 51.5 2.3 51.5 4.3C51.5 6 50.2 7 48.9 7C47.7 7 46.9 6.1 46.9 5.1"/><path d="M0.5 46C0.5 49.6 2.3 51.5 4.3 51.5C6 51.5 7 50.2 7 48.9C7 47.7 6.1 46.9 5.1 46.9"/><path d="M5.5 30V15A9.5 9.5 0 0 1 15 5.5H30"/><path d="M9.5 9.5C15 9.2 19.4 13 19.6 19.6C13 19.4 9.2 15 9.5 9.5Z"/><path d="M9.5 9.5L16.4 16.4"/></g></symbol>
+  </defs>
+</svg>
+
+<div class="rv">
+  <header class="rv-bar">
+    <button class="btn btn-ghost btn-sm rv-end" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg><span class="rv-end-text">End review</span><kbd class="kbd" aria-hidden="true">Esc</kbd></button>
+    <p class="rv-count"><span class="sr-only">Note </span>3 of 12</p>
+    <p class="rv-type">Mistake → Upgrade</p>
+    <div class="rv-track" aria-hidden="true"></div>
+    <div class="rv-progress" style="width: 25%" role="progressbar" aria-label="Session progress" aria-valuemin="0" aria-valuemax="12" aria-valuenow="3"></div>
+  </header>
+
+  <main class="rv-stage" id="main">
+    <div class="rv-card folio">
+      <svg class="flourish tl" aria-hidden="true" focusable="false"><use href="#c-corner"/></svg>
+      <svg class="flourish tr" aria-hidden="true" focusable="false"><use href="#c-corner"/></svg>
+      <svg class="flourish bl" aria-hidden="true" focusable="false"><use href="#c-corner"/></svg>
+      <svg class="flourish br" aria-hidden="true" focusable="false"><use href="#c-corner"/></svg>
+      <span class="mr-ribbon" aria-hidden="true"></span>
+
+      <p class="meta-line"><span class="mode mode-speaking"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg>Speaking</span><span class="sep" aria-hidden="true">·</span><span>Travel</span><span class="sep" aria-hidden="true">·</span><span class="must"><span class="ribbon-mark" aria-hidden="true"></span>Must Remember</span></p>
+      <h1 class="rv-heading">Recall the better version</h1>
+
+      <div class="rv-block">
+        <p class="label-caps">What I said</p>
+        <p class="rv-ruled rv-said-small"><span class="quote">We enjoyed the scenario.</span></p>
+      </div>
+
+      <section class="rv-block rv-answer ink-settle" aria-label="Answer">
+        <p class="label-caps">Better English</p>
+        <p class="rv-better"><span class="quote">The scenery was beautiful.</span></p>
+      </section>
+
+      <div class="rv-block-tight">
+        <p class="label-caps" style="margin-bottom: 8px;">In context</p>
+        <p class="rv-context">The <strong>scenery</strong> along the coast was beautiful.</p>
+      </div>
+
+      <div><button class="rv-why" type="button" aria-expanded="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>Why</button></div>
+
+      <div class="rv-spacer"></div>
+
+      <div class="rv-actions">
+        <p class="rv-hint" id="rate-q">How well did you recall it?</p>
+        <div class="rate-row" role="group" aria-labelledby="rate-q">
+          <button class="rate" type="button"><span class="rate-top"><span class="rate-name">Again</span><kbd class="kbd" aria-hidden="true">1</kbd></span><span class="rate-gap">Tomorrow</span></button>
+          <button class="rate" type="button"><span class="rate-top"><span class="rate-name">Hard</span><kbd class="kbd" aria-hidden="true">2</kbd></span><span class="rate-gap">2 days</span></button>
+          <button class="rate is-focus" type="button"><span class="rate-top"><span class="rate-name">Good</span><kbd class="kbd" aria-hidden="true">3</kbd></span><span class="rate-gap">1 week</span></button>
+          <button class="rate" type="button"><span class="rate-top"><span class="rate-name">Easy</span><kbd class="kbd" aria-hidden="true">4</kbd></span><span class="rate-gap">2 weeks</span></button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <div class="safe-area" aria-hidden="true"></div>
+</div>
+</body>
+</html>

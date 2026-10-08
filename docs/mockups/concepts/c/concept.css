@@ -1,0 +1,491 @@
+/*
+ * Concept C: Herbarium Grimoire.
+ *
+ * A bound grimoire: the sidebar is the deep aubergine leather cover with gold-foil tooling,
+ * the reading area is the light parchment page. Pressed-plant line drawings, used sparingly.
+ * Dark mode is the same book at night: aubergine-black pages, gold foil, moss.
+ *
+ * Builds on the shared mockup stylesheet. Only token values change, plus a few new tokens
+ * (cover, cover-raised, cover-ink, cover-muted, foil, foil-line) and the effects below.
+ *
+ * Rules kept from the app:
+ *   - Gold and foil are never small text. They are lines, ribbons, glyphs and icons only.
+ *   - Graphite and crimson text never sit on --stone.
+ *   - Radii 4 / 6 / 8 / 10px. One shadow (dialogs and menus).
+ *   - Every state has a word or a shape, never color alone.
+ *   - No transitions in the static mockups. Motion lives in section 12, behind
+ *     html[data-motion="on"], so screenshots are never caught mid-animation.
+ *
+ * Contents
+ *   1. Tokens               7. Ribbons (tabs, bookmark, Must Remember)
+ *   2. Type                 8. Folio: framed card with corner flourishes
+ *   3. Cover (sidebar)      9. Botanical marks and ornaments
+ *   4. Page                10. Note pair and marks
+ *   5. Buttons and keys    11. Dialog and fields
+ *   6. Sections            12. Motion (opt-in)  13. Small screens
+ */
+
+@import url("../../mockup.css");
+
+/* ======================================================================
+   1. Tokens
+   ====================================================================== */
+
+:root {
+  --page: #f4eee2; /* Parchment page */
+  --paper: #fbf8f1; /* Paper: cards, dialogs, writing areas */
+  --stone: #eae2d3; /* Grouped areas, hover. Only ink text on it */
+  --ink: #231c27; /* Aubergine-black ink */
+  --graphite: #655b69; /* Secondary text */
+  --indigo: #4a2c57; /* Brand (token name kept): aubergine. Primary button, focus, links, selected */
+  --plum: #7a4479; /* Speaking accent, bolder */
+  --gold: #a2803c; /* Foil on parchment: ornaments, ribbons, mastered mark. Never text */
+  --sage: #5d7150; /* Moss: Writing accent. Icons and large text only */
+  --crimson: #9c4350; /* Rosehip: the learner's mistake */
+  --upgrade: #3b5e40; /* Deep moss: the better English */
+  --line: rgba(35, 28, 39, 0.11);
+  --line-strong: rgba(35, 28, 39, 0.2);
+  --on-accent: #fbf6ea;
+  --scrim: rgba(30, 18, 38, 0.44);
+  --scrim-fill: var(--scrim);
+
+  /* New: the cover */
+  --cover: #2a2033; /* Aubergine leather */
+  --cover-raised: #382b42; /* Hover on the cover */
+  --cover-ink: #f1e8d6; /* Parchment text on the cover */
+  --cover-muted: #bcafc2; /* Secondary text on the cover */
+  --foil: #c9a75e; /* Gold foil on the cover: lines, brand mark, emblem. Never text */
+  --foil-line: rgba(201, 167, 94, 0.42); /* Tooled hairlines on the cover */
+  --foil-faint: rgba(201, 167, 94, 0.2);
+
+  /* New: primary button fill. Light = aubergine (same as brand). Dark = a parchment label. */
+  --primary: #4a2c57;
+  --on-primary: #fbf6ea;
+
+  /* Derived */
+  --gold-line: color-mix(in srgb, var(--gold) 60%, transparent); /* foil hairlines on the page */
+  --btn-line: rgba(214, 184, 116, 0.5); /* inner foil hairline on the primary button */
+  --upgrade-wash: #ebefe3; /* pressed-leaf panel behind the upgrade */
+  --mark: color-mix(in srgb, var(--gold) 22%, transparent);
+
+  --cover-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.95 0 0 0 0 0.9 0 0 0 0 0.85 0 0 0 1.1 -0.3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)' opacity='0.045'/%3E%3C/svg%3E");
+
+  /* Must Remember ribbon glyph (RibbonIcon in the app), as a mask */
+  --m-ribbon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 2H17V22L12 18L7 22Z' fill='%23000'/%3E%3C/svg%3E");
+  --m-ribbon-line: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7.5 2.75H16.5V21L12 17.4L7.5 21Z' fill='none' stroke='%23000' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+[data-theme="dark"] {
+  --page: #131016; /* Aubergine-black page */
+  --paper: #1c1620;
+  --stone: #271f2d;
+  --ink: #eee5d4;
+  --graphite: #aca1b0;
+  --indigo: #cdaad3; /* Orchid: brand on dark */
+  --plum: #c99cc9;
+  --gold: #c9a962;
+  --sage: #97a983;
+  --crimson: #db8c94;
+  --upgrade: #a9c79b;
+  --line: rgba(238, 229, 212, 0.1);
+  --line-strong: rgba(238, 229, 212, 0.18);
+  --on-accent: #1a1220;
+  --scrim: rgba(6, 3, 9, 0.62);
+  --scrim-fill: var(--scrim);
+
+  --cover: #2b1f35;
+  --cover-raised: #3a2b45;
+  --cover-ink: #eee5d4;
+  --cover-muted: #b9abbf;
+  --foil: #c9a962;
+  --foil-line: rgba(201, 169, 98, 0.4);
+  --foil-faint: rgba(201, 169, 98, 0.18);
+
+  --primary: #ece2cf; /* parchment label on the night book: not another purple block */
+  --on-primary: #2a1d33;
+  --btn-line: rgba(162, 128, 60, 0.75); /* foil hairline inside the parchment label */
+  --upgrade-wash: #1f2a21; /* dark moss: a mix of light moss and aubergine turns grey */
+}
+
+/* ======================================================================
+   2. Type: serif titles a step larger, italic serif labels
+   ====================================================================== */
+
+.page-title,
+.t-title { font-size: 38px; line-height: 1.12; letter-spacing: -0.01em; }
+.section-title { font-size: 24px; line-height: 1.3; }
+.dialog-title { font-size: 24px; line-height: 1.3; }
+.eyebrow { color: var(--plum); }
+
+/* Decorative initial (Today only): a raised plum initial on the title's baseline.
+   It is the real first letter (::first-letter), so the word still reads "Wednesday" in one piece. */
+.initial-cap::first-letter {
+  font-size: 1.68em;
+  line-height: 0;
+  letter-spacing: 0.01em;
+  color: var(--plum);
+}
+
+/* ======================================================================
+   3. Cover: the sidebar as bound aubergine leather with gold-foil tooling
+   ====================================================================== */
+
+.sidebar {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--cover);
+  background-image: var(--cover-grain);
+  color: var(--cover-ink);
+  padding: 28px 14px 20px;
+}
+/* Double foil fillet, 8px inside the cover edge */
+.sidebar::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  z-index: -1;
+  border: 1px solid var(--foil-line);
+  border-radius: var(--r-sm);
+  outline: 1px solid var(--foil-faint);
+  outline-offset: -5px;
+  pointer-events: none;
+}
+.sidebar-head { padding: 0 10px 24px; }
+.sidebar .brand { color: var(--cover-ink); }
+.sidebar .brand-mark { color: var(--foil); }
+.sidebar .gold-fill { fill: var(--foil); }
+.sidebar .brand-name { font-size: 22px; }
+
+.sidebar .side-btn { color: var(--cover-muted); }
+.sidebar .side-btn:hover,
+.sidebar .side-btn.is-hover { background: var(--cover-raised); color: var(--cover-ink); }
+.sidebar .side-btn-new {
+  border-color: var(--foil-line);
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--cover-ink);
+}
+.sidebar .side-btn-new .icon { color: var(--foil); }
+.sidebar .kbd { border-color: rgba(241, 232, 214, 0.22); color: var(--cover-muted); }
+
+/* Section labels: italic serif with a tooled foil rule after them */
+.sidebar .nav-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--cover-muted);
+}
+.sidebar .nav-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  margin-right: 10px;
+  background: var(--foil-faint);
+}
+
+/* The nav scrolls, so it would clip the index tab: let its box reach the cover edge */
+.sidebar .sidebar-nav { margin-right: -14px; padding-right: 14px; }
+.sidebar .sidebar-foot { position: relative; }
+
+.sidebar .nav-item { color: var(--cover-ink); }
+.sidebar .nav-item .icon { color: var(--cover-muted); }
+.sidebar .nav-item:hover,
+.sidebar .nav-item.is-hover { background: var(--cover-raised); color: var(--cover-ink); }
+.sidebar .nav-item:hover .icon,
+.sidebar .nav-item.is-hover .icon { color: var(--cover-ink); }
+.sidebar .nav-count { color: var(--cover-muted); }
+
+/* Active item: a thumb-index tab cut from the page itself. It is page-colored, crosses the
+   foil fillet and joins the reading area, so "you are here" is a shape, not only a color. */
+.sidebar .nav-item.is-active {
+  margin-right: -14px;
+  padding-right: 24px;
+  border-radius: var(--r-sm) 0 0 var(--r-sm);
+  background: var(--page);
+  color: var(--ink);
+}
+.sidebar .nav-item.is-active .icon { color: var(--plum); }
+.sidebar .nav-item.is-active::before {
+  /* the indigo bar becomes a small gold ribbon tip at the tab's left edge */
+  top: 9px;
+  bottom: 9px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 var(--r-xs) var(--r-xs) 0;
+  background: var(--gold);
+}
+[data-theme="dark"] .sidebar .nav-item.is-active {
+  box-shadow: inset 0 1px 0 var(--foil-line), inset 1px 0 0 var(--foil-line), inset 0 -1px 0 var(--foil-line);
+}
+
+/* A foil-stamped moth in the quiet lower part of the cover (decorative) */
+.cover-emblem {
+  display: block;
+  width: 56px;
+  height: 46px;
+  margin: 40px auto 28px;
+  color: var(--foil);
+  opacity: 0.8;
+}
+
+.sidebar-foot { border-top-color: var(--foil-faint); }
+.sidebar .streak { color: var(--cover-muted); }
+
+/* ======================================================================
+   4. Page
+   ====================================================================== */
+
+/* The cover edge is the boundary now. No hairline between cover and page. */
+.main { border-left: 0; }
+
+::selection { background-color: color-mix(in srgb, var(--plum) 22%, transparent); }
+
+/* ======================================================================
+   5. Buttons and keys
+   ====================================================================== */
+
+/* Primary: aubergine (dark: parchment) with an inner foil hairline, like a stamped label. No glow. */
+.btn-primary { position: relative; background: var(--primary); color: var(--on-primary); }
+.btn-primary .kbd { border-color: color-mix(in srgb, var(--on-primary) 35%, transparent); color: color-mix(in srgb, var(--on-primary) 85%, transparent); }
+.btn-primary::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid var(--btn-line);
+  border-radius: var(--r-xs);
+  pointer-events: none;
+}
+.btn-primary:hover,
+.btn-primary.is-hover { background: color-mix(in srgb, var(--primary) 88%, var(--ink)); }
+.btn-secondary { border-color: color-mix(in srgb, var(--ink) 24%, transparent); }
+
+/* Links: brand color with a quiet underline, so they never rely on color alone */
+.link { color: var(--indigo); }
+
+/* ======================================================================
+   6. Sections: serif title, hairline, a short foil lead at the start of the rule
+   ====================================================================== */
+
+.section-head { position: relative; padding-bottom: 12px; }
+.section-head::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 48px;
+  height: 1px;
+  background: var(--gold);
+}
+.section-title { display: inline-flex; align-items: baseline; gap: 10px; }
+.section-title .leaf { align-self: center; }
+
+/* ======================================================================
+   7. Ribbons
+   ====================================================================== */
+
+/* 7a. Ribbon tabs: bookmarks hanging from the top edge of a surface.
+   The ribbon shape is drawn on ::before (clip-path), so the focus outline is never clipped.
+   Selected = filled in the mode color and 3px longer. Unselected = stone, ink text. */
+.ribbon-tabs {
+  display: flex;
+  gap: 6px;
+}
+.ribbon-tab {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px 6px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--ink);
+  border-radius: 0 0 var(--r-xs) var(--r-xs);
+}
+.ribbon-tab::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--stone);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 6px), 0 100%);
+}
+.ribbon-tab .icon { width: 14px; height: 14px; }
+.ribbon-tab .speaking { color: var(--plum); }
+.ribbon-tab .writing { color: var(--sage); }
+.ribbon-tab.is-active {
+  height: 42px;
+  padding-bottom: 8px;
+  color: var(--on-accent);
+}
+.ribbon-tab.is-active::before { background: var(--plum); }
+.ribbon-tab.is-active.is-writing::before { background: var(--sage); }
+.ribbon-tab.is-active .icon { color: currentColor; }
+.ribbon-tab:not(.is-active):hover::before { background: color-mix(in srgb, var(--plum) 14%, var(--stone)); }
+
+/* 7b. Bookmark ribbon on a card (Continue studying) */
+.bookmark {
+  position: absolute;
+  top: -1px;
+  width: 14px;
+  height: 44px;
+  background: var(--indigo);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 6px), 0 100%);
+}
+
+/* 7c. Must Remember: a gold-foil ribbon hanging from the top edge of the review folio.
+   Decorative: the meta line always says "Must Remember" in words. */
+.mr-ribbon {
+  position: absolute;
+  top: -1px;
+  width: 20px;
+  height: 64px;
+  background:
+    linear-gradient(color-mix(in srgb, var(--paper) 45%, transparent), color-mix(in srgb, var(--paper) 45%, transparent)) 4px 0 / 1px calc(100% - 9px) no-repeat,
+    linear-gradient(color-mix(in srgb, var(--paper) 45%, transparent), color-mix(in srgb, var(--paper) 45%, transparent)) calc(100% - 4px) 0 / 1px calc(100% - 9px) no-repeat,
+    var(--gold);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 8px), 0 100%);
+}
+
+/* Small ribbon glyph that replaces the star for Must Remember (v1.1: ✦ means Mastered only) */
+.ribbon-mark {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 12px;
+  height: 14px;
+  background: var(--gold);
+  -webkit-mask: var(--m-ribbon) center / contain no-repeat;
+  mask: var(--m-ribbon) center / contain no-repeat;
+}
+
+/* ======================================================================
+   8. Folio: the framed card (review card, dialog) with line-only corner flourishes
+   ====================================================================== */
+
+.folio {
+  position: relative;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+}
+.flourish {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  color: var(--gold);
+  pointer-events: none;
+}
+.flourish.tl { top: 9px; left: 9px; }
+.flourish.tr { top: 9px; right: 9px; transform: scaleX(-1); }
+.flourish.bl { bottom: 9px; left: 9px; transform: scaleY(-1); }
+.flourish.br { bottom: 9px; right: 9px; transform: scale(-1, -1); }
+/* Small corner for tight surfaces (dialogs): stays inside the 24px padding */
+.flourish-sm { width: 26px; height: 26px; }
+.flourish-sm.tl { top: 6px; left: 6px; }
+.flourish-sm.tr { top: 6px; right: 6px; }
+.flourish-sm.bl { bottom: 6px; left: 6px; }
+.flourish-sm.br { bottom: 6px; right: 6px; }
+
+/* ======================================================================
+   9. Botanical marks and ornaments (1px line drawings, decorative)
+   ====================================================================== */
+
+/* One pressed leaf: the concept's small mark (replaces the v1.1 ✦ marks before titles and the upgrade label) */
+.leaf { display: inline-block; flex-shrink: 0; width: 16px; height: 16px; color: var(--gold); }
+.leaf-moss { color: var(--sage); }
+
+/* Herbarium ornament: hairline, a pressed fern, hairline */
+.ornament-fern {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--gold);
+}
+.ornament-fern::before,
+.ornament-fern::after {
+  content: "";
+  flex: 1;
+  max-width: 96px;
+  height: 1px;
+  background: var(--line-strong);
+}
+.ornament-fern svg { width: 84px; height: 24px; }
+
+/* ======================================================================
+   10. Note pair and marks
+   ====================================================================== */
+
+/* The key line names both colors in words: Mistake (rosehip) then Upgrade (moss) */
+.key-mistake { color: var(--crimson); }
+.key-upgrade { color: var(--upgrade); }
+
+.mode-writing .icon { color: var(--sage); }
+.mode-speaking .icon { color: var(--plum); }
+.must .ribbon-mark { width: 10px; height: 13px; }
+
+/* ======================================================================
+   11. Dialog and fields
+   ====================================================================== */
+
+.dialog {
+  border-color: var(--line-strong);
+}
+.input,
+.textarea,
+.select,
+.tag-input { border-color: color-mix(in srgb, var(--ink) 20%, transparent); }
+.input:focus-visible,
+.textarea:focus-visible,
+.input.is-focus,
+.textarea.is-focus,
+.select.is-focus,
+.tag-input.is-focus {
+  border-color: var(--indigo);
+  outline: 1px solid var(--indigo);
+}
+/* The upgrade field: moss text on a faint moss wash, so it is the strongest field */
+.textarea-upgrade {
+  background: var(--upgrade-wash);
+  color: var(--upgrade);
+}
+
+/* ======================================================================
+   12. Motion (opt-in: html[data-motion="on"]). Describes the app behavior.
+       No loops. Every animation runs once. All off under prefers-reduced-motion.
+   ====================================================================== */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Answer reveal: the ink settles (220ms) */
+  [data-motion="on"] .ink-settle { animation: c-ink 220ms var(--ease) both; }
+  /* Ribbon tab: slides down (6px longer) when selected (180ms) */
+  [data-motion="on"] .ribbon-tab { transition: height 180ms var(--ease), color 180ms var(--ease); }
+  /* Corner flourish: draws in once when a dialog opens (250ms). The dash properties inherit
+     into the <use> copy, so they are set on the <svg> itself. */
+  [data-motion="on"] .dialog .flourish { stroke-dasharray: 120; stroke-dashoffset: 120; animation: c-draw 250ms var(--ease) 60ms forwards; }
+  /* Must Remember ribbon: drops in from the top edge when turned on (200ms) */
+  [data-motion="on"] .mr-ribbon { animation: c-drop 200ms var(--ease) both; }
+}
+@keyframes c-ink { from { opacity: 0; filter: blur(2px); } to { opacity: 1; filter: none; } }
+@keyframes c-draw { to { stroke-dashoffset: 0; } }
+@keyframes c-drop { from { clip-path: polygon(0 0, 100% 0, 100% 0, 50% 0, 0 0); } }
+
+/* ======================================================================
+   13. Small screens
+   ====================================================================== */
+
+@media (max-width: 639px) {
+  .page-title,
+  .t-title { font-size: 32px; }
+  .section-title { font-size: 21px; }
+  .flourish:not(.flourish-sm) { width: 40px; height: 40px; }
+  .flourish.tl:not(.flourish-sm) { top: 7px; left: 7px; }
+  .flourish.tr:not(.flourish-sm) { top: 7px; right: 7px; }
+  .flourish.bl:not(.flourish-sm) { bottom: 7px; left: 7px; }
+  .flourish.br:not(.flourish-sm) { bottom: 7px; right: 7px; }
+  /* On a phone the Must Remember ribbon takes the top-right corner instead of the flourish */
+  .folio:has(.mr-ribbon) .flourish.tr { display: none; }
+  .ribbon-tab { height: 44px; }
+  .ribbon-tab.is-active { height: 50px; }
+}

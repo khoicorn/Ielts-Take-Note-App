@@ -1,0 +1,456 @@
+/*
+ * Concept A: "Candlelit Library"
+ *
+ * A moderate step up from the shipped design. Same layouts, new visual language:
+ * deeper parchment, a soft candle glow behind the reading column, garnet rubrics,
+ * brass rules and numerals, ink-indigo buttons with a gilt inner hairline,
+ * italic small-caps eyebrows, and a silk ribbon for Must Remember.
+ *
+ * Built on top of ../../mockup.css. Only tokens and a few component rules change.
+ *
+ * Rules kept from the brief and CLAUDE.md:
+ *   - Gold/brass and sage are never small text. --brass-text is for numerals 24px and up only.
+ *   - Garnet text appears only in light mode. In dark mode garnet is a fill (the ribbon) and
+ *     eyebrows use --rubric (a warm sand), so red never competes with the mistake color.
+ *   - Glow and vignette only lighten the center and darken the far corners a little.
+ *     All contrast numbers in README.md are measured against the darkest point text can sit on.
+ *   - No looping animation. No glow on buttons. One shadow token, on dialogs and menus only.
+ *
+ * Contents
+ *   1. Tokens (light, dark)
+ *   2. Page light: vignette, grain, candle glow
+ *   3. Type: titles, rubric initial, small-caps eyebrows, numerals
+ *   4. Sidebar
+ *   5. Buttons, keys, focus
+ *   6. Tabs (brass underline that draws in)
+ *   7. Fields and dialog (bookplate frame)
+ *   8. Note marks: mistake, upgrade, ribbon, mastery, mode
+ *   9. Rules and ornaments
+ *  10. Motion (described for the app; nothing runs in these static mockups)
+ */
+
+@import url("../../mockup.css");
+
+/* ======================================================================
+   1. Tokens
+   Every token set in :root is also set in [data-theme="dark"], because this file loads
+   after mockup.css and the two selectors have the same specificity.
+   ====================================================================== */
+
+:root {
+  color-scheme: light;
+  --page: #ebe1cc; /* Deep parchment. The edge tone; the candle glow lightens the center */
+  --paper: #f9f3e7; /* Writing surfaces: inputs, dialog, rating buttons */
+  --stone: #e2d6bf; /* Hover and grouped areas. Only ink, indigo and garnet text on it */
+  --ink: #231b1a; /* Iron-gall ink: warm brown-black */
+  --graphite: #5e544c; /* Warm graphite for metadata */
+  --indigo: #2e2a4b; /* Ink-indigo: links, active marks, focus ring */
+  --indigo-fill: #2e2a4b; /* Primary button fill */
+  --plum: #664a62; /* Speaking accent */
+  --garnet: #782a31; /* Oxblood: rubric initials, eyebrows, ribbon */
+  --ribbon-fill: #782a31; /* Must Remember silk ribbon (path from RibbonIcon in src/components/ui/icons.tsx) */
+  --ribbon-img: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 2.75H16V21.25L12 17.9L8 21.25Z' fill='%23782a31' stroke='%23782a31' stroke-width='1.25' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --rubric: #782a31; /* Eyebrow text color (garnet in light) */
+  --gold: #a27e3c; /* Brass: rules, ornaments, small marks. Never text */
+  --brass-text: #7f5f27; /* Dark brass for large numerals (24px+) and the progress line */
+  --sage: #69755c; /* Writing accent, icons only */
+  --crimson: #913d49; /* The learner's mistake */
+  --upgrade: #3f5d45; /* The upgrade: deep green sage */
+  --line: rgba(60, 40, 20, 0.13);
+  --line-strong: rgba(60, 40, 20, 0.22);
+  --rule-brass: color-mix(in srgb, var(--gold) 55%, transparent); /* Brass hairlines under headings */
+  --on-accent: #f9f1e2; /* Text on the indigo fill */
+  --scrim: rgba(40, 26, 12, 0.28); /* Warm dim behind dialogs */
+  --scrim-fill: var(--scrim);
+
+  /* Light */
+  --glow: rgba(255, 248, 230, 0.78); /* Candle glow center (fades to the page tone) */
+  --vignette: rgba(74, 46, 18, 0.06); /* Far corners only */
+  --gilt: color-mix(in srgb, var(--gold) 70%, transparent); /* Inner hairline on primary buttons */
+  --initial: var(--garnet); /* Rubric initial of the page title */
+  --focus: var(--indigo);
+
+  --hover: color-mix(in srgb, var(--stone) 55%, transparent);
+  --mark: color-mix(in srgb, var(--gold) 28%, transparent);
+
+  --font-smallcaps: "EB Garamond", "Instrument Serif", Georgia, serif;
+
+  --shadow-float: 0 18px 40px -20px rgb(52 32 12 / 0.38), 0 1px 3px rgb(52 32 12 / 0.1);
+
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.3 0 0 0 0 0.2 0 0 0 0 0.1 0 0 0 1.2 -0.25'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)' opacity='0.05'/%3E%3C/svg%3E");
+
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #191511; /* Warm charcoal: a library at night */
+  --paper: #221d18;
+  --stone: #2b251f;
+  --ink: #efe5d3; /* Candlelit cream */
+  --graphite: #b4a795;
+  --indigo: #b3abd8; /* Text, marks, focus */
+  --indigo-fill: #353057; /* Deep ink-indigo button with cream text */
+  --plum: #bf9db6;
+  --garnet: #7d3039; /* Deep wine. Fills only (ribbon), always with a gilt edge. Never text in dark */
+  --ribbon-fill: #7d3039;
+  --ribbon-img: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 2.75H16V21.25L12 17.9L8 21.25Z' fill='%237d3039' stroke='%23c9a35e' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --rubric: #d2b48a; /* Warm sand for eyebrows: 8.9:1, clearly not the mistake rose */
+  --gold: #c9a35e;
+  --brass-text: #d6b26e;
+  --sage: #95a487;
+  --crimson: #df9396;
+  --upgrade: #a3be97;
+  --line: rgba(255, 230, 190, 0.1);
+  --line-strong: rgba(255, 230, 190, 0.18);
+  --rule-brass: color-mix(in srgb, var(--gold) 38%, transparent);
+  --on-accent: #f4ebdc;
+  --scrim: rgba(6, 4, 2, 0.6);
+  --scrim-fill: var(--scrim);
+
+  --glow: rgba(255, 176, 85, 0.085); /* Amber candle light */
+  --vignette: rgba(0, 0, 0, 0.3);
+  --gilt: color-mix(in srgb, var(--gold) 75%, transparent);
+  --initial: var(--brass-text); /* Gilt initial at night */
+  --focus: #d9b877; /* Amber focus ring: 9:1 on the page */
+
+  --hover: color-mix(in srgb, var(--stone) 70%, transparent);
+  --mark: color-mix(in srgb, var(--gold) 26%, transparent);
+
+  --shadow-float: 0 20px 44px -18px rgb(0 0 0 / 0.7), 0 1px 3px rgb(0 0 0 / 0.4);
+
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.95 0 0 0 0 0.85 0 0 0 0 0.7 0 0 0 1.2 -0.25'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)' opacity='0.03'/%3E%3C/svg%3E");
+}
+
+/* ======================================================================
+   2. Page light
+   ====================================================================== */
+
+/* Vignette: only the far corners darken, and only a little (contrast is measured there).
+   Mockups: it covers the whole page so full-page screenshots have no seam.
+   App: put it on a position: fixed, pointer-events: none layer so it frames the viewport. */
+body {
+  background-color: var(--page);
+  background-image:
+    radial-gradient(ellipse 130% 110% at 55% 35%, transparent 62%, var(--vignette) 100%),
+    var(--grain);
+  background-repeat: no-repeat, repeat;
+  background-size: 100% 100%, auto;
+}
+
+/*
+ * Candle glow: one very large, very soft warm light behind the reading column.
+ * Static: it never pulses. In the app it is position: fixed so it stays put while you scroll.
+ * Add .candle to the element that holds the reading column (.main, .rv-stage).
+ */
+.candle {
+  position: relative;
+  isolation: isolate;
+  overflow: clip; /* the light never makes the page wider or taller */
+}
+.candle::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: var(--candle-y, -140px);
+  left: var(--candle-x, 50%);
+  width: var(--candle-w, 1180px);
+  height: var(--candle-h, 900px);
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, var(--glow), color-mix(in srgb, var(--glow) 45%, transparent) 55%, transparent);
+  pointer-events: none;
+}
+/* Desktop shell: center the glow on the 760px reading column, not on the whole main area */
+.main.candle {
+  --candle-x: calc(56px + max(0px, (100% - 112px - var(--page-w)) / 2) + var(--reading-w) / 2);
+}
+
+/* ======================================================================
+   3. Type
+   ====================================================================== */
+
+/* Page title: a touch larger (32 -> 36px), with a rubric initial (garnet by day, gilt by night).
+   Scribes wrote the first letter in red; here it is one letter, nothing more. */
+.page-title {
+  font-size: 36px;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.page-title.has-initial::first-letter {
+  color: var(--initial);
+  font-size: 1.22em;
+  line-height: 0;
+}
+
+/* Section titles: 21 -> 22px serif. */
+.section-title { font-size: 22px; }
+
+/* Italic small caps eyebrow. Real small-cap glyphs from EB Garamond (Instrument Serif has none,
+   and the browser's fake small caps are thin and uneven). */
+.eyebrow-sc,
+.nav-label {
+  font-family: var(--font-smallcaps);
+  font-size: 16px;
+  font-style: italic;
+  font-weight: 500;
+  font-variant-caps: small-caps;
+  letter-spacing: 0.045em;
+  line-height: 1.4;
+  color: var(--rubric);
+}
+.eyebrow-sc.quiet { color: var(--graphite); }
+
+/* Large serif numerals in brass (24px and up only) */
+.numeral {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--brass-text);
+}
+
+/* Italic serif aside ("How well did you recall it?", "due") */
+.aside-serif {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--graphite);
+}
+
+/* ======================================================================
+   4. Sidebar
+   ====================================================================== */
+
+.sidebar { background: transparent; }
+.main { border-left-color: var(--line); }
+
+/* Group labels read like a book's table of contents: small caps, then a brass hairline */
+.nav-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  padding-right: 8px;
+}
+.nav-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--rule-brass);
+}
+
+/* Active item: ink text, indigo icon, dark-brass bar (4.5:1), a faint lit surface */
+.nav-item.is-active {
+  background: color-mix(in srgb, var(--paper) 55%, transparent);
+}
+[data-theme="dark"] .nav-item.is-active { background: color-mix(in srgb, var(--stone) 70%, transparent); }
+.nav-item.is-active::before {
+  top: 7px;
+  bottom: 7px;
+  width: 2px;
+  background: var(--brass-text);
+}
+
+.brand-name { font-size: 22px; }
+.side-btn-new { background: var(--paper); border-color: var(--line-strong); }
+
+/* ======================================================================
+   5. Buttons, keys, focus
+   ====================================================================== */
+
+:focus-visible,
+.is-focus { outline-color: var(--focus); }
+
+/* Primary: ink-indigo with a gilt hairline 3px inside the edge (like tooling on a book cover).
+   No glow, no outer shadow. */
+.btn-primary {
+  background: var(--indigo-fill);
+  color: var(--on-accent);
+  box-shadow: inset 0 0 0 3px var(--indigo-fill), inset 0 0 0 4px var(--gilt);
+}
+.btn-primary:hover,
+.btn-primary.is-hover {
+  background: color-mix(in srgb, var(--indigo-fill) 88%, var(--ink));
+}
+[data-theme="dark"] .btn-primary:hover,
+[data-theme="dark"] .btn-primary.is-hover {
+  background: color-mix(in srgb, var(--indigo-fill) 85%, var(--ink));
+}
+.btn-primary .kbd {
+  border-color: color-mix(in srgb, var(--on-accent) 35%, transparent);
+  color: color-mix(in srgb, var(--on-accent) 85%, transparent);
+}
+/* Other indigo fills use the fill token, so cream text stays readable in dark mode */
+.bn-add,
+.check.is-on .check-box,
+.switch.is-on .switch-track { background: var(--indigo-fill); border-color: var(--indigo-fill); }
+[data-theme="dark"] .bn-add { box-shadow: inset 0 0 0 1px var(--gilt); }
+
+.btn-secondary { background: var(--paper); border-color: var(--line-strong); }
+.btn-secondary:hover,
+.btn-secondary.is-hover { background: color-mix(in srgb, var(--stone) 55%, var(--paper)); }
+
+/* Key caps: a brass-tinted hairline */
+.kbd { border-color: color-mix(in srgb, var(--gold) 45%, var(--line-strong)); }
+
+.link { text-underline-offset: 3px; }
+
+/* ======================================================================
+   6. Tabs: a brass underline that draws in from the left (200ms) under the active tab
+   ====================================================================== */
+
+.tab.is-active:not(:has(.tab-label))::after,
+.tab.is-active .tab-label::after {
+  height: 2px;
+  background: var(--brass-text);
+}
+
+/* ======================================================================
+   7. Fields and dialog
+   ====================================================================== */
+
+.input,
+.textarea,
+.select,
+.tag-input {
+  background: var(--paper);
+  border-color: var(--line-strong);
+}
+.input.is-focus,
+.textarea.is-focus,
+.select.is-focus,
+.tag-input.is-focus,
+.input:focus-visible,
+.textarea:focus-visible {
+  border-color: var(--focus);
+  outline-color: var(--focus);
+}
+
+/* Dialog: a bookplate. A brass hairline frame sits 6px inside the edge. */
+.dialog {
+  border-color: var(--line-strong);
+  background: var(--paper);
+}
+.dialog::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid var(--rule-brass);
+  border-radius: 6px;
+  pointer-events: none;
+}
+.dialog-title { font-size: 24px; line-height: 1.3; }
+/* The footer hairline stops at the frame instead of crossing it */
+.dialog-footer {
+  position: relative;
+  border-top: 0;
+}
+.dialog-footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 7px;
+  left: 7px;
+  height: 1px;
+  background: var(--rule-brass);
+}
+
+/* ======================================================================
+   8. Note marks
+   ====================================================================== */
+
+.pair .mistake { color: var(--crimson); }
+.pair-detail .upgrade { color: var(--upgrade); }
+
+/* Must Remember: a silk ribbon in garnet (it replaces the gold ribbon). Always with its word. */
+.ribbon {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  background: var(--ribbon-img) center / contain no-repeat;
+  vertical-align: middle;
+}
+.must .ribbon { width: 14px; height: 14px; }
+
+/* The bookmark that hangs from the top edge of a page that is marked Must Remember.
+   Decorative (aria-hidden): the meta line always says "Must Remember" in words. */
+.bookmark {
+  position: absolute;
+  top: 0;
+  width: 16px;
+  height: 76px;
+  background:
+    linear-gradient(90deg, var(--gilt) 0 1px, transparent 1px calc(100% - 1px), var(--gilt) calc(100% - 1px)),
+    var(--ribbon-fill);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 9px), 0 100%);
+  pointer-events: none;
+}
+
+/* Mastered: brass ✦ (with its word, always) */
+.mastery-mastered::before { background: var(--gold); }
+
+/* ======================================================================
+   9. Rules and ornaments
+   ====================================================================== */
+
+/* Section head: the hairline under the title is brass */
+.section-head { border-bottom-color: var(--rule-brass); }
+/* Optional ✦ before a section title (v1.1 "mark") */
+.section-title .mark-star {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  margin-right: 10px;
+  background: var(--gold);
+  -webkit-mask: var(--m-spark-fill) center / contain no-repeat;
+  mask: var(--m-spark-fill) center / contain no-repeat;
+  vertical-align: 0.12em;
+}
+
+/* Double brass rule: the top edge of a ledger table (Today's due counts) */
+.rule-double { border-top: 3px double var(--rule-brass); }
+
+/* Constellation ornament: brass hairline · ✦ · brass hairline */
+.ornament::before,
+.ornament::after {
+  max-width: 112px;
+  background: linear-gradient(90deg, transparent, var(--rule-brass));
+}
+.ornament::after { background: linear-gradient(90deg, var(--rule-brass), transparent); }
+.ornament > span { width: 11px; height: 11px; }
+.ornament > .dot {
+  width: 3px;
+  height: 3px;
+  border-radius: var(--r-full);
+  background: var(--gold);
+  opacity: 0.7;
+  -webkit-mask: none;
+  mask: none;
+}
+
+/* ======================================================================
+   10. Motion (for the app; the mockups are static and start in their end state)
+
+   - Answer reveal, "ink settles": opacity 0 -> 1 and blur 2px -> 0, 220ms, ease-quiet.
+     Runs once when the answer appears. (Same as animate-ink, without the 4px rise.)
+   - Tab underline: scaleX 0 -> 1 from the left, 200ms, when a tab becomes active.
+   - Ribbon drop: the ribbon (or bookmark) moves down 2px, 180ms, when a note is marked
+     Must Remember; it moves back up when unmarked.
+   - No looping motion anywhere. The candle glow never breathes or flickers.
+   - prefers-reduced-motion: every one of these becomes an instant change.
+   ====================================================================== */
+
+@keyframes ink-settles {
+  from { opacity: 0; filter: blur(2px); }
+  to { opacity: 1; filter: none; }
+}
+@keyframes ribbon-drop {
+  from { transform: translateY(-2px); }
+  to { transform: translateY(0); }
+}
+/* App usage (not applied in the mockups):
+   .answer.is-revealed { animation: ink-settles 220ms var(--ease) both; }
+   .tab::after { transform: scaleX(0); transform-origin: left; transition: transform 200ms var(--ease); }
+   .tab.is-active::after { transform: scaleX(1); }
+   .ribbon-btn.is-on .ribbon { animation: ribbon-drop 180ms var(--ease) both; } */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

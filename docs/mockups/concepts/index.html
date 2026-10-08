@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Witchier Concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --page:#f5f1e8; --paper:#fbf9f4; --ink:#211f24; --graphite:#6d6870; --line:rgba(33,31,36,.12); --gold:#aa8d50; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--page); color:var(--ink); font:15px/1.6 Inter, system-ui, sans-serif; }
+  header { padding:40px 32px 8px; max-width:1500px; margin:0 auto; }
+  h1 { font:400 34px/1.15 "Instrument Serif", serif; margin:0 0 6px; }
+  h2 { font:400 24px/1.2 "Instrument Serif", serif; margin:40px 0 12px; padding-top:16px; border-top:1px solid var(--line); }
+  p { margin:0 0 8px; color:var(--graphite); max-width:80ch; }
+  main { padding:0 32px 64px; max-width:1500px; margin:0 auto; }
+  .tabs { display:flex; gap:20px; margin:16px 0 0; font-size:14px; }
+  .tabs label { cursor:pointer; color:var(--graphite); }
+  .tabs input { accent-color:#38334f; }
+  .grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; align-items:start; }
+  .col h3 { font:500 14px/1.3 Inter, sans-serif; margin:0 0 6px; }
+  .col h3 span { color:var(--graphite); font-weight:400; }
+  figure { margin:0; }
+  img { width:100%; height:auto; display:block; border:1px solid var(--line); border-radius:6px; background:#fff; }
+  a { color:inherit; }
+  .notes { display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin-top:8px; font-size:13px; color:var(--graphite); }
+  .notes ul { margin:0; padding-left:18px; }
+  body:has(#t-dark:checked) .light, body:has(#t-light:checked) .dark { display:none; }
+  @media (max-width: 900px) { .grid, .notes { grid-template-columns:1fr 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Witchier concepts: compare</h1>
+  <p>Same three screens, same layout. Current design on the left, then three steps bolder. Click any image to open it full size.</p>
+  <div class="tabs" role="radiogroup" aria-label="Theme">
+    <label><input type="radio" name="t" id="t-light" checked> Light</label>
+    <label><input type="radio" name="t" id="t-dark"> Dark</label>
+  </div>
+</header>
+<main>
+  <div class="notes">
+    <div><strong>Now</strong><ul><li>Quiet parchment and ink</li><li>Gold ribbon, ✦ Mastered</li><li>Lavender dark button</li></ul></div>
+    <div><strong>A · Candlelit Library</strong> (1 step bolder)<ul><li>Candle glow and vignette</li><li>Garnet first letter, brass numerals, small caps</li><li>Garnet silk bookmark, gilt button edge</li></ul></div>
+    <div><strong>B · Midnight Observatory</strong> (2 steps)<ul><li>Night sky with still stars in one corner</li><li>Constellation dividers, moon-phase mastery</li><li>Answer on a lifted "lens", brass edges</li></ul></div>
+    <div><strong>C · Herbarium Grimoire</strong> (boldest)<ul><li>Aubergine leather sidebar, gold foil</li><li>Corner flourishes, botanical line art</li><li>Ribbon tabs, moss upgrade panel</li></ul></div>
+  </div>
+  <script>/* no scripts needed */</script>
+  <h2>Today</h2>
+  <div class="grid light">
+    <div class="col"><h3>Now <span>light</span></h3><figure><a href="../png/11-today-light.png"><img src="../png/11-today-light.png" alt="Now, Today, light" loading="lazy"></a></figure></div>
+    <div class="col"><h3>A · Candlelit <span>light</span></h3><figure><a href="png/a-today-light.png"><img src="png/a-today-light.png" alt="A · Candlelit, Today, light" loading="lazy"></a></figure></div>
+    <div class="col"><h3>B · Observatory <span>light</span></h3><figure><a href="png/b-today-light.png"><img src="png/b-today-light.png" alt="B · Observatory, Today, light" loading="lazy"></a></figure></div>
+    <div class="col"><h3>C · Grimoire <span>light</span></h3><figure><a href="png/c-today-light.png"><img src="png/c-today-light.png" alt="C · Grimoire, Today, light" loading="lazy"></a></figure></div>
+  </div>
+  <div class="grid dark">
+    <div class="col"><h3>Now <span>dark</span></h3><figure><a href="../png/11-today-dark.png"><img src="../png/11-today-dark.png" alt="Now, Today, dark" loading="lazy"></a></figure></div>
+    <div class="col"><h3>A · Candlelit <span>dark</span></h3><figure><a href="png/a-today-dark.png"><img src="png/a-today-dark.png" alt="A · Candlelit, Today, dark" loading="lazy"></a></figure></div>
+    <div class="col"><h3>B · Observatory <span>dark</span></h3><figure><a href="png/b-today-dark.png"><img src="png/b-today-dark.png" alt="B · Observatory, Today, dark" loading="lazy"></a></figure></div>
+    <div class="col"><h3>C · Grimoire <span>dark</span></h3><figure><a href="png/c-today-dark.png"><img src="png/c-today-dark.png" alt="C · Grimoire, Today, dark" loading="lazy"></a></figure></div>
+  </div>
+  <h2>Review, answer revealed</h2>
+  <div class="grid light">
+    <div class="col"><h3>Now <span>light</span></h3><figure><a href="../png/05-review-revealed-light.png"><img src="../png/05-review-revealed-light.png" alt="Now, Review, answer revealed, light" loading="lazy"></a></figure></div>
+    <div class="col"><h3>A · Candlelit <span>light</span></h3><figure><a href="png/a-review-light.png"><img src="png/a-review-light.png" alt="A · Candlelit, Review, answer revealed, light" loading="lazy"></a></figure></div>
+    <div class="col"><h3>B · Observatory <span>light</span></h3><figure><a href="png/b-review-light.png"><img src="png/b-review-light.png" alt="B · Observatory, Review, answer revealed, light" loading="lazy"></a></figure></div>
+    <div class="col"><h3>C · Grimoire <span>light</span></h3><figure><a href="png/c-review-light.png"><img src="png/c-review-light.png" alt="C · Grimoire, Review, answer revealed, light" loading="lazy"></a></figure></div>
+  </div>
+  <div class="grid dark">
+    <div class="col"><h3>Now <span>dark</span></h3><figure><a href="../png/05-review-revealed-dark.png"><img src="../png/05-review-revealed-dark.png" alt="Now, Review, answer revealed, dark" loading="lazy"></a></figure></div>
+    <div class="col"><h3>A · Candlelit <span>dark</span></h3><figure><a href="png/a-review-dark.png"><img src="png/a-review-dark.png" alt="A · Candlelit, Review, answer revealed, dark" loading="lazy"></a></figure></div>
+    <div class="col"><h3>B · Observatory <span>dark</span></h3><figure><a href="png/b-review-dark.png"><img src="png/b-review-dark.png" alt="B · Observatory, Review, answer revealed, dark" loading="lazy"></a></figure></div>
+    <div class="col"><h3>C · Grimoire <span>dark</span></h3><figure><a href="png/c-review-dark.png"><img src="png/c-review-dark.png" alt="C · Grimoire, Review, answer revealed, dark" loading="lazy"></a></figure></div>
+  </div>
+  <h2>Quick Add</h2>
+  <div class="grid light">
+    <div class="col"><h3>Now <span>light</span></h3><figure><a href="../png/02-quick-add-speaking-light.png"><img src="../png/02-quick-add-speaking-light.png" alt="Now, Quick Add, light" loading="lazy"></a></figure></div>
+    <div class="col"><h3>A · Candlelit <span>light</span></h3><figure><a href="png/a-quick-add-light.png"><img src="png/a-quick-add-light.png" alt="A · Candlelit, Quick Add, light" loading="lazy"></a></figure></div>
+    <div class="col"><h3>B · Observatory <span>light</span></h3><figure><a href="png/b-quick-add-light.png"><img src="png/b-quick-add-light.png" alt="B · Observatory, Quick Add, light" loading="lazy"></a></figure></div>
+    <div class="col"><h3>C · Grimoire <span>light</span></h3><figure><a href="png/c-quick-add-light.png"><img src="png/c-quick-add-light.png" alt="C · Grimoire, Quick Add, light" loading="lazy"></a></figure></div>
+  </div>
+  <div class="grid dark">
+    <div class="col"><h3>Now <span>dark</span></h3><figure><a href="../png/02-quick-add-speaking-dark.png"><img src="../png/02-quick-add-speaking-dark.png" alt="Now, Quick Add, dark" loading="lazy"></a></figure></div>
+    <div class="col"><h3>A · Candlelit <span>dark</span></h3><figure><a href="png/a-quick-add-dark.png"><img src="png/a-quick-add-dark.png" alt="A · Candlelit, Quick Add, dark" loading="lazy"></a></figure></div>
+    <div class="col"><h3>B · Observatory <span>dark</span></h3><figure><a href="png/b-quick-add-dark.png"><img src="png/b-quick-add-dark.png" alt="B · Observatory, Quick Add, dark" loading="lazy"></a></figure></div>
+    <div class="col"><h3>C · Grimoire <span>dark</span></h3><figure><a href="png/c-quick-add-dark.png"><img src="png/c-quick-add-dark.png" alt="C · Grimoire, Quick Add, dark" loading="lazy"></a></figure></div>
+  </div>
+  <h2>Review on a phone</h2>
+  <div class="grid light">
+    <div class="col"><h3>Now <span>light</span></h3><figure><a href="../png/m02-review-mobile-light.png"><img src="../png/m02-review-mobile-light.png" alt="Now, Review on a phone, light" loading="lazy"></a></figure></div>
+    <div class="col"><h3>A · Candlelit <span>light</span></h3><figure><a href="png/a-review-mobile-light.png"><img src="png/a-review-mobile-light.png" alt="A · Candlelit, Review on a phone, light" loading="lazy"></a></figure></div>
+    <div class="col"><h3>B · Observatory <span>light</span></h3><figure><a href="png/b-review-mobile-light.png"><img src="png/b-review-mobile-light.png" alt="B · Observatory, Review on a phone, light" loading="lazy"></a></figure></div>
+    <div class="col"><h3>C · Grimoire <span>light</span></h3><figure><a href="png/c-review-mobile-light.png"><img src="png/c-review-mobile-light.png" alt="C · Grimoire, Review on a phone, light" loading="lazy"></a></figure></div>
+  </div>
+  <div class="grid dark">
+    <div class="col"><h3>Now <span>dark</span></h3><figure><a href="../png/m02-review-mobile-dark.png"><img src="../png/m02-review-mobile-dark.png" alt="Now, Review on a phone, dark" loading="lazy"></a></figure></div>
+    <div class="col"><h3>A · Candlelit <span>dark</span></h3><figure><a href="png/a-review-mobile-dark.png"><img src="png/a-review-mobile-dark.png" alt="A · Candlelit, Review on a phone, dark" loading="lazy"></a></figure></div>
+    <div class="col"><h3>B · Observatory <span>dark</span></h3><figure><a href="png/b-review-mobile-dark.png"><img src="png/b-review-mobile-dark.png" alt="B · Observatory, Review on a phone, dark" loading="lazy"></a></figure></div>
+    <div class="col"><h3>C · Grimoire <span>dark</span></h3><figure><a href="png/c-review-mobile-dark.png"><img src="png/c-review-mobile-dark.png" alt="C · Grimoire, Review on a phone, dark" loading="lazy"></a></figure></div>
+  </div>
+</main>
+</body>
+</html>

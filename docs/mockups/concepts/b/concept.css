@@ -1,0 +1,487 @@
+/*
+ * Concept B: "Midnight Observatory"
+ *
+ * A night-sky study room. Dark mode is the hero: a deep indigo-black page, a faint static
+ * star field in the empty top-right corner, one soft nebula tint, constellation lines as
+ * section rules, moon phases for mastery and a lifted "lens" for the review answer.
+ * Light mode is the same room at dawn: pale lavender-grey paper, indigo ink, brass.
+ *
+ * Built on top of ../../mockup.css. Only tokens and a few component rules change; the
+ * layouts stay the same. CSS and inline SVG only.
+ *
+ * Rules kept from the brief and the v1.1 refinements:
+ *   - Lavender is decorative only (rules, constellations, selection). Never text.
+ *   - Gold is never small text. In this concept gold also marks "where you are":
+ *     the active tab underline, the active nav bar and the review progress line.
+ *   - Stars: peak alpha only where no text sits. Anywhere text can sit, the star layer's
+ *     effective alpha is at most 0.12 (dark) / 0.06 (light). See README for the numbers.
+ *   - No looping or twinkling animation. Motion is listed in section 13.
+ *
+ * Contents
+ *   1. Tokens (dawn = light, night = dark)     8. Fields and dialog
+ *   2. Sky: nebula and stars                   9. Review lens
+ *   3. Type                                    10. Tabs (gold underline)
+ *   4. Constellation section rule              11. Ornaments (constellation, moon)
+ *   5. Buttons and keys                        12. Mobile shell
+ *   6. Mastery moon phases, Must Remember      13. Motion
+ *   7. Sidebar and nav                         14. Small screens
+ */
+
+@import url("../../mockup.css");
+
+/* ======================================================================
+   1. Tokens
+   ====================================================================== */
+
+:root {
+  color-scheme: light;
+  /* Dawn observatory */
+  --page: #f2eef1; /* pale lavender-grey parchment, a touch warm */
+  --paper: #fcfafc; /* writing surfaces, dialog */
+  --stone: #e8e3ea; /* grouped sections, hover */
+  --ink: #1d1a31; /* indigo ink */
+  --graphite: #5d5870; /* secondary text */
+  --indigo: #3c346f; /* links, focus, active icon */
+  --plum: #6b4b70; /* Speaking */
+  --gold: #a07d3b; /* brass: ornaments, mastery, ribbon, position lines. Never text */
+  --sage: #5c785c; /* Writing icon */
+  --crimson: #9c4452; /* the learner's mistake */
+  --upgrade: #3a6847; /* the better version */
+  --lavender: #a59cca; /* decorative only */
+  --line: rgba(29, 26, 49, 0.11);
+  --line-strong: rgba(29, 26, 49, 0.2);
+  --on-accent: #f6f3fa;
+  --scrim: rgba(30, 26, 60, 0.3);
+  --scrim-fill: var(--scrim);
+
+  /* New in concept B */
+  --night: #2e2858; /* primary button fill: deep violet-indigo */
+  --night-hover: #3a3369;
+  --brass: #b8954e; /* thin border on primary buttons */
+  --well: #fefdff; /* text fields inside the dialog */
+  --lens: #fefdfe; /* review answer surface */
+  --lens-edge: rgba(60, 52, 111, 0.16);
+  --lens-glow: rgba(255, 255, 255, 0.95);
+  --star: #3c346f; /* star dots (masked) */
+  --star-peak: 0.42; /* dense corner layer: the last stars before sunrise */
+  --star-dust: 0.06; /* whole-page layer */
+  --sky-a: rgba(232, 184, 140, 0.3); /* dawn blush in the corner */
+  --sky-b: rgba(165, 156, 202, 0.2);
+  --hover: color-mix(in srgb, var(--stone) 70%, transparent);
+  --nav-on: color-mix(in srgb, var(--indigo) 6%, transparent);
+  --grain: none;
+
+  --shadow-float: 0 18px 40px -20px rgb(30 26 60 / 0.32), 0 1px 3px rgb(30 26 60 / 0.08);
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Moon phases (brief §27, drawn): New = outline, Learning = waxing crescent,
+     Familiar = first quarter, Mastered = full moon + a tiny four-point star.
+     The dark side is a faint disc (16%), so the lit part reads at 14px. */
+  --m-new: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Ccircle cx='7' cy='7' r='5.25' fill='%23000' fill-opacity='0.16' stroke='%23000' stroke-width='1.1'/%3E%3C/svg%3E");
+  --m-learning: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Ccircle cx='7' cy='7' r='5.25' fill='%23000' fill-opacity='0.16' stroke='%23000' stroke-width='1.1'/%3E%3Cpath d='M7 1.75A5.25 5.25 0 0 1 7 12.25A2.1 5.25 0 0 0 7 1.75Z' fill='%23000'/%3E%3C/svg%3E");
+  --m-familiar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Ccircle cx='7' cy='7' r='5.25' fill='%23000' fill-opacity='0.16' stroke='%23000' stroke-width='1.1'/%3E%3Cpath d='M7 1.75A5.25 5.25 0 0 1 7 12.25Z' fill='%23000'/%3E%3C/svg%3E");
+  --m-mastered: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 19 14'%3E%3Ccircle cx='7' cy='7.6' r='5.25' fill='%23000'/%3E%3Cpath d='M15.6 0.4C15.75 2.3 16.3 2.85 18.2 3C16.3 3.15 15.75 3.7 15.6 5.6C15.45 3.7 14.9 3.15 13 3C14.9 2.85 15.45 2.3 15.6 0.4Z' fill='%23000'/%3E%3C/svg%3E");
+  /* Must Remember is a book ribbon (v1.1), so ✦ only ever means Mastered */
+  --m-ribbon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 2.75H16V21.25L12 17.9L8 21.25Z' fill='%23000' stroke='%23000' stroke-width='1.25' stroke-linejoin='round'/%3E%3C/svg%3E");
+  /* Constellation fragment that starts each section rule (drawn left to right, fading out) */
+  --m-rule: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='132' height='7'%3E%3Cdefs%3E%3ClinearGradient id='f'%3E%3Cstop offset='0' stop-opacity='1'/%3E%3Cstop offset='1' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='11' y='3' width='121' height='1' fill='url(%23f)'/%3E%3Ccircle cx='30' cy='3.5' r='1.9'/%3E%3Ccircle cx='55' cy='3.5' r='1.5'/%3E%3Ccircle cx='76' cy='3.5' r='1.1' fill-opacity='0.75'/%3E%3C/svg%3E");
+
+  /* Static star tiles (generated once, seeded). Used as masks, so they take --star. */
+  --stars-dense: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='360'%3E%3Ccircle cx='6.1' cy='22.3' r='1.15' fill-opacity='0.80'/%3E%3Ccircle cx='271.2' cy='146.0' r='0.55' fill-opacity='0.51'/%3E%3Ccircle cx='287.7' cy='262.7' r='0.55' fill-opacity='0.45'/%3E%3Ccircle cx='397.3' cy='186.6' r='0.55' fill-opacity='0.59'/%3E%3Ccircle cx='152.5' cy='192.5' r='0.55' fill-opacity='0.99'/%3E%3Ccircle cx='128.7' cy='316.0' r='0.55' fill-opacity='0.44'/%3E%3Ccircle cx='80.4' cy='104.7' r='0.55' fill-opacity='0.85'/%3E%3Ccircle cx='38.7' cy='328.7' r='0.55' fill-opacity='0.75'/%3E%3Ccircle cx='353.6' cy='347.8' r='0.55' fill-opacity='0.95'/%3E%3Ccircle cx='430.4' cy='14.4' r='0.55' fill-opacity='0.58'/%3E%3Ccircle cx='221.2' cy='7.3' r='0.55' fill-opacity='0.85'/%3E%3Ccircle cx='191.9' cy='153.6' r='0.55' fill-opacity='0.97'/%3E%3Ccircle cx='365.7' cy='247.8' r='0.55' fill-opacity='0.58'/%3E%3Ccircle cx='72.2' cy='48.0' r='0.8' fill-opacity='0.56'/%3E%3Ccircle cx='99.0' cy='227.6' r='0.55' fill-opacity='0.38'/%3E%3Ccircle cx='355.8' cy='331.7' r='0.55' fill-opacity='0.89'/%3E%3Ccircle cx='340.7' cy='331.2' r='0.55' fill-opacity='0.69'/%3E%3Ccircle cx='337.6' cy='320.8' r='1.15' fill-opacity='0.89'/%3E%3Ccircle cx='309.0' cy='347.0' r='1.15' fill-opacity='0.71'/%3E%3Ccircle cx='425.6' cy='2.1' r='0.55' fill-opacity='0.56'/%3E%3Ccircle cx='376.6' cy='197.8' r='0.8' fill-opacity='0.99'/%3E%3Ccircle cx='289.9' cy='296.3' r='0.55' fill-opacity='0.77'/%3E%3Ccircle cx='384.0' cy='198.6' r='0.55' fill-opacity='0.50'/%3E%3Ccircle cx='4.8' cy='8.7' r='1.15' fill-opacity='0.89'/%3E%3Ccircle cx='327.9' cy='5.2' r='0.55' fill-opacity='0.74'/%3E%3Ccircle cx='372.8' cy='358.1' r='0.55' fill-opacity='0.99'/%3E%3Ccircle cx='338.0' cy='289.8' r='0.55' fill-opacity='0.89'/%3E%3Ccircle cx='72.3' cy='357.9' r='0.55' fill-opacity='0.72'/%3E%3Ccircle cx='83.7' cy='142.6' r='0.55' fill-opacity='0.88'/%3E%3Ccircle cx='448.0' cy='264.9' r='0.55' fill-opacity='0.99'/%3E%3Ccircle cx='316.8' cy='265.1' r='1.15' fill-opacity='0.67'/%3E%3Ccircle cx='119.5' cy='210.2' r='0.8' fill-opacity='0.91'/%3E%3Ccircle cx='98.8' cy='199.8' r='0.55' fill-opacity='0.69'/%3E%3Ccircle cx='93.7' cy='90.2' r='0.55' fill-opacity='0.66'/%3E%3Ccircle cx='88.8' cy='1.2' r='0.55' fill-opacity='0.37'/%3E%3Ccircle cx='55.8' cy='315.5' r='1.15' fill-opacity='0.39'/%3E%3Ccircle cx='90.7' cy='145.8' r='0.55' fill-opacity='0.83'/%3E%3Ccircle cx='191.5' cy='129.6' r='0.8' fill-opacity='0.81'/%3E%3Ccircle cx='416.1' cy='190.8' r='0.8' fill-opacity='0.62'/%3E%3Ccircle cx='292.6' cy='105.4' r='0.55' fill-opacity='0.85'/%3E%3Ccircle cx='41.6' cy='90.8' r='0.8' fill-opacity='0.89'/%3E%3Ccircle cx='402.8' cy='154.7' r='0.55' fill-opacity='0.95'/%3E%3Ccircle cx='130.7' cy='130.1' r='0.55' fill-opacity='0.89'/%3E%3Ccircle cx='210.1' cy='350.8' r='0.55' fill-opacity='0.63'/%3E%3Ccircle cx='176.1' cy='193.3' r='0.55' fill-opacity='0.92'/%3E%3Ccircle cx='297.6' cy='355.0' r='0.8' fill-opacity='0.67'/%3E%3Ccircle cx='227.1' cy='251.2' r='0.8' fill-opacity='0.71'/%3E%3Ccircle cx='341.8' cy='58.5' r='0.8' fill-opacity='0.60'/%3E%3Ccircle cx='317.1' cy='308.2' r='0.55' fill-opacity='0.54'/%3E%3Ccircle cx='47.1' cy='246.0' r='0.8' fill-opacity='0.98'/%3E%3Ccircle cx='165.1' cy='93.5' r='0.55' fill-opacity='0.82'/%3E%3Ccircle cx='481.6' cy='282.3' r='0.8' fill-opacity='0.98'/%3E%3Ccircle cx='117.8' cy='352.4' r='0.55' fill-opacity='0.70'/%3E%3Ccircle cx='203.4' cy='256.9' r='0.8' fill-opacity='0.76'/%3E%3C/svg%3E");
+  --stars-dust: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='640'%3E%3Ccircle cx='59.3' cy='43.7' r='0.5' fill-opacity='0.55'/%3E%3Ccircle cx='207.3' cy='137.1' r='0.5' fill-opacity='0.88'/%3E%3Ccircle cx='528.7' cy='5.7' r='0.5' fill-opacity='0.50'/%3E%3Ccircle cx='55.2' cy='630.7' r='0.7' fill-opacity='0.64'/%3E%3Ccircle cx='474.4' cy='35.4' r='0.5' fill-opacity='0.73'/%3E%3Ccircle cx='630.8' cy='136.3' r='0.7' fill-opacity='0.52'/%3E%3Ccircle cx='122.1' cy='501.2' r='0.5' fill-opacity='0.76'/%3E%3Ccircle cx='237.7' cy='325.6' r='0.7' fill-opacity='0.78'/%3E%3Ccircle cx='572.7' cy='584.3' r='0.5' fill-opacity='0.81'/%3E%3Ccircle cx='453.5' cy='139.0' r='0.5' fill-opacity='0.66'/%3E%3Ccircle cx='573.2' cy='609.2' r='0.7' fill-opacity='0.72'/%3E%3Ccircle cx='203.7' cy='580.6' r='0.5' fill-opacity='0.60'/%3E%3Ccircle cx='513.5' cy='103.2' r='0.5' fill-opacity='0.85'/%3E%3Ccircle cx='496.4' cy='3.2' r='0.5' fill-opacity='0.67'/%3E%3Ccircle cx='480.8' cy='231.7' r='0.5' fill-opacity='0.43'/%3E%3Ccircle cx='7.0' cy='129.3' r='0.5' fill-opacity='0.44'/%3E%3Ccircle cx='368.1' cy='599.9' r='0.5' fill-opacity='0.49'/%3E%3Ccircle cx='110.7' cy='468.4' r='0.5' fill-opacity='0.55'/%3E%3Ccircle cx='44.6' cy='531.5' r='0.5' fill-opacity='0.82'/%3E%3Ccircle cx='452.3' cy='14.9' r='0.5' fill-opacity='0.73'/%3E%3Ccircle cx='403.6' cy='139.9' r='0.5' fill-opacity='0.52'/%3E%3Ccircle cx='151.3' cy='355.7' r='0.9' fill-opacity='0.41'/%3E%3Ccircle cx='451.5' cy='314.5' r='0.5' fill-opacity='0.88'/%3E%3Ccircle cx='371.0' cy='435.2' r='0.7' fill-opacity='0.80'/%3E%3Ccircle cx='540.0' cy='120.8' r='0.5' fill-opacity='0.79'/%3E%3Ccircle cx='397.6' cy='376.2' r='0.5' fill-opacity='0.75'/%3E%3C/svg%3E");
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  /* Midnight observatory */
+  --page: #0f0e1b; /* deep night indigo-black, not pure black */
+  --paper: #171527;
+  --stone: #211e35;
+  --ink: #ece8f3; /* moonlight white */
+  --graphite: #a9a4bf;
+  --indigo: #a79fdd; /* periwinkle: links, focus, active icon */
+  --plum: #c39dc6;
+  --gold: #d6b56c; /* brighter antique gold */
+  --sage: #95ad91;
+  --crimson: #d98a94;
+  --upgrade: #a8cba3;
+  --lavender: #776fab;
+  --line: rgba(196, 188, 255, 0.1);
+  --line-strong: rgba(196, 188, 255, 0.2);
+  --on-accent: #f4f0fb;
+  --scrim: rgba(6, 5, 16, 0.62);
+  --scrim-fill: var(--scrim);
+
+  --night: #3a3168;
+  --night-hover: #463c7c;
+  --brass: rgba(214, 181, 108, 0.72);
+  --well: #120f21;
+  --lens: #1a1830;
+  --lens-edge: rgba(167, 159, 221, 0.26);
+  --lens-glow: rgba(167, 159, 221, 0.09);
+  --star: #f2eeff;
+  --star-peak: 0.9;
+  --star-dust: 0.12;
+  --sky-a: rgba(118, 86, 196, 0.26); /* nebula */
+  --sky-b: rgba(56, 70, 160, 0.12);
+  --hover: color-mix(in srgb, var(--stone) 80%, transparent);
+  --nav-on: color-mix(in srgb, var(--indigo) 9%, transparent);
+  --grain: none;
+
+  --shadow-float: 0 24px 48px -20px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(196 188 255 / 0.04);
+}
+
+::selection { background-color: color-mix(in srgb, var(--lavender) 38%, transparent); }
+
+/* ======================================================================
+   2. Sky. Static: no twinkle, no drift. Three layers, all behind content:
+      body background = page color + one soft tint in the top-right corner
+      body::before    = dense stars, only in the empty top-right "window"
+      body::after     = sparse dust over the whole page, too faint to touch text contrast
+   ====================================================================== */
+
+html { background-color: var(--page); }
+
+body {
+  position: relative;
+  background-color: var(--page);
+  background-image:
+    radial-gradient(ellipse 46% 62% at 100% 0%, var(--sky-a) 0%, var(--sky-b) 48%, transparent 100%);
+  background-repeat: no-repeat;
+  background-size: 100% 1100px;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--star);
+}
+
+/* Dense corner: a 640 x 520px window at the top-right. It peaks in the empty corner and is
+   down to the dust level (at most 0.12 alpha) wherever the reading column can reach. */
+body::before {
+  top: 0;
+  right: 0;
+  width: 640px;
+  height: 520px;
+  opacity: var(--star-peak);
+  -webkit-mask-image: var(--stars-dense), radial-gradient(640px 520px at 100% 0%, #000 0%, rgb(0 0 0 / 0.5) 38%, transparent 100%);
+  mask-image: var(--stars-dense), radial-gradient(640px 520px at 100% 0%, #000 0%, rgb(0 0 0 / 0.5) 38%, transparent 100%);
+  -webkit-mask-size: 520px 360px, 100% 100%;
+  mask-size: 520px 360px, 100% 100%;
+  -webkit-mask-repeat: repeat, no-repeat;
+  mask-repeat: repeat, no-repeat;
+  -webkit-mask-position: right top, 0 0;
+  mask-position: right top, 0 0;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+/* Dust: denser toward the top, gone by the lower half of a long page */
+body::after {
+  inset: 0;
+  opacity: var(--star-dust);
+  -webkit-mask-image: var(--stars-dust), linear-gradient(#000 0, #000 360px, transparent 1300px);
+  mask-image: var(--stars-dust), linear-gradient(#000 0, #000 360px, transparent 1300px);
+  -webkit-mask-size: 640px 640px, 100% 100%;
+  mask-size: 640px 640px, 100% 100%;
+  -webkit-mask-repeat: repeat, no-repeat;
+  mask-repeat: repeat, no-repeat;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+/* Content sits above the sky */
+.app,
+.m-app,
+.rv,
+.frame,
+.sheet { position: relative; z-index: 1; }
+
+/* The sidebar is the observatory wall: a hair darker than the sky in dark mode, no stars */
+.sidebar { background: var(--page); }
+[data-theme="dark"] .sidebar { background: #0c0b17; }
+.main { border-left-color: var(--line); }
+
+/* ======================================================================
+   3. Type. Same two families. Hierarchy is a little bolder through size, not weight.
+   ====================================================================== */
+
+.page-title { font-size: 36px; line-height: 1.12; letter-spacing: -0.01em; }
+.section-title { font-size: 22px; line-height: 1.35; }
+.dialog-title { font-size: 22px; }
+
+/* Engraved labels: a touch more tracking, like the scale on a brass instrument */
+.label-caps,
+.pair-label { letter-spacing: 0.11em; }
+
+.eyebrow { color: var(--plum); }
+
+/* ✦ mark before a label or title (v1.1 `mark` prop). The glyph is gold; the words stay ink. */
+.mark-star::before {
+  content: "";
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 8px;
+  background: var(--gold);
+  -webkit-mask: var(--m-spark-fill) center / contain no-repeat;
+  mask: var(--m-spark-fill) center / contain no-repeat;
+  vertical-align: 0.12em;
+}
+
+/* ======================================================================
+   4. Constellation section rule. The hairline under a section title starts at a small
+      gold star and runs through two lavender stars before it fades into the plain line.
+   ====================================================================== */
+
+.section-head { position: relative; }
+.section-head::before,
+.section-head::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  height: 7px;
+  pointer-events: none;
+}
+.section-head::before {
+  left: -1px;
+  bottom: -5px;
+  width: 9px;
+  height: 9px;
+  background: var(--gold);
+  -webkit-mask: var(--m-spark-fill) center / contain no-repeat;
+  mask: var(--m-spark-fill) center / contain no-repeat;
+}
+.section-head::after {
+  left: 0;
+  width: 132px;
+  background: var(--lavender);
+  -webkit-mask: var(--m-rule) left center / 132px 7px no-repeat;
+  mask: var(--m-rule) left center / 132px 7px no-repeat;
+}
+
+/* ======================================================================
+   5. Buttons and keys. Primary = deep violet-indigo with a thin brass edge. No glow.
+   ====================================================================== */
+
+.btn-primary {
+  border-color: var(--brass);
+  background: var(--night);
+  color: var(--on-accent);
+  font-weight: 500;
+  letter-spacing: 0.005em;
+}
+.btn-primary:hover,
+.btn-primary.is-hover { background: var(--night-hover); }
+.btn-primary .kbd,
+.kbd-on-accent {
+  border-color: color-mix(in srgb, var(--on-accent) 30%, transparent);
+  color: color-mix(in srgb, var(--on-accent) 85%, transparent);
+}
+
+.btn-secondary { border-color: var(--line-strong); background: var(--paper); }
+.btn-secondary:hover,
+.btn-secondary.is-hover { background: color-mix(in srgb, var(--stone) 70%, var(--paper)); }
+
+.link { color: var(--indigo); }
+
+.kbd { border-color: var(--line-strong); }
+
+/* ======================================================================
+   6. Mastery moon phases (always with the word) and the Must Remember ribbon
+   ====================================================================== */
+
+.mastery { gap: 7px; }
+.mastery::before {
+  width: 14px;
+  height: 14px;
+  -webkit-mask: var(--m-new) center / 14px 14px no-repeat;
+  mask: var(--m-new) center / 14px 14px no-repeat;
+}
+.mastery-learning::before { -webkit-mask-image: var(--m-learning); mask-image: var(--m-learning); }
+.mastery-familiar::before { -webkit-mask-image: var(--m-familiar); mask-image: var(--m-familiar); }
+.mastery-mastered::before {
+  width: 19px;
+  background: var(--gold);
+  -webkit-mask: var(--m-mastered) center / 19px 14px no-repeat;
+  mask: var(--m-mastered) center / 19px 14px no-repeat;
+}
+.row-mastery { width: 96px; }
+
+.must .star,
+.star {
+  -webkit-mask-image: var(--m-ribbon);
+  mask-image: var(--m-ribbon);
+}
+.must .star { width: 11px; height: 13px; }
+
+/* ======================================================================
+   7. Sidebar and nav. Active = ink text, periwinkle icon, a faint lit fill and a gold bar.
+   ====================================================================== */
+
+.brand-mark { color: var(--indigo); }
+.nav-label { color: var(--graphite); }
+.nav-item.is-active { background: var(--nav-on); }
+.nav-item.is-active::before { top: 9px; bottom: 9px; width: 2px; background: var(--gold); }
+
+.side-btn-new { background: var(--paper); border-color: var(--line-strong); }
+
+/* ======================================================================
+   8. Fields and dialog
+   ====================================================================== */
+
+.input,
+.textarea,
+.select,
+.tag-input { border-color: var(--line-strong); background: var(--paper); }
+.dialog .input,
+.dialog .textarea,
+.dialog .select,
+.dialog .tag-input { background: var(--well); }
+
+.input:focus-visible,
+.textarea:focus-visible,
+.input.is-focus,
+.textarea.is-focus,
+.select.is-focus,
+.tag-input.is-focus { border-color: var(--indigo); outline: 1px solid var(--indigo); outline-offset: 0; }
+
+.dialog {
+  border-color: var(--line-strong);
+  background: var(--paper);
+}
+/* A brass hairline along the top edge of a dialog, like the rim of an instrument case */
+.dialog::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 24px;
+  right: 24px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--gold) 90%, transparent) 25%, color-mix(in srgb, var(--gold) 90%, transparent) 75%, transparent);
+}
+
+/* ======================================================================
+   9. Review lens: the revealed answer sits on one slightly lifted surface.
+      A faint light falls on it from the top, as if seen through an eyepiece.
+   ====================================================================== */
+
+.lens {
+  position: relative;
+  border: 1px solid var(--lens-edge);
+  border-radius: var(--r-lg);
+  background:
+    radial-gradient(110% 80% at 50% 0%, var(--lens-glow) 0%, transparent 70%),
+    var(--lens);
+}
+
+/* ======================================================================
+   10. Tabs. Active = ink label + a 1.5px gold underline that draws in from the left.
+   ====================================================================== */
+
+.tab.is-active:not(:has(.tab-label))::after,
+.tab.is-active .tab-label::after {
+  height: 1.5px;
+  background: var(--gold);
+  transform-origin: left center;
+}
+
+/* ======================================================================
+   11. Ornaments. <svg class="constellation"> is drawn inline in the page (two colors).
+   ====================================================================== */
+
+.ornament::before,
+.ornament::after { background: var(--line-strong); }
+
+.constellation {
+  display: block;
+  width: 260px;
+  height: 32px;
+  margin: 0 auto;
+  overflow: visible;
+}
+.constellation .c-line { stroke: var(--line-strong); stroke-width: 1; }
+.constellation .c-link { stroke: var(--lavender); stroke-width: 1; fill: none; }
+.constellation .c-star { fill: var(--lavender); }
+.constellation .c-gold { fill: var(--gold); }
+
+/* One faint star chart (Lyra) in the empty top-right gutter of Today. Desktop only, decorative. */
+.main { position: relative; }
+.sky-chart {
+  position: absolute;
+  top: 76px;
+  right: 96px;
+  width: 132px;
+  height: 140px;
+  overflow: visible;
+  pointer-events: none;
+}
+.sky-chart .c-link { stroke: var(--lavender); stroke-width: 1; fill: none; opacity: 0.75; }
+.sky-chart .c-star { fill: var(--lavender); }
+.sky-chart .c-gold { fill: var(--gold); }
+@media (max-width: 1319px) { .sky-chart { display: none; } }
+
+/* ======================================================================
+   12. Mobile shell
+   ====================================================================== */
+
+.topbar,
+.bottom-nav { background: var(--page); }
+.bn-add {
+  border: 1px solid var(--brass);
+  background: var(--night);
+  color: var(--on-accent);
+}
+.bn-item.is-active::before { background: var(--gold); }
+
+/* ======================================================================
+   13. Motion. Static mockups show the end state; these are the app's rules.
+       No looping, no twinkle, no animated sky. All off with reduced motion.
+         ink-settle  review answer reveal        220ms  opacity + 2px blur + 2px rise
+         lens-in     the lens surface             160ms  opacity
+         draw-in     gold tab underline           200ms  scaleX 0 -> 1 from the left
+         moon-wax    mastery icon gains a phase   300ms  once, the lit part sweeps in
+   ====================================================================== */
+
+@keyframes ink-settle {
+  from { opacity: 0; filter: blur(2px); transform: translateY(2px); }
+  to { opacity: 1; filter: none; transform: none; }
+}
+@keyframes lens-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes draw-in {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes moon-wax {
+  from { clip-path: inset(0 0 0 100%); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+.anim-lens { animation: lens-in 160ms var(--ease) both; }
+.anim-ink { animation: ink-settle 220ms var(--ease) 60ms both; }
+.tab.is-active .tab-label::after,
+.tab.is-active:not(:has(.tab-label))::after { animation: draw-in 200ms var(--ease) both; }
+.mastery.is-rising::before { animation: moon-wax 300ms var(--ease) 1 both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after { animation: none !important; transition: none !important; }
+}
+
+/* ======================================================================
+   14. Small screens: no empty gutter, so the dense corner drops to the dust level.
+   ====================================================================== */
+
+@media (max-width: 639px) {
+  body::before { opacity: var(--star-dust); }
+  .sky-chart { display: none; }
+  .page-title { font-size: 32px; }
+}
