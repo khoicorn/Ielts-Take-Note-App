@@ -48,28 +48,10 @@ function ParagraphRow(props: { paragraph: Paragraph; notes: number; trailing?: R
   )
 }
 
-/**
- * Model Paragraphs, inside the Writing screen's tab (brief §23). Newest first. `taskType` presets new paragraphs.
- */
-export function ParagraphList(props: { taskType?: TaskType }): React.JSX.Element {
-  const { taskType } = props
+/** Creates an untitled paragraph and opens it in the focus editor. `taskType` presets it. */
+function useNewParagraph(taskType?: TaskType): { create: () => Promise<void>; creating: boolean } {
   const navigate = useNavigate()
-  const toast = useToast()
-  const paragraphs = useParagraphs()
-  const archived = useParagraphs({ archived: true })
-  const notes = useNotes()
-  const [showArchived, setShowArchived] = useState(false)
   const [creating, setCreating] = useState(false)
-  const archivedId = useId()
-
-  const counts = useMemo(() => {
-    const m = new Map<string, number>()
-    for (const n of notes ?? []) {
-      if (n.source_paragraph_id) m.set(n.source_paragraph_id, (m.get(n.source_paragraph_id) ?? 0) + 1)
-    }
-    return m
-  }, [notes])
-
   const create = async () => {
     if (creating) return
     setCreating(true)
@@ -80,6 +62,39 @@ export function ParagraphList(props: { taskType?: TaskType }): React.JSX.Element
       setCreating(false)
     }
   }
+  return { create, creating }
+}
+
+/** "New model paragraph". The Writing screen shows it in its header actions, where "New Writing note" sits. */
+export function NewParagraphButton(props: { taskType?: TaskType }): React.JSX.Element {
+  const { create, creating } = useNewParagraph(props.taskType)
+  return (
+    <Button variant="secondary" size="sm" icon={Plus} loading={creating} onClick={() => void create()}>
+      New model paragraph
+    </Button>
+  )
+}
+
+/**
+ * Model Paragraphs, inside the Writing screen's tab (brief §23). Newest first. `taskType` presets new paragraphs.
+ * With `headerAction`, the page header shows "New model paragraph", so the list leaves it out (the empty state keeps it).
+ */
+export function ParagraphList(props: { taskType?: TaskType; headerAction?: boolean }): React.JSX.Element {
+  const { taskType, headerAction = false } = props
+  const toast = useToast()
+  const paragraphs = useParagraphs()
+  const archived = useParagraphs({ archived: true })
+  const notes = useNotes()
+  const [showArchived, setShowArchived] = useState(false)
+  const archivedId = useId()
+
+  const counts = useMemo(() => {
+    const m = new Map<string, number>()
+    for (const n of notes ?? []) {
+      if (n.source_paragraph_id) m.set(n.source_paragraph_id, (m.get(n.source_paragraph_id) ?? 0) + 1)
+    }
+    return m
+  }, [notes])
 
   const restore = async (p: Paragraph) => {
     await restoreParagraph(p.id)
@@ -88,16 +103,12 @@ export function ParagraphList(props: { taskType?: TaskType }): React.JSX.Element
 
   if (paragraphs === undefined) return <div className="min-h-40" aria-busy="true" />
 
-  const newButton = (
-    <Button variant="secondary" size="sm" icon={Plus} loading={creating} onClick={() => void create()}>
-      New model paragraph
-    </Button>
-  )
+  const newButton = <NewParagraphButton taskType={taskType} />
 
   const archivedCount = archived?.length ?? 0
 
   return (
-    <div className="max-w-[760px]">
+    <div>
       {paragraphs.length === 0 ? (
         <EmptyState
           decoration="book"
@@ -107,9 +118,11 @@ export function ParagraphList(props: { taskType?: TaskType }): React.JSX.Element
         />
       ) : (
         <>
-          <div className="flex items-center justify-between gap-4 border-b border-line pb-3">
+          {/* The rows use h3 titles; this keeps the outline h1 › h2 › h3 under the Writing page title. */}
+          <h2 className="sr-only">Model paragraphs</h2>
+          <div className="flex min-h-8 items-center justify-between gap-4 border-b border-line pb-3">
             <p className="text-small text-graphite">{plural(paragraphs.length, 'paragraph')}</p>
-            {newButton}
+            {headerAction ? null : newButton}
           </div>
           <ul>
             {paragraphs.map((p) => (

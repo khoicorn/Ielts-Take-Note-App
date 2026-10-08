@@ -1,7 +1,8 @@
 import { Archive, ArchiveRestore, ArrowLeft, Ellipsis, Highlighter, PenLine, Pencil, Trash2 } from 'lucide-react'
 import type React from 'react'
-import { useCallback, useId, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
+import { useDocumentTitle } from '@/app/documentTitle'
 import { useQuickAdd } from '@/app/overlays'
 import { useHotkeys } from '@/app/hotkeys'
 import { NoteRow } from '@/components/notes/NoteRow'
@@ -55,8 +56,21 @@ function KeyboardHint(): React.JSX.Element {
  * Model paragraph, reading mode (brief §23, mockup 09). Select words with the mouse, a finger or the
  * keyboard, and save them as a note in one step.
  */
-export function ParagraphReader(props: { paragraph: Paragraph; onEdit: () => void }): React.JSX.Element {
-  const { paragraph: p, onEdit } = props
+export function ParagraphReader(props: {
+  paragraph: Paragraph
+  onEdit: () => void
+  /** True when the focus editor just closed: the Edit button takes focus back on mount, then this is reset. */
+  returnFocus?: React.RefObject<boolean>
+}): React.JSX.Element {
+  const { paragraph: p, onEdit, returnFocus } = props
+  const editRef = useRef<HTMLButtonElement>(null)
+  // The reader is unmounted while editing, so its opener is gone. Focus goes back to Edit, as on Note Detail.
+  useEffect(() => {
+    if (!returnFocus?.current) return
+    returnFocus.current = false
+    editRef.current?.focus({ preventScroll: true })
+  }, [returnFocus])
+  useDocumentTitle(paragraphTitle(p))
   const navigate = useNavigate()
   const location = useLocation()
   const quickAdd = useQuickAdd()
@@ -140,7 +154,7 @@ export function ParagraphReader(props: { paragraph: Paragraph; onEdit: () => voi
           </Link>
           <div className="flex items-center gap-1 sm:gap-2">
             <FavoriteStar active={p.is_favorite} onToggle={() => void toggleFavorite()} label="Must Remember" />
-            <Button variant="secondary" size="sm" icon={Pencil} kbd="E" onClick={onEdit}>
+            <Button ref={editRef} variant="secondary" size="sm" icon={Pencil} kbd="E" onClick={onEdit}>
               Edit
             </Button>
             <Menu

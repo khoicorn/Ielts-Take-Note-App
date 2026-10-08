@@ -6,8 +6,13 @@ import { useQuickAdd, useSearch, useShortcutsHelp } from './overlays'
 
 const GLOBAL_KEYS_IN_INPUTS = ['mod+k']
 
+/** True while a popover, menu or suggestion list is open. Its layer sits above dialogs, so nothing may open under it. */
+function isFloatingLayerOpen(): boolean {
+  return document.querySelector('[data-floating]') !== null
+}
+
 /**
- * App-wide keys (design §9). They pause while any dialog is open, so a dialog's own keys win.
+ * App-wide keys (design §9). They pause while any dialog, popover or menu is open, so its own keys win.
  * N / mod+N new note · mod+K or / search · ? shortcut list · G then T R S W M F A C to move between pages.
  */
 export function GlobalHotkeys(): null {
@@ -17,7 +22,7 @@ export function GlobalHotkeys(): null {
   const help = useShortcutsHelp()
 
   const guard = (fn: () => void) => () => {
-    if (!isAnyDialogOpen()) fn()
+    if (!isAnyDialogOpen() && !isFloatingLayerOpen()) fn()
   }
 
   const bindings: Record<string, () => void> = {

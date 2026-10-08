@@ -136,6 +136,33 @@ describe('SearchPalette', () => {
     expect(screen.getByText(/Try:/)).toHaveTextContent('Try: stable · visitors to · Travel')
   })
 
+  it('SE1e an arrow key pressed right after typing, before the results update, is kept', async () => {
+    await db.notes.bulkAdd([
+      makeNote({ upgraded_text: 'remained relatively stable', created_at: at(3), updated_at: at(3) }),
+      makeNote({ upgraded_text: 'a stable level', created_at: at(2), updated_at: at(2) }),
+      makeNote({ upgraded_text: 'Unrelated recent note', created_at: at(4), updated_at: at(4) }),
+    ])
+    const user = userEvent.setup({ delay: null })
+    renderApp()
+    await user.click(screen.getByRole('button', { name: 'Open search' }))
+    const input = await screen.findByRole('combobox', { name: 'Search notes' })
+    await screen.findByRole('group', { name: /Recent notes/ })
+    // Typing and ArrowDown both land inside the 80ms debounce, while Recent notes still shows.
+    await user.type(input, 'stable{ArrowDown}')
+    const results = await screen.findByRole('group', { name: /^Notes/ })
+    const options = within(results).getAllByRole('option')
+    expect(options).toHaveLength(2)
+    expect(options[1]).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('SE1d an empty notebook shows no search tips', async () => {
+    const user = userEvent.setup({ delay: null })
+    renderApp()
+    await user.click(screen.getByRole('button', { name: 'Open search' }))
+    expect(await screen.findByText('No notes yet. Saved notes appear here.')).toBeInTheDocument()
+    expect(screen.queryByText(/Try:/)).toBeNull()
+  })
+
   it('SE2 the no-result action opens Quick Add with the query as the upgrade', async () => {
     await db.notes.add(makeNote({ upgraded_text: 'The scenery was beautiful.' }))
     const user = userEvent.setup({ delay: null })

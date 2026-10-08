@@ -7,6 +7,7 @@ export function NotFound(): React.JSX.Element {
     <div className="mx-auto max-w-[760px]">
       <EmptyState
         decoration="moon"
+        headingLevel={1}
         title="This page does not exist."
         body="Check the address, or go back to Today."
         action={

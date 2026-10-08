@@ -3,8 +3,12 @@ export function cn(...parts: (string | false | null | undefined | 0)[]): string 
   return parts.filter(Boolean).join(' ')
 }
 
-/** Long words and URLs wrap instead of pushing the page sideways (Review Focus 3). */
-export const WRAP = 'break-words [overflow-wrap:anywhere]'
+/**
+ * Long words and URLs wrap instead of pushing the page sideways (Review Focus 3).
+ * Only `anywhere`: it also lowers the min-content width, so items in flex rows can shrink.
+ * Do not add `break-words`: Tailwind emits it after the arbitrary property, and it would win.
+ */
+export const WRAP = '[overflow-wrap:anywhere]'
 
 /**
  * The 760px reading column (Today, Calendar, Must Remember, Settings). Like the mockups, it shares its

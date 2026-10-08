@@ -9,6 +9,9 @@ import { MODE_LABELS } from '@/lib/taxonomy'
 import type { Mode, Note } from '@/lib/types'
 import { againLine, backLabel, otherMode, otherModeLine, reviewedLine, streakLine } from './copy'
 
+/** Undoes the one-line truncation of a compact NotePair, so the mistake and the upgrade show in full. */
+const FULL_TEXT = '[&_[data-testid^=note-]]:whitespace-normal'
+
 /** "Session complete" (mockup 06): what was done, a calm way out, and the notes to see again soon. */
 export const SessionComplete = forwardRef<
   HTMLHeadingElement,
@@ -59,7 +62,8 @@ export const SessionComplete = forwardRef<
           <ul>
             {again.map((note) => (
               <li key={note.id}>
-                <NoteRow note={note} to={`/notes/${note.id}`} />
+                {/* Compact rows, but the sentences wrap in full (mockup 06): this list is short. */}
+                <NoteRow note={note} to={`/notes/${note.id}`} showMode className={FULL_TEXT} />
               </li>
             ))}
           </ul>

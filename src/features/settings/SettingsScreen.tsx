@@ -1,7 +1,8 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Archive, Monitor, Moon, Sun, Trash2 } from 'lucide-react'
 import type React from 'react'
-import { useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
+import { useLocation } from 'react-router'
 import { useTheme } from '@/app/theme'
 import { ShortcutTable } from '@/app/ShortcutsDialog'
 import { Button, ButtonLink } from '@/components/ui/Button'
@@ -13,9 +14,9 @@ import { Section } from '@/components/ui/Section'
 import { SegmentedControl } from '@/components/ui/Tabs'
 import { useToast } from '@/components/ui/Toast'
 import { db } from '@/lib/db'
-import { useSettings } from '@/lib/hooks'
-import { deleteAllData, loadExampleData, removeExampleData, updateSettings } from '@/lib/repo'
-import { ERROR_TYPES, SPEAKING_TOPICS, TASK1_TOPICS, TASK2_TOPICS } from '@/lib/taxonomy'
+import { deleteAllData, getSettings, loadExampleData, removeExampleData, updateSettings } from '@/lib/repo'
+import { ERROR_TYPES, REVIEW_TYPE_LABELS, SPEAKING_TOPICS, TASK1_TOPICS, TASK2_TOPICS } from '@/lib/taxonomy'
+import { DEFAULT_SETTINGS } from '@/lib/types'
 import type { ReviewStyle, Settings, ThemePreference } from '@/lib/types'
 import { DataSection } from './DataSection'
 import { LabelListEditor } from './LabelListEditor'
@@ -37,12 +38,12 @@ const REVIEW_STYLES: { value: ReviewStyle; label: string; description: string }[
   {
     value: 'mixed',
     label: 'Mixed review types',
-    description: 'After two reviews, a note also comes back as fill in the blank, phrase to sentence or pattern recall.',
+    description: `After two reviews, a note can also come back as ${REVIEW_TYPE_LABELS.fill_blank}, ${REVIEW_TYPE_LABELS.phrase_to_sentence} or ${REVIEW_TYPE_LABELS.pattern_recall}.`,
   },
   {
     value: 'upgrade_only',
     label: 'Always Mistake → Upgrade',
-    description: 'Every card shows what you wrote or said and asks for the better version.',
+    description: 'Cards show what you wrote or said and ask for the better version. Notes with no mistake ask for a full sentence.',
   },
 ]
 
@@ -50,10 +51,34 @@ const REVIEW_STYLES: { value: ReviewStyle; label: string; description: string }[
 const SECTION_LINKS = [
   { id: 'appearance', label: 'Appearance' },
   { id: 'review', label: 'Review' },
-  { id: 'topics', label: 'Topics' },
+  { id: 'topics', label: 'Topics and error types' },
   { id: 'data', label: 'Your data' },
-  { id: 'shortcuts', label: 'Shortcuts' },
+  { id: 'notebook', label: 'Notebook' },
+  { id: 'delete', label: 'Start over' },
+  { id: 'shortcuts', label: 'Keyboard shortcuts' },
 ]
+
+/**
+ * Links like /settings#data (from Today or the topic index) open this page at that section. The app shell scrolls
+ * to the top on every page change, after this page's effects run, so the scroll waits one frame. It also waits for
+ * the stored settings, since custom topics above a section change where it sits.
+ */
+function useScrollToHash(ready: boolean): void {
+  const location = useLocation()
+  const scrolledFor = useRef('')
+  useEffect(() => {
+    const hash = decodeURIComponent(location.hash.replace(/^#/, ''))
+    const key = location.key + hash
+    if (!ready || !hash || scrolledFor.current === key) return
+    const frame = requestAnimationFrame(() => {
+      const el = document.getElementById(hash)
+      if (!el) return
+      scrolledFor.current = key
+      el.scrollIntoView?.({ block: 'start' })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [ready, location.hash, location.key])
+}
 
 function save(patch: Partial<Settings>): Promise<Settings> {
   return updateSettings(patch)
@@ -213,7 +238,9 @@ function DeleteSection(): React.JSX.Element {
 
 /** Settings (plan C7, design §6). One reading column; sections separated by hairlines, each with an anchor id. */
 export function SettingsScreen(): React.JSX.Element {
-  const settings = useSettings()
+  const stored = useLiveQuery(getSettings, [])
+  const settings = stored ?? DEFAULT_SETTINGS
+  useScrollToHash(stored !== undefined)
   const { preference, setPreference } = useTheme()
 
   return (
@@ -268,7 +295,7 @@ export function SettingsScreen(): React.JSX.Element {
           id="speaking-topics"
           title="Speaking topics"
           addLabel="Add a Speaking topic"
-          placeholder="e.g. Nha Trang trip"
+          placeholder="e.g. Childhood"
           defaults={SPEAKING_TOPICS}
           custom={settings.custom_speaking_topics}
           onChange={(v) => save({ custom_speaking_topics: v })}
@@ -277,7 +304,7 @@ export function SettingsScreen(): React.JSX.Element {
           id="task1-topics"
           title="Task 1 language topics"
           addLabel="Add a Task 1 language topic"
-          placeholder="e.g. Approximation"
+          placeholder="e.g. Proportion"
           defaults={TASK1_TOPICS}
           custom={settings.custom_task1_topics}
           onChange={(v) => save({ custom_task1_topics: v })}

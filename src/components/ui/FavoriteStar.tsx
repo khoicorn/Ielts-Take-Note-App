@@ -47,7 +47,7 @@ export function FavoriteStar(props: {
   if (!onToggle) {
     if (!active) return <></>
     return (
-      <span role="img" aria-label="Must remember" title="Must remember" className={cn('inline-flex text-gold', className)}>
+      <span role="img" aria-label="Must Remember" title="Must Remember" className={cn('inline-flex text-gold', className)}>
         <RibbonIcon className="size-3.5 fill-current" strokeWidth={1.25} />
       </span>
     )
@@ -80,7 +80,7 @@ export function FavoriteStar(props: {
     <button
       type="button"
       aria-pressed={active}
-      aria-label="Must remember"
+      aria-label="Must Remember"
       title={title}
       onClick={onToggle}
       className={cn(

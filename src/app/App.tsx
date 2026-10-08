@@ -5,7 +5,9 @@ import { BrowserRouter, Route, Routes } from 'react-router'
 import { ConfirmProvider } from '@/components/ui/Confirm'
 import { ICON_STROKE } from '@/components/ui/icons'
 import { ToastProvider } from '@/components/ui/Toast'
+import { repairStoredNotes } from '@/lib/repo'
 import { AppShell } from './AppShell'
+import { DocumentTitle } from './documentTitle'
 import { GlobalHotkeys } from './GlobalHotkeys'
 import { NotFound } from './NotFound'
 import { OverlayProvider } from './overlays'
@@ -28,8 +30,12 @@ const loaders = {
   noteDetail: () => import('@/features/note-detail/NoteDetailScreen').then((m) => ({ default: m.NoteDetailScreen })),
   calendar: () => import('@/features/calendar/CalendarScreen').then((m) => ({ default: m.CalendarScreen })),
   settings: () => import('@/features/settings/SettingsScreen').then((m) => ({ default: m.SettingsScreen })),
-  design: () => import('./DesignPreview').then((m) => ({ default: m.DesignPreview })),
 }
+
+/** The developer preview (/design) exists only in dev builds. Vite drops the chunk from production. */
+const DesignPreview = import.meta.env.DEV
+  ? lazy(() => import('./DesignPreview').then((m) => ({ default: m.DesignPreview })))
+  : null
 
 const TodayScreen = lazy(loaders.today)
 const ReviewScreen = lazy(loaders.review)
@@ -42,7 +48,6 @@ const AllNotesScreen = lazy(loaders.allNotes)
 const NoteDetailScreen = lazy(loaders.noteDetail)
 const CalendarScreen = lazy(loaders.calendar)
 const SettingsScreen = lazy(loaders.settings)
-const DesignPreview = lazy(loaders.design)
 
 /** Fetches every screen chunk once the first screen has settled, so later moves never wait. */
 function usePrefetchScreens(): void {
@@ -59,7 +64,7 @@ function usePrefetchScreens(): void {
   }, [])
 }
 
-/** Routes (design §6). /review is full screen, outside the shell. /design is hidden from navigation. */
+/** Routes (design §6). /review is full screen, outside the shell. /design is hidden from navigation and dev-only. */
 export function AppRoutes(): React.JSX.Element {
   return (
     <Routes>
@@ -83,7 +88,7 @@ export function AppRoutes(): React.JSX.Element {
         <Route path="/notes/:id" element={<NoteDetailScreen />} />
         <Route path="/calendar" element={<CalendarScreen />} />
         <Route path="/settings" element={<SettingsScreen />} />
-        <Route path="/design" element={<DesignPreview />} />
+        {DesignPreview ? <Route path="/design" element={<DesignPreview />} /> : null}
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
@@ -93,8 +98,16 @@ export function AppRoutes(): React.JSX.Element {
 /** Vite's base ('/' locally, '/Ielts-Take-Note-App/' on GitHub Pages) without the trailing slash. */
 const ROUTER_BASENAME = import.meta.env.BASE_URL.replace(/\/$/, '') || '/'
 
+/** Fixes rows that older versions stored (see repairStoredNotes). Runs once per page load, in the background. */
+function useRepairStoredNotes(): void {
+  useEffect(() => {
+    void repairStoredNotes()
+  }, [])
+}
+
 export function App(): React.JSX.Element {
   usePrefetchScreens()
+  useRepairStoredNotes()
   return (
     <ThemeProvider>
       <LucideProvider strokeWidth={ICON_STROKE}>
@@ -102,6 +115,7 @@ export function App(): React.JSX.Element {
           <ToastProvider>
             <ConfirmProvider>
               <OverlayProvider>
+                <DocumentTitle />
                 <GlobalHotkeys />
                 <AppRoutes />
                 <UpdatePrompt />

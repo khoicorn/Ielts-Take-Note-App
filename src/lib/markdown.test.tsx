@@ -85,4 +85,14 @@ describe('markdown', () => {
     expect(inline.container.querySelectorAll('br')).toHaveLength(1)
     expect(inline.container.textContent).toBe('line oneline two')
   })
+
+  it('M6 punctuation right after a slot stays on the slot line', () => {
+    const { container } = render(<Markdown text="from ___ to ___. Then ___ rose" inline />)
+    expect(container.textContent).toBe('from  to . Then  rose')
+    const kept = container.querySelectorAll('span.whitespace-nowrap')
+    expect(kept).toHaveLength(1)
+    expect(kept[0].querySelector('span[role="img"]')).not.toBeNull()
+    expect(kept[0].textContent).toBe('.')
+    expect(container.querySelectorAll('span[role="img"]')).toHaveLength(3)
+  })
 })

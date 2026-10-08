@@ -5,8 +5,8 @@ import { Kbd } from '@/components/ui/Kbd'
 import { formatInterval } from '@/lib/dates'
 import { previewIntervals } from '@/lib/srs'
 import { RATINGS } from '@/lib/taxonomy'
-import type { Note, Rating } from '@/lib/types'
-import { RATE_HINT, REVEAL_HINT } from './copy'
+import type { Mode, Note, Rating } from '@/lib/types'
+import { RATE_HINT, revealHint } from './copy'
 
 /**
  * Under 640px the bar is fixed to the bottom, above the safe area (mockup m02).
@@ -21,13 +21,15 @@ const BAR = cn(
 export function RevealBar(props: {
   onReveal: () => void
   typing: boolean
+  /** The card's notebook: Speaking says it aloud, Writing writes or says it. */
+  mode: Mode
   revealRef?: React.Ref<HTMLButtonElement>
 }): React.JSX.Element {
   return (
     <div className={BAR}>
       <div className="flex items-center justify-between gap-4 max-sm:flex-col max-sm:items-stretch max-sm:gap-2.5">
         <p className="text-small text-graphite max-sm:text-center">
-          {props.typing ? 'Type it, then reveal.' : REVEAL_HINT}
+          {props.typing ? 'Type it, then reveal.' : revealHint(props.mode)}
         </p>
         <Button
           ref={props.revealRef}

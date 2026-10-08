@@ -15,14 +15,26 @@ const T13 = [
   'Example: I normally ask them to cut the sugar down to 30%, but I\'m pretty flexible about the rest.',
 ].join('\n')
 
+const PLAIN: QuickAddOptions = {}
+
 function Harness(props: { options: QuickAddOptions }) {
   const [open, setOpen] = useState(true)
+  const [options, setOptions] = useState(props.options)
   return (
     <>
       <button type="button" onClick={() => setOpen(true)}>
         Open quick add
       </button>
-      <QuickAddDialog open={open} options={props.options} onClose={() => setOpen(false)} />
+      <button
+        type="button"
+        onClick={() => {
+          setOptions(PLAIN)
+          setOpen(true)
+        }}
+      >
+        Open plain quick add
+      </button>
+      <QuickAddDialog open={open} options={options} onClose={() => setOpen(false)} />
     </>
   )
 }
@@ -120,12 +132,44 @@ describe('QuickAddDialog', () => {
     expect(field('Why').value).toBe('"customize" sounds technical.')
     expect(screen.queryByText(/This looks like a correction/)).toBeNull()
 
-    expect(await screen.findByText('Fields filled.')).toBeInTheDocument()
+    // Undo is a line in the form, not a toast, so it never outlives the dialog.
+    expect((await screen.findByText('Fields filled')).parentElement).toHaveTextContent(/^Fields filled·Undo$/)
+    expect(screen.queryByText('Fields filled.')).toBeNull()
     await user.click(screen.getByRole('button', { name: 'Undo' }))
     expect(field('What I Said').value).toBe(T13)
     expect(field(/Native Upgrade/).value).toBe('')
     expect(field('In context').value).toBe('')
     expect(field('Why').value).toBe('')
+    expect(screen.queryByText('Fields filled')).toBeNull()
+  })
+
+  it('Q4 the "Fields filled · Undo" line goes away with the next edit and leaves no Undo after save', async () => {
+    const { user } = setup({ mode: 'speaking' })
+    await user.click(await screen.findByLabelText('What I Said'))
+    await user.paste(T13)
+    await user.click(await screen.findByRole('button', { name: 'Fill fields' }))
+    expect(await screen.findByText('Fields filled')).toBeInTheDocument()
+    await user.click(field(/Native Upgrade/))
+    await user.keyboard(' Really.')
+    expect(screen.queryByText('Fields filled')).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Undo' })).toBeNull()
+
+    await user.keyboard('{Control>}{Enter}{/Control}')
+    await waitFor(async () => expect(await allNotes()).toHaveLength(1))
+    expect(await screen.findByText('Note saved.')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Undo' })).toBeNull()
+  })
+
+  it('Q4 saving right after Fill fields leaves no Undo on screen', async () => {
+    const { user } = setup({ mode: 'speaking' })
+    await user.click(await screen.findByLabelText('What I Said'))
+    await user.paste(T13)
+    await user.click(await screen.findByRole('button', { name: 'Fill fields' }))
+    expect(await screen.findByRole('button', { name: 'Undo' })).toBeInTheDocument()
+    await user.keyboard('{Control>}{Enter}{/Control}')
+    expect(await screen.findByText('Note saved.')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Undo' })).toBeNull()
+    expect(screen.queryByText('Fields filled')).toBeNull()
   })
 
   it('Q4 Keep as pasted hides the offer and leaves the text alone', async () => {
@@ -301,6 +345,45 @@ describe('QuickAddDialog', () => {
     expect(await screen.findByRole('dialog', { name: 'New Speaking note' })).toBeInTheDocument()
     expect(screen.queryByText('Draft restored')).toBeNull()
     expect(field('What I Said').value).toBe('')
+    expect(localStorage.getItem('ielts-quickadd-draft')).toBe(draft)
+  })
+
+  it('Q16 saving a prefilled note leaves the waiting draft alone', async () => {
+    const draft = JSON.stringify({
+      v: 1,
+      mode: 'writing',
+      values: { original_text: 'MYDRAFT sentence', upgraded_text: 'MYDRAFT upgrade' },
+      saved_at: new Date().toISOString(),
+    })
+    localStorage.setItem('ielts-quickadd-draft', draft)
+    const { user } = setup({ mode: 'writing', prefill: { upgraded_text: 'zzqqx' } })
+    expect(await screen.findByRole('dialog', { name: 'New Writing note' })).toBeInTheDocument()
+    expect(screen.queryByText('Draft restored')).toBeNull()
+    await user.click(field('My Sentence'))
+    await user.keyboard('typed in the prefill session')
+    await user.keyboard('{Control>}{Enter}{/Control}')
+    await waitFor(async () => expect(await allNotes()).toHaveLength(1))
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    expect(localStorage.getItem('ielts-quickadd-draft')).toBe(draft)
+
+    await user.click(screen.getByRole('button', { name: 'Open plain quick add' }))
+    expect(await screen.findByText('Draft restored')).toBeInTheDocument()
+    expect(field('My Sentence').value).toBe('MYDRAFT sentence')
+  })
+
+  it('Q17 a session that did not restore the draft does not write over it when closed', async () => {
+    const draft = JSON.stringify({
+      v: 1,
+      mode: 'writing',
+      values: { original_text: 'WDRAFT2 sentence' },
+      saved_at: new Date().toISOString(),
+    })
+    localStorage.setItem('ielts-quickadd-draft', draft)
+    const { user } = setup({ mode: 'speaking' })
+    await user.click(await screen.findByLabelText('What I Said'))
+    await user.keyboard('Speaking text')
+    await user.click(screen.getByRole('button', { name: 'Close' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
     expect(localStorage.getItem('ielts-quickadd-draft')).toBe(draft)
   })
 

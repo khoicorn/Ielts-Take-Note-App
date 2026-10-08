@@ -269,6 +269,47 @@ describe('ParagraphScreen', { timeout: 15000 }, () => {
     await waitFor(() => expect(screen.getByLabelText('location').textContent).toBe('/writing/paragraphs/p1'))
     expect(screen.queryByRole('textbox', { name: 'Paragraph' })).toBeNull()
   })
+
+  it('PG8 closing the focus editor (Esc, Ctrl+Enter, Done) gives focus back to Edit', async () => {
+    await db.paragraphs.add(paragraph())
+    const user = userEvent.setup({ delay: null })
+    renderAt('/writing/paragraphs/p1')
+    await screen.findByRole('heading', { name: 'Task 1 — Opposite Trends' })
+    for (const close of ['{Escape}', '{Control>}{Enter}{/Control}', 'Done']) {
+      screen.getByRole('button', { name: /^Edit/ }).focus()
+      await user.keyboard('{Enter}')
+      expect(await screen.findByRole('textbox', { name: 'Paragraph' })).toBeInTheDocument()
+      if (close === 'Done') await user.click(screen.getByRole('button', { name: /Done/ }))
+      else await user.keyboard(close)
+      await waitFor(() => expect(screen.queryByRole('textbox', { name: 'Paragraph' })).toBeNull())
+      await waitFor(() => expect(screen.getByRole('button', { name: /^Edit/ })).toHaveFocus())
+    }
+  })
+
+  it('PG9 a pending change is saved at once when the page is hidden or unloads', async () => {
+    await db.paragraphs.add(paragraph({ body: 'Saved part.' }))
+    renderAt('/writing/paragraphs/p1?edit=1')
+    const field = await screen.findByRole('textbox', { name: 'Paragraph' })
+    // True when the editor asked the browser to confirm leaving.
+    const unload = () => {
+      const e = new Event('beforeunload', { cancelable: true })
+      window.dispatchEvent(e)
+      return e.defaultPrevented
+    }
+    expect(unload()).toBe(false)
+
+    // pagehide (reload, tab close) starts the save without waiting for the 500ms autosave.
+    fireEvent.change(field, { target: { value: 'Saved part. Last words.' } })
+    window.dispatchEvent(new Event('pagehide'))
+    expect(unload()).toBe(false)
+    await waitFor(async () => expect((await db.paragraphs.get('p1'))?.body).toBe('Saved part. Last words.'))
+
+    // beforeunload with a pending change: the save starts and the browser asks first.
+    fireEvent.change(field, { target: { value: 'Saved part. Last words. More.' } })
+    expect(unload()).toBe(true)
+    expect(unload()).toBe(false)
+    await waitFor(async () => expect((await db.paragraphs.get('p1'))?.body).toBe('Saved part. Last words. More.'))
+  })
 })
 
 describe('ParagraphList', { timeout: 15000 }, () => {

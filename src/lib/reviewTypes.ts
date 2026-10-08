@@ -180,7 +180,8 @@ function phraseCard(note: Note, extras: { pattern?: string; explanation?: string
       type: 'phrase_to_sentence',
       promptLabel: 'Use it in a full sentence',
       prompt: note.upgraded_text,
-      answerLabel: 'In context',
+      // The example field's own label: "In context" (Speaking) or "Example" (Writing).
+      answerLabel: FIELD_LABELS[note.mode].example,
       answer: has(note.example_sentence) ? note.example_sentence : note.upgraded_text,
     },
     extras,
@@ -231,8 +232,15 @@ export function buildReviewCard(note: Note, type: ReviewType): ReviewCard {
         : topic
           ? `Use your pattern for: ${topic}`
           : 'Use your pattern in a sentence.'
+      // A task phrase like the other cards, so it does not repeat the "Pattern Recall" label in the top bar.
       return withOptional(
-        { type, promptLabel: 'Pattern recall', prompt, answerLabel: 'Pattern', answer: note.reusable_pattern },
+        {
+          type,
+          promptLabel: 'Recall the pattern',
+          prompt,
+          answerLabel: FIELD_LABELS[note.mode].pattern,
+          answer: note.reusable_pattern,
+        },
         { context: note.example_sentence, explanation: note.explanation },
       )
     }

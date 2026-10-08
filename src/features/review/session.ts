@@ -22,7 +22,10 @@ export interface SessionState {
   revealed: boolean
   /** Note ids rated at least once, in order. */
   reviewed: string[]
-  /** Note ids rated Again at least once, in order. */
+  /**
+   * Note ids whose latest rating in this session is Again, in order ("To see again soon").
+   * A note rated Again and then Good on its second showing is not listed: it is not due soon.
+   */
   again: string[]
   /** Note ids already appended once after Again. */
   requeued: string[]
@@ -101,7 +104,7 @@ export function sessionReducer(state: SessionState, action: SessionAction): Sess
         ...advance(state, queue),
         requeued,
         reviewed: addOnce(state.reviewed, note.id),
-        again: rating === 'again' ? addOnce(state.again, note.id) : state.again,
+        again: rating === 'again' ? addOnce(state.again, note.id) : state.again.filter((id) => id !== note.id),
         latest: { ...state.latest, [note.id]: note },
         feedback,
         feedbackCount,

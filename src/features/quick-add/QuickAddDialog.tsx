@@ -34,6 +34,8 @@ import {
   hasDetails,
   hasText,
   mergeValues,
+  PATTERN_HINT,
+  PLACEHOLDERS,
   reviewStartLabel,
   valuesForMode,
   valuesForNext,
@@ -44,7 +46,7 @@ import {
 } from './form'
 import { choiceId, ModeChoice } from './ModeChoice'
 import { MoreDetails } from './MoreDetails'
-import { DraftLine, PasteBar, UpgradeField } from './parts'
+import { DraftLine, FilledLine, PasteBar, UpgradeField } from './parts'
 import {
   applyOffer,
   isOfferLive,
@@ -64,24 +66,6 @@ export interface QuickAddDialogProps {
 
 const DRAFT_DELAY_MS = 300
 const EMPTY_UPGRADE = 'Add the better version first.'
-
-/**
- * The brief's own examples (plan C1). "e.g." marks them as examples: without it, an empty upgrade
- * field with a placeholder looks filled (graphite and deep sage are close in lightness).
- */
-const PLACEHOLDERS: Readonly<Record<Mode, { original: string; upgraded: string; example: string; pattern?: string }>> = {
-  speaking: {
-    original: 'e.g. We enjoyed the scenario.',
-    upgraded: 'e.g. The scenery was beautiful.',
-    example: 'e.g. The scenery along the coast was beautiful.',
-  },
-  writing: {
-    original: 'e.g. The number of visitors of the City Zoo increased steadily.',
-    upgraded: 'e.g. The number of visitors to the City Zoo increased steadily.',
-    example: 'e.g. The number of visitors to the City Zoo increased steadily from 35,000 to 68,000.',
-    pattern: 'e.g. The number of visitors to ___ increased steadily from ___ to ___.',
-  },
-}
 
 const MODE_TABS = [
   { value: 'speaking', label: 'Speaking', icon: MessageCircle },
@@ -115,6 +99,11 @@ interface Init {
   /** What Discard returns to: empty fields plus any context the caller passed (topic, task type). */
   base: FormValues
   restored: boolean
+  /**
+   * True when this session may write and clear the stored draft: it restored the draft, or none was waiting.
+   * A session that leaves a waiting draft alone (a prefill, another mode) never writes over it or clears it.
+   */
+  ownsDraft: boolean
   moreOpen: boolean
   lastUsed: Mode | null
 }
@@ -131,7 +120,8 @@ function initialState(options: QuickAddOptions, now: Date): Init {
   const storedMore = readMoreOpen()
 
   // A prefill with note text (a paragraph selection, a search) is a new note: the draft waits.
-  const draft = withContent ? null : readDraft(now)
+  const waiting = readDraft(now)
+  const draft = withContent ? null : waiting
   if (draft && (!preset || draft.mode === preset)) {
     return {
       step: 'form',
@@ -139,6 +129,7 @@ function initialState(options: QuickAddOptions, now: Date): Init {
       values: draft.values,
       base,
       restored: true,
+      ownsDraft: true,
       moreOpen: storedMore || hasDetails(draft.mode, draft.values, now),
       lastUsed,
     }
@@ -150,6 +141,7 @@ function initialState(options: QuickAddOptions, now: Date): Init {
     values: base,
     base,
     restored: false,
+    ownsDraft: waiting === null,
     moreOpen: storedMore || (withContent && hasDetails(mode, base, now)),
     lastUsed,
   }
@@ -169,6 +161,8 @@ function QuickAddSession(props: QuickAddDialogProps): React.JSX.Element {
   const [moreOpen, setMoreOpen] = useState(init.moreOpen)
   const [restored, setRestored] = useState(init.restored)
   const [offer, setOffer] = useState<PasteOffer | null>(null)
+  /** After Fill fields: the values before, for Undo. Cleared by the next edit, a save or a mode switch. */
+  const [filled, setFilled] = useState<{ before: FormValues; field: TextKey } | null>(null)
   const [upgradeError, setUpgradeError] = useState(false)
   const [focusRequest, setFocusRequest] = useState<{ key: FocusKey; end: boolean; n: number } | null>(null)
   const speakingTopics = useTopics('speaking')
@@ -180,6 +174,7 @@ function QuickAddSession(props: QuickAddDialogProps): React.JSX.Element {
   openRef.current = open
   /** True once the learner changed something. Until then, a stored draft is left as it is. */
   const dirty = useRef(false)
+  const ownsDraft = init.ownsDraft
   const saving = useRef(false)
   const alive = useRef(true)
   const initialFocusRef = useRef<HTMLElement | null>(null)
@@ -199,7 +194,13 @@ function QuickAddSession(props: QuickAddDialogProps): React.JSX.Element {
 
   const change = useCallback(
     (patch: Partial<FormValues>) => {
-      setAll({ ...valuesRef.current, ...patch })
+      const current = valuesRef.current
+      // A field that commits on blur may send its unchanged value. Only a real edit ends Undo.
+      const edited = (Object.keys(patch) as (keyof FormValues)[]).some(
+        (k) => JSON.stringify(patch[k]) !== JSON.stringify(current[k]),
+      )
+      setAll({ ...current, ...patch })
+      if (edited) setFilled(null)
       if (patch.upgraded_text?.trim()) setUpgradeError(false)
     },
     [setAll],
@@ -208,10 +209,10 @@ function QuickAddSession(props: QuickAddDialogProps): React.JSX.Element {
   /* ---------- draft ---------- */
 
   const persistDraft = useCallback(() => {
-    if (!dirty.current) return
+    if (!dirty.current || !ownsDraft) return
     if (hasText(valuesRef.current)) writeDraft(modeRef.current, valuesRef.current)
     else clearDraft()
-  }, [])
+  }, [ownsDraft])
 
   useEffect(() => {
     if (!open || step !== 'form') return
@@ -296,7 +297,10 @@ function QuickAddSession(props: QuickAddDialogProps): React.JSX.Element {
     try {
       const note = await createNote(buildDraft(m, v), { start: v.start })
       dirty.current = false
-      clearDraft()
+      // Undo belongs to the note just saved. The dialog content stays on screen while it fades out.
+      setFilled(null)
+      // A draft this session did not restore is still waiting for its own session.
+      if (ownsDraft) clearDraft()
       writeLastUsed({ mode: m, task_type: v.task_type })
       void setLastStudied({ mode: m, task_type: note.task_type, topic: note.topic }).catch(() => {})
       toast.show('Note saved.', {
@@ -313,6 +317,7 @@ function QuickAddSession(props: QuickAddDialogProps): React.JSX.Element {
       if (another) {
         setAll(valuesForNext(v, new Date()), false)
         setOffer(null)
+        setFilled(null)
         setRestored(false)
         setUpgradeError(false)
         focusField('original_text')
@@ -370,18 +375,15 @@ function QuickAddSession(props: QuickAddDialogProps): React.JSX.Element {
       setMoreOpen(true)
     }
     focusField(firstEmptyField(modeRef.current, next))
-    toast.show('Fields filled.', {
-      duration: 6000,
-      action: {
-        label: 'Undo',
-        onClick: () => {
-          if (!alive.current || !openRef.current) return
-          setAll(before)
-          setOffer(null)
-          focusField(liveOffer.field, true)
-        },
-      },
-    })
+    setFilled({ before, field: liveOffer.field })
+  }
+
+  const undoFill = () => {
+    if (!filled || !openRef.current) return
+    setAll(filled.before)
+    setFilled(null)
+    setOffer(null)
+    focusField(filled.field, true)
   }
 
   const keepPasted = () => {
@@ -398,6 +400,7 @@ function QuickAddSession(props: QuickAddDialogProps): React.JSX.Element {
     dirty.current = false
     setRestored(false)
     setOffer(null)
+    setFilled(null)
     setUpgradeError(false)
     focusField(firstEmptyField(modeRef.current, init.base))
   }
@@ -406,6 +409,7 @@ function QuickAddSession(props: QuickAddDialogProps): React.JSX.Element {
     if (m === modeRef.current) return
     modeRef.current = m
     setMode(m)
+    setFilled(null)
     setAll(valuesForMode(valuesRef.current))
     writeLastUsed({ mode: m, task_type: valuesRef.current.task_type })
   }
@@ -451,7 +455,9 @@ function QuickAddSession(props: QuickAddDialogProps): React.JSX.Element {
       size="md"
       placement="top"
       initialFocusRef={initialFocusRef}
-      bodyClassName={step === 'form' ? 'p-0!' : undefined}
+      // The Save row is sticky at the bottom of this scroll area. Scroll padding keeps a focused field or the
+      // More details toggle above it on short screens (WCAG 2.4.11), instead of under it.
+      bodyClassName={step === 'form' ? 'p-0! [scroll-padding-bottom:calc(5rem_+_env(safe-area-inset-bottom))]' : undefined}
     >
       {step === 'choose' ? (
         <ModeChoice
@@ -468,6 +474,7 @@ function QuickAddSession(props: QuickAddDialogProps): React.JSX.Element {
               <UnderlineTabs aria-label="Mode" items={MODE_TABS} value={mode} onChange={(m) => switchMode(m as Mode)} />
             </div>
             {restored ? <DraftLine onDiscard={discardDraft} /> : null}
+            {filled ? <FilledLine onUndo={undoFill} /> : null}
             {liveOffer ? (
               <PasteBar
                 count={offerFields(liveOffer).length}
@@ -511,7 +518,7 @@ function QuickAddSession(props: QuickAddDialogProps): React.JSX.Element {
               onPasteText={pasteInto('upgraded_text')}
               placeholder={ph.upgraded}
             />
-            {writing ? textField('reusable_pattern', { placeholder: ph.pattern ?? '', hint: 'Type ___ for a blank.', minRows: 1 }) : null}
+            {writing ? textField('reusable_pattern', { placeholder: ph.pattern, hint: PATTERN_HINT, minRows: 1 }) : null}
             {textField('example_sentence', { placeholder: ph.example, hint: 'A full sentence that uses the upgrade.' })}
           </div>
 

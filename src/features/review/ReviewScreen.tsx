@@ -1,6 +1,8 @@
+import { useLiveQuery } from 'dexie-react-hooks'
 import type React from 'react'
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router'
+import { useDocumentTitle } from '@/app/documentTitle'
 import { isTypingTarget } from '@/app/hotkeys'
 import { useQuickAdd } from '@/app/overlays'
 import { cn } from '@/components/ui/cn'
@@ -12,10 +14,11 @@ import { useDueCounts, useStudyStreak } from '@/lib/hooks'
 import { getSettings, rateNote } from '@/lib/repo'
 import { buildReviewCard, pickReviewType } from '@/lib/reviewTypes'
 import { buildSessionQueue } from '@/lib/session'
-import { REVIEW_TYPE_LABELS } from '@/lib/taxonomy'
+import { computeDueCounts } from '@/lib/stats'
+import { MODE_LABELS, REVIEW_TYPE_LABELS } from '@/lib/taxonomy'
 import type { Mode, Note, Rating } from '@/lib/types'
 import { RatingBar, RevealBar } from './ActionBar'
-import { AGAIN_FEEDBACK, emptyBody, MASTERED_FEEDBACK, otherMode } from './copy'
+import { AGAIN_FEEDBACK, emptyBody, MASTERED_FEEDBACK, otherMode, RATING_NOT_SAVED } from './copy'
 import { ReviewCardView } from './ReviewCard'
 import { ReviewTopBar } from './ReviewTopBar'
 import { INITIAL_SESSION, type QueueItem, sessionReducer } from './session'
@@ -52,6 +55,12 @@ export function ReviewScreen(props: { now?: Date }): React.JSX.Element {
   const [typed, setTyped] = useState('')
   const [rating, setRating] = useState(false)
   const nowMs = props.now?.getTime()
+  // A one-mode session names that mode's next review, not the next review of any note.
+  const modeCounts = useLiveQuery(async () => {
+    if (!mode) return null
+    const notes = await db.notes.where('mode').equals(mode).toArray()
+    return computeDueCounts(notes, nowMs === undefined ? new Date() : new Date(nowMs))
+  }, [mode, nowMs, run])
 
   const cardRef = useRef<HTMLDivElement>(null)
   const goodRef = useRef<HTMLButtonElement>(null)
@@ -107,6 +116,8 @@ export function ReviewScreen(props: { now?: Date }): React.JSX.Element {
     if (state.phase === 'done') doneRef.current?.focus({ preventScroll: true })
   }, [state.phase])
 
+  useDocumentTitle(state.phase === 'done' ? 'Session complete' : mode ? `${MODE_LABELS[mode]} review` : null)
+
   // "Review again soon." and "Marked as mastered." fade after 1.5s.
   useEffect(() => {
     if (!state.feedback) return
@@ -130,7 +141,7 @@ export function ReviewScreen(props: { now?: Date }): React.JSX.Element {
         dispatch({ type: 'rated', item, rating: r, note: result.note, requeue: result.requeue })
       } catch {
         // The note was deleted in another tab, for example. Move on without losing the session.
-        toast.show('This note could not be saved. It was skipped.')
+        toast.show(RATING_NOT_SAVED)
         setTyped('')
         dispatch({ type: 'skip' })
       } finally {
@@ -179,9 +190,16 @@ export function ReviewScreen(props: { now?: Date }): React.JSX.Element {
 
   let body: React.ReactNode = null
   if (state.phase === 'empty') {
+    const nextBody = mode
+      ? modeCounts === undefined
+        ? null
+        : emptyBody(modeCounts, now, MODE_LABELS[mode])
+      : counts === undefined
+        ? null
+        : emptyBody(counts, now)
     body = (
       <NothingDue
-        body={counts === undefined ? null : emptyBody(counts, now)}
+        body={nextBody}
         mode={mode}
         otherCount={mode && counts ? counts[otherMode(mode)] : 0}
         onAdd={() => quickAdd.open({ mode, onSaved: () => setRun((n) => n + 1) })}
@@ -202,7 +220,8 @@ export function ReviewScreen(props: { now?: Date }): React.JSX.Element {
     )
   } else if (item && card) {
     body = (
-      <div className="mx-auto flex w-full max-w-[784px] flex-1 flex-col px-4 sm:px-8">
+      // 28px side margin on a phone (mockup m02), so the 2px rule left of the prompt has room inside the screen.
+      <div className="mx-auto flex w-full max-w-[784px] flex-1 flex-col px-7 sm:px-8">
         <div
           ref={cardRef}
           tabIndex={-1}
@@ -228,7 +247,7 @@ export function ReviewScreen(props: { now?: Date }): React.JSX.Element {
           {revealed ? (
             <RatingBar note={item.note} onRate={(r) => void rate(r)} goodRef={goodRef} disabled={rating} />
           ) : (
-            <RevealBar onReveal={reveal} typing={typing} />
+            <RevealBar onReveal={reveal} typing={typing} mode={item.note.mode} />
           )}
         </div>
       </div>
@@ -238,12 +257,15 @@ export function ReviewScreen(props: { now?: Date }): React.JSX.Element {
   const feedback = state.feedback
   return (
     <div className="relative flex min-h-dvh flex-col bg-page">
+      {/*
+        The count shows cards, and a card rated Again comes back once, so "7 of 7" can cover 6 notes.
+        The end screen says "6 notes reviewed." and shows no count, so the two numbers never disagree.
+      */}
       <ReviewTopBar
         leaveLabel={state.phase === 'review' ? 'End review' : 'Close'}
         onLeave={leave}
-        position={state.phase === 'review' ? state.index + 1 : state.phase === 'done' ? total : undefined}
-        total={state.phase === 'review' || state.phase === 'done' ? total : undefined}
-        countPrefix={state.phase === 'done' ? 'Reviewed' : 'Note'}
+        position={state.phase === 'review' ? state.index + 1 : undefined}
+        total={state.phase === 'review' ? total : undefined}
         typeLabel={item ? REVIEW_TYPE_LABELS[item.type] : undefined}
       />
       {/* Short feedback after a rating. Always in the page, so screen readers announce it. */}
@@ -258,7 +280,11 @@ export function ReviewScreen(props: { now?: Date }): React.JSX.Element {
           </p>
         ) : null}
       </div>
-      <main className="flex flex-1 flex-col">{body}</main>
+      <main className="flex flex-1 flex-col">
+        {/* The page heading for screen readers. "Session complete" is the visible h1 at the end. */}
+        {state.phase === 'done' ? null : <h1 className="sr-only">{mode ? `${MODE_LABELS[mode]} review` : 'Review'}</h1>}
+        {body}
+      </main>
     </div>
   )
 }

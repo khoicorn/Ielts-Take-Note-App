@@ -27,7 +27,7 @@ function modeFrom(value: string | null): Mode | undefined {
 }
 
 function groupCount(g: RepeatedGroup): string {
-  return `${plural(g.seen, 'time')} · ${plural(g.patternCount, 'pattern')}`
+  return `Seen ${plural(g.seen, 'time')} · ${plural(g.patternCount, 'pattern')}`
 }
 
 function LedgerGroupSection(props: { group: RepeatedGroup; now: Date; linkFrom: string }): React.JSX.Element {
@@ -112,7 +112,7 @@ export function MistakesScreen(): React.JSX.Element {
         <EmptyState
           decoration="constellation"
           title={mode ? `No ${MODE_LABELS[mode]} mistakes logged yet` : 'No mistakes logged yet'}
-          body="When you save a correction, add its error type. Repeated habits appear here."
+          body="In Quick Add, open More details and choose an Error type. Repeated habits appear here."
           action={
             <Button variant="secondary" icon={Plus} onClick={() => quickAdd.open(mode ? { mode } : undefined)}>
               Add a note
@@ -125,7 +125,7 @@ export function MistakesScreen(): React.JSX.Element {
             <LedgerIndex repeated={repeatedIndex} once={onceIndex} />
           </div>
           <div className="lg:hidden">
-            <LedgerIndexInline items={[...repeatedIndex, ...onceIndex]} />
+            <LedgerIndexInline repeated={repeatedIndex} once={onceIndex} />
           </div>
 
           <div className="min-w-0 max-w-[760px] lg:max-w-none">

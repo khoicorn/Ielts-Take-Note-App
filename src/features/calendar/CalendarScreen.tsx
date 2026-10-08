@@ -263,6 +263,7 @@ export function CalendarScreen(props: { now?: Date } = {}): React.JSX.Element {
                 view="compact"
                 to={`/notes/${note.id}`}
                 linkState={{ from: '/calendar', ids: added.map((n) => n.id) }}
+                showMode
               />
             ))}
           </div>

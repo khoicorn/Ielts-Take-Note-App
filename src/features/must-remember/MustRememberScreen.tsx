@@ -1,10 +1,14 @@
+import { useLiveQuery } from 'dexie-react-hooks'
+import { Plus } from 'lucide-react'
 import type React from 'react'
 import { useMemo } from 'react'
 import { useLocation, useSearchParams } from 'react-router'
+import { useQuickAdd } from '@/app/overlays'
+import { db } from '@/lib/db'
 import { useNotes, useParagraphs } from '@/lib/hooks'
 import { toggleFavorite, updateNote, updateParagraph } from '@/lib/repo'
 import type { Mode, Note, Paragraph } from '@/lib/types'
-import { ButtonLink } from '@/components/ui/Button'
+import { Button, ButtonLink } from '@/components/ui/Button'
 import { READING_PAGE as PAGE } from '@/components/ui/cn'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { FavoriteStar } from '@/components/ui/FavoriteStar'
@@ -12,11 +16,14 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { Section } from '@/components/ui/Section'
 import { UnderlineTabs } from '@/components/ui/Tabs'
 import { useToast } from '@/components/ui/Toast'
+import { keepFocusAfterRemoval } from '@/features/all-notes/focusAfterRemove'
 import { plural } from '@/features/all-notes/notebook'
 import { EssentialNote } from './EssentialNote'
 import { ParagraphEntry } from './ParagraphEntry'
 
-const EMPTY_BODY = 'Mark a note with the ribbon to keep it here.'
+const EMPTY_BODY = 'Open a note and choose Must Remember to keep it here.'
+/** Each note or paragraph on the page (EssentialNote, ParagraphEntry). */
+const ENTRY = '[data-entry]'
 
 type Tab = 'all' | Mode
 
@@ -41,6 +48,9 @@ export function MustRememberScreen(): React.JSX.Element {
   const tab = parseTab(params.get('mode'))
   const notes = useNotes({ favorite: true })
   const paragraphs = useParagraphs()
+  // With an empty notebook, the empty state offers the first note instead of an empty All Notes.
+  const activeNotes = useLiveQuery(() => db.notes.filter((n) => !n.is_archived).count(), [])
+  const quickAdd = useQuickAdd()
   // `notes` changes whenever the data does, so "now" stays fresh for due dates.
   const now = useMemo(() => new Date(), [notes])
 
@@ -49,18 +59,23 @@ export function MustRememberScreen(): React.JSX.Element {
   const writing = notes?.filter((n) => n.mode === 'writing') ?? []
   const shownNotes = tab === 'all' ? (notes ?? []) : tab === 'speaking' ? speaking : writing
   const shownParagraphs = tab === 'speaking' ? [] : marked
-  const loading = notes === undefined || paragraphs === undefined
+  const loading = notes === undefined || paragraphs === undefined || activeNotes === undefined
   const nothing = !loading && notes.length === 0 && marked.length === 0
   const linkState = { ids: shownNotes.map((n) => n.id), from: location.pathname + location.search }
 
+  // The item leaves the page, so keyboard focus moves to the next item (or the title).
   const unmarkNote = async (note: Note) => {
+    const refocus = keepFocusAfterRemoval(ENTRY)
     await toggleFavorite(note.id)
+    refocus()
     toast.show('Removed from Must Remember.', {
       action: { label: 'Undo', onClick: () => void updateNote(note.id, { is_favorite: true }) },
     })
   }
   const unmarkParagraph = async (p: Paragraph) => {
+    const refocus = keepFocusAfterRemoval(ENTRY)
     await updateParagraph(p.id, { is_favorite: false })
+    refocus()
     toast.show('Removed from Must Remember.', {
       action: { label: 'Undo', onClick: () => void updateParagraph(p.id, { is_favorite: true }) },
     })
@@ -88,9 +103,15 @@ export function MustRememberScreen(): React.JSX.Element {
         title="Nothing marked yet"
         body={EMPTY_BODY}
         action={
-          <ButtonLink to="/notes" variant="secondary">
-            Open All Notes
-          </ButtonLink>
+          activeNotes === 0 ? (
+            <Button variant="primary" icon={Plus} onClick={() => quickAdd.open()}>
+              Add first note
+            </Button>
+          ) : (
+            <ButtonLink to="/notes" variant="secondary">
+              Open All Notes
+            </ButtonLink>
+          )
         }
       />
     )

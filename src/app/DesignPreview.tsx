@@ -356,7 +356,7 @@ export function DesignPreview(): React.JSX.Element {
         </div>
         <div className="border-t border-line">
           {SAMPLE_NOTES.slice(0, 5).map((n) => (
-            <NoteRow key={n.id} note={n} view={view} to="/design" highlight={view === 'reading' ? 'scenery' : undefined} />
+            <NoteRow key={n.id} note={n} view={view} to="/design" showMode highlight={view === 'reading' ? 'scenery' : undefined} />
           ))}
           <NoteRow
             note={{ ...SAMPLE_NOTES[1], is_archived: true }}

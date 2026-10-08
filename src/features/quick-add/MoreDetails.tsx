@@ -10,11 +10,20 @@ import { TagInput } from '@/components/ui/TagInput'
 import { useErrorTypes, useTopics } from '@/lib/hooks'
 import { genresFor, NOTE_TYPES } from '@/lib/taxonomy'
 import type { Mode, NoteType, ReviewStart } from '@/lib/types'
-import { fieldLabel, REVIEW_START_OPTIONS, reviewStartLabel, type FormValues, type TextKey } from './form'
+import {
+  DETAIL_PLACEHOLDERS,
+  fieldLabel,
+  NOT_SET,
+  PATTERN_HINT,
+  PLACEHOLDERS,
+  REVIEW_START_OPTIONS,
+  reviewStartLabel,
+  type FormValues,
+  type TextKey,
+} from './form'
 import { useTagSuggestions } from './useTagSuggestions'
 
 const NOTE_TYPE_OPTIONS = NOTE_TYPES.map((t) => ({ value: t.value, label: t.label }))
-const PATTERN_HINT = 'Type ___ for a blank.'
 
 export interface MoreDetailsProps {
   idBase: string
@@ -93,7 +102,7 @@ export function MoreDetails(props: MoreDetailsProps): React.JSX.Element {
         value={v.error_type}
         onChange={(e) => onChange({ error_type: e.target.value })}
         options={errorTypes}
-        placeholder="Not set"
+        placeholder={NOT_SET}
       />
     </Field>
   )
@@ -105,7 +114,7 @@ export function MoreDetails(props: MoreDetailsProps): React.JSX.Element {
         value={v.note_type}
         onChange={(e) => onChange({ note_type: e.target.value as NoteType | '' })}
         options={NOTE_TYPE_OPTIONS}
-        placeholder="Not set"
+        placeholder={NOT_SET}
       />
     </Field>
   )
@@ -120,12 +129,8 @@ export function MoreDetails(props: MoreDetailsProps): React.JSX.Element {
       <MoreToggle id={sectionId} open={open} start={v.start} onToggle={props.onToggle} />
       {open ? (
         <div id={sectionId} className="mt-3 flex flex-col gap-5">
-          {textArea('explanation', {
-            placeholder: writing
-              ? 'e.g. Use “visitors to + place” rather than “visitors of + place”.'
-              : 'e.g. “Scenery” is the view. “Scenario” is a situation.',
-          })}
-          {writing ? null : textArea('reusable_pattern', { placeholder: 'e.g. I’m pretty flexible about ___.', hint: PATTERN_HINT })}
+          {textArea('explanation', { placeholder: PLACEHOLDERS[mode].explanation })}
+          {writing ? null : textArea('reusable_pattern', { placeholder: PLACEHOLDERS.speaking.pattern, hint: PATTERN_HINT })}
 
           <div className="flex flex-col gap-1.5">
             <div className="grid grid-cols-[minmax(0,1fr)_1.5rem_minmax(0,1fr)] items-end gap-x-3 max-sm:grid-cols-1 max-sm:gap-y-3">
@@ -134,7 +139,7 @@ export function MoreDetails(props: MoreDetailsProps): React.JSX.Element {
                   id={id('error-pattern')}
                   value={v.error_pattern}
                   onChange={(e) => onChange({ error_pattern: e.target.value })}
-                  placeholder="e.g. visitors of + place"
+                  placeholder={DETAIL_PLACEHOLDERS.errorPattern}
                   autoComplete="off"
                 />
               </Field>
@@ -146,7 +151,7 @@ export function MoreDetails(props: MoreDetailsProps): React.JSX.Element {
                   id={id('fix-pattern')}
                   value={v.fix_pattern}
                   onChange={(e) => onChange({ fix_pattern: e.target.value })}
-                  placeholder="e.g. visitors to + place"
+                  placeholder={DETAIL_PLACEHOLDERS.fixPattern}
                   autoComplete="off"
                 />
               </Field>
@@ -175,7 +180,7 @@ export function MoreDetails(props: MoreDetailsProps): React.JSX.Element {
                     value={v.task_genre}
                     onChange={(e) => onChange({ task_genre: e.target.value })}
                     options={genres}
-                    placeholder="Not set"
+                    placeholder={NOT_SET}
                   />
                 </Field>
               </div>
@@ -191,7 +196,7 @@ export function MoreDetails(props: MoreDetailsProps): React.JSX.Element {
                     id={id('recall-prompt')}
                     value={v.recall_prompt}
                     onChange={(e) => onChange({ recall_prompt: e.target.value })}
-                    placeholder="e.g. Describe a stable trend."
+                    placeholder={DETAIL_PLACEHOLDERS.recallPrompt}
                     autoComplete="off"
                   />
                 </Field>
@@ -206,7 +211,7 @@ export function MoreDetails(props: MoreDetailsProps): React.JSX.Element {
                   id={id('subtopic')}
                   value={v.subtopic}
                   onChange={(e) => onChange({ subtopic: e.target.value })}
-                  placeholder="e.g. Nha Trang trip"
+                  placeholder={DETAIL_PLACEHOLDERS.subtopic}
                   autoComplete="off"
                 />
               </Field>

@@ -123,6 +123,8 @@ describe('reviewTypes', () => {
       answer: 'Visitor numbers remained relatively stable.',
     })
     expect(card.context).toBeUndefined()
+    // A Writing note names its example field "Example", as in Note Detail and Quick Add.
+    expect(buildReviewCard({ ...note, mode: 'writing', task_type: 'task2' }, 'phrase_to_sentence').answerLabel).toBe('Example')
   })
 
   it('R6 uses the recall prompt for Pattern Recall', () => {
@@ -136,9 +138,9 @@ describe('reviewTypes', () => {
     expect(availableReviewTypes(note)).toContain('pattern_recall')
     const card = buildReviewCard(note, 'pattern_recall')
     expect(card).toMatchObject({
-      promptLabel: 'Pattern recall',
+      promptLabel: 'Recall the pattern',
       prompt: 'Describe a stable trend.',
-      answerLabel: 'Pattern',
+      answerLabel: 'Reusable pattern',
       answer: '___ remained relatively stable at around ___.',
       context: 'Visitor numbers remained relatively stable.',
     })

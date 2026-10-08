@@ -8,6 +8,7 @@ import type { SortKey } from '@/lib/filters'
 import { useNotes } from '@/lib/hooks'
 import { archiveNote, restoreNote } from '@/lib/repo'
 import { searchAll } from '@/lib/search'
+import { plainText } from '@/lib/text'
 import type { Note, NoteFilter } from '@/lib/types'
 import { NoteRow } from '@/components/notes/NoteRow'
 import { Button } from '@/components/ui/Button'
@@ -21,6 +22,7 @@ import { Tag } from '@/components/ui/Tag'
 import { useToast } from '@/components/ui/Toast'
 import { VisuallyHidden } from '@/components/ui/VisuallyHidden'
 import { FilterFields, FilterPopoverPanel, MatchCount } from './FilterPanel'
+import { keepFocusAfterRemoval } from './focusAfterRemove'
 import type { ArchiveInfo } from './FilterPanel'
 import { clearFilters, filterTags, parseSort, SORT_OPTIONS } from './filterTags'
 import { modeOrTask, plural } from './notebook'
@@ -152,7 +154,10 @@ export function AllNotesScreen(): React.JSX.Element {
   const linkState = () => ({ ids, from })
 
   const restore = async (note: Note) => {
+    // The row leaves the archive list, so focus moves to the next row (or the title).
+    const refocus = keepFocusAfterRemoval('[data-view] > li')
     await restoreNote(note.id)
+    refocus()
     toast.show('Note restored.', { action: { label: 'Undo', onClick: () => void archiveNote(note.id) } })
   }
 
@@ -232,20 +237,32 @@ export function AllNotesScreen(): React.JSX.Element {
         title="No archived notes"
         body="Archived notes are kept here, out of review. Archive a note from its page."
         action={
-          <Link to="/notes" className="text-small text-indigo underline-offset-4 hover:underline">
-            Back to all notes
+          <Link
+            to="/notes"
+            className="inline-flex min-h-8 items-center rounded-xs text-small text-indigo underline-offset-4 hover:underline max-sm:min-h-11"
+          >
+            Back to All Notes
           </Link>
         }
       />
     )
   } else if (rows.length === 0) {
+    const text = query.trim()
+    // Only the list filter text is set: talk about the text, not about filters.
+    const textOnly = activeCount === 0 && text !== ''
     list = (
       <EmptyState
-        title="No notes match these filters."
-        body={query.trim() ? `Nothing matches “${query.trim()}” with the current filters.` : 'Change or clear the filters to see more notes.'}
+        title={textOnly ? `No notes match “${text}”.` : 'No notes match these filters.'}
+        body={
+          textOnly
+            ? 'Check the spelling or try one word.'
+            : text
+              ? `Nothing matches “${text}” with the current filters.`
+              : 'Change or clear the filters to see more notes.'
+        }
         action={
           <Button variant="secondary" onClick={clearEverything}>
-            Clear filters
+            {textOnly ? 'Clear search' : 'Clear filters'}
           </Button>
         }
       />
@@ -253,7 +270,13 @@ export function AllNotesScreen(): React.JSX.Element {
   } else {
     const trailing = (n: Note) =>
       inArchive ? (
-        <Button variant="secondary" size="sm" icon={ArchiveRestore} onClick={() => void restore(n)}>
+        <Button
+          variant="secondary"
+          size="sm"
+          icon={ArchiveRestore}
+          aria-label={`Restore: ${plainText(n.upgraded_text).trim()}`}
+          onClick={() => void restore(n)}
+        >
           Restore
         </Button>
       ) : undefined

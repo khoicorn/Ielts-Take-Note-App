@@ -1,6 +1,6 @@
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
+import { Link, MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ConfirmProvider } from '@/components/ui/Confirm'
 import { ToastProvider } from '@/components/ui/Toast'
@@ -23,7 +23,10 @@ function renderAt(id: string, state?: unknown) {
           <Routes>
             <Route path="/notes/:id" element={<NoteDetailScreen />} />
             <Route path="/notes" element={<p>All notes list</p>} />
+            <Route path="/" element={<Link to={`/notes/${id}`}>Open the note again</Link>} />
           </Routes>
+          {/* Stands in for the sidebar: a way out that the note's back link does not guard. */}
+          <Link to="/">Sidebar Today</Link>
           <Where />
         </MemoryRouter>
       </ConfirmProvider>
@@ -49,6 +52,7 @@ async function openActions(user: ReturnType<typeof userEvent.setup>) {
 
 beforeEach(async () => {
   await resetDb()
+  localStorage.clear()
 })
 
 describe('NoteDetailScreen', () => {
@@ -272,7 +276,7 @@ describe('NoteDetailScreen', () => {
   it('ND7 an unknown id shows the not-found state with a link to All Notes', async () => {
     renderAt('missing-id')
     expect(await screen.findByText('This note does not exist.')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'All notes' })).toHaveAttribute('href', '/notes')
+    expect(screen.getByRole('link', { name: 'All Notes' })).toHaveAttribute('href', '/notes')
   })
 
   it('ND8 with a list in location state, ] and [ move to the next and previous note', async () => {
@@ -282,12 +286,25 @@ describe('NoteDetailScreen', () => {
     renderAt(a.id, { from: '/notes', ids: [a.id, b.id] })
     expect(await screen.findByTestId('note-upgraded')).toHaveTextContent('First note.')
     expect(screen.getByText('1 of 2')).toBeInTheDocument()
-    await user.keyboard(']')
-    expect(await screen.findByText('Second note.')).toBeInTheDocument()
+    // A note page binds its keys in an effect, which can run a moment after its text shows (slow under a
+    // full parallel run). Press again until it answers. An extra ] on the last note, or [ on the first, does nothing.
+    await waitFor(
+      async () => {
+        await user.keyboard(']')
+        expect(screen.getByText('Second note.')).toBeInTheDocument()
+      },
+      { timeout: 4000 },
+    )
     expect(screen.getByTestId('where')).toHaveTextContent(`/notes/${b.id}`)
-    await user.keyboard('[[') // '[[' types a literal [ in user-event
-    expect(await screen.findByText('First note.')).toBeInTheDocument()
-  })
+    await waitFor(
+      async () => {
+        await user.keyboard('[[') // '[[' types a literal [ in user-event
+        expect(screen.getByText('First note.')).toBeInTheDocument()
+      },
+      { timeout: 4000 },
+    )
+    expect(screen.getByTestId('where')).toHaveTextContent(`/notes/${a.id}`)
+  }, 15_000)
 
   it('ND9 "I made this mistake again" adds one to times seen and makes the note due', async () => {
     const note = await addNote({ ...TRAVEL_NOTE, review_stage: 4, mastery_status: 'familiar', next_review_at: null })
@@ -296,7 +313,7 @@ describe('NoteDetailScreen', () => {
     await screen.findByTestId('note-upgraded')
     const menu = await openActions(user)
     await user.click(within(menu).getByRole('menuitem', { name: 'I made this mistake again' }))
-    expect(await screen.findByText("Logged. It will come back in today's review.")).toBeInTheDocument()
+    expect(await screen.findByText('Marked as seen again. It is back in today’s review.')).toBeInTheDocument()
     const saved = (await db.notes.get(note.id)) as Note
     expect(saved.times_seen).toBe(2)
     expect(saved.review_stage).toBe(1)
@@ -313,6 +330,95 @@ describe('NoteDetailScreen', () => {
     expect(await screen.findByText('Note duplicated.')).toBeInTheDocument()
     await waitFor(() => expect(screen.getByTestId('where')).not.toHaveTextContent(`/notes/${note.id}`))
     expect(await db.notes.count()).toBe(2)
+  })
+
+  it('ND12 edits left by another way out (sidebar, search, Back) are kept and come back in edit mode', async () => {
+    const note = await addNote({ ...TRAVEL_NOTE })
+    const user = userEvent.setup({ delay: null })
+    renderAt(note.id)
+    await user.click(await screen.findByRole('button', { name: /^Edit/ }))
+    const upgrade = screen.getByLabelText('Native Upgrade')
+    await user.clear(upgrade)
+    await user.type(upgrade, 'Edited but not saved yet.')
+    await user.click(screen.getByRole('link', { name: 'Sidebar Today' }))
+    expect(await screen.findByRole('link', { name: 'Open the note again' })).toBeInTheDocument()
+    // Nothing was saved to the note.
+    expect(((await db.notes.get(note.id)) as Note).upgraded_text).toBe('The scenery was beautiful.')
+
+    await user.click(screen.getByRole('link', { name: 'Open the note again' }))
+    expect(await screen.findByRole('form', { name: 'Edit note' })).toBeInTheDocument()
+    expect(screen.getByText('Draft restored')).toBeInTheDocument()
+    expect(screen.getByLabelText('Native Upgrade')).toHaveValue('Edited but not saved yet.')
+
+    await user.click(screen.getByRole('button', { name: /Save changes/ }))
+    expect(await screen.findByText('Changes saved.')).toBeInTheDocument()
+    expect(((await db.notes.get(note.id)) as Note).upgraded_text).toBe('Edited but not saved yet.')
+    expect(localStorage.getItem('ielts-note-edit-drafts')).toBeNull()
+  })
+
+  it('ND13 Discard on "Draft restored" goes back to the saved note and forgets the edits', async () => {
+    const note = await addNote({ ...TRAVEL_NOTE })
+    const user = userEvent.setup({ delay: null })
+    renderAt(note.id)
+    await user.click(await screen.findByRole('button', { name: /^Edit/ }))
+    await user.type(screen.getByLabelText('Why'), ' More.')
+    await user.click(screen.getByRole('link', { name: 'Sidebar Today' }))
+    await user.click(await screen.findByRole('link', { name: 'Open the note again' }))
+    expect(await screen.findByText('Draft restored')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Discard' }))
+    expect(screen.queryByText('Draft restored')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Why')).toHaveValue(TRAVEL_NOTE.explanation)
+    expect(localStorage.getItem('ielts-note-edit-drafts')).toBeNull()
+  })
+
+  it('ND14 Discard from the back link forgets the edits', async () => {
+    const note = await addNote({ ...TRAVEL_NOTE })
+    const user = userEvent.setup({ delay: null })
+    renderAt(note.id, { from: '/notes' })
+    await user.click(await screen.findByRole('button', { name: /^Edit/ }))
+    await user.type(screen.getByLabelText('Why'), ' More.')
+    await user.click(screen.getByRole('link', { name: 'All Notes' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Discard your changes?' })
+    await user.click(within(dialog).getByRole('button', { name: 'Discard' }))
+    expect(await screen.findByText('All notes list')).toBeInTheDocument()
+    expect(localStorage.getItem('ielts-note-edit-drafts')).toBeNull()
+  })
+
+  it('ND15 Writing → Speaking clears the Writing topic and recall prompt; switching back brings them back', async () => {
+    const note = await addNote({
+      mode: 'writing',
+      task_type: 'task2',
+      topic: 'Thesis',
+      recall_prompt: 'State your view.',
+      original_text: 'I think it is good.',
+      upgraded_text: 'I firmly believe that the benefits outweigh the drawbacks.',
+    })
+    const user = userEvent.setup({ delay: null })
+    renderAt(note.id)
+    await user.click(await screen.findByRole('button', { name: /^Edit/ }))
+    const notebook = screen.getByRole('radiogroup', { name: 'Notebook' })
+    await user.click(within(notebook).getByRole('radio', { name: 'Speaking' }))
+    expect(screen.getByLabelText('Topic')).toHaveValue('')
+    expect(screen.queryByLabelText(/Recall prompt/)).not.toBeInTheDocument()
+    await user.click(within(notebook).getByRole('radio', { name: 'Writing' }))
+    expect(screen.getByLabelText('Language topic')).toHaveValue('Thesis')
+    expect(screen.getByLabelText(/Recall prompt/)).toHaveValue('State your view.')
+
+    await user.click(within(notebook).getByRole('radio', { name: 'Speaking' }))
+    await user.click(screen.getByRole('button', { name: /Save changes/ }))
+    expect(await screen.findByText('Changes saved.')).toBeInTheDocument()
+    const saved = (await db.notes.get(note.id)) as Note
+    expect(saved).toMatchObject({ mode: 'speaking', task_type: '', topic: '', subtopic: '', recall_prompt: '' })
+  })
+
+  it('ND16 edit placeholders read as examples', async () => {
+    const note = await addNote({ upgraded_text: "I'm glued to my phone." })
+    const user = userEvent.setup({ delay: null })
+    renderAt(note.id)
+    await user.click(await screen.findByRole('button', { name: /^Edit/ }))
+    expect(screen.getByLabelText('What I Said')).toHaveAttribute('placeholder', 'e.g. We enjoyed the scenario.')
+    expect(screen.getByLabelText('Subtopic')).toHaveAttribute('placeholder', 'e.g. Nha Trang trip')
+    expect(screen.getByText('Type ___ for each slot.')).toBeInTheDocument()
   })
 
   it('ND11 the review history lists date, rating and review type, newest first', async () => {

@@ -10,7 +10,14 @@ import { useLastExportAt } from '@/lib/hooks'
 import { exportBundle, importBundle, markExported, requestPersistentStorage } from '@/lib/repo'
 import type { ExportBundle } from '@/lib/types'
 import { SettingRow, SettingRows } from './SettingRow'
-import { backupContents, importSummaryText, lastBackupText } from './settingsCopy'
+import { BACKUP_MAX_AGE_DAYS } from '@/features/today/todayCopy'
+import { backupContents, count, importSummaryText, lastBackupText } from './settingsCopy'
+
+/** How importBundle merges (by id, the newer edit wins), in plain words. */
+const MERGE_RULE = 'Notes only in this browser stay. If a note is in both, the copy edited last is kept.'
+
+/** The interval Today's backup reminder uses: "2 weeks". */
+const BACKUP_EVERY = BACKUP_MAX_AGE_DAYS % 7 === 0 ? count(BACKUP_MAX_AGE_DAYS / 7, 'week') : count(BACKUP_MAX_AGE_DAYS, 'day')
 
 type StorageState = 'checking' | 'protected' | 'unprotected' | 'unsupported'
 type ExportKind = 'json' | 'csv' | 'md'
@@ -107,7 +114,7 @@ export function DataSection(props: { className?: string }): React.JSX.Element {
     }
     const ok = await confirm({
       title: 'Import backup',
-      body: `Import ${contents}? Existing notes are kept; newer copies win.`,
+      body: `Import ${contents}? ${MERGE_RULE}`,
       confirmLabel: 'Import',
     })
     if (!ok) return
@@ -163,7 +170,7 @@ export function DataSection(props: { className?: string }): React.JSX.Element {
         <SettingRow
           title="Import a backup"
           layout="stacked"
-          description="Choose a JSON backup from this app. Existing notes are kept; newer copies win."
+          description={`Choose a JSON backup from this app. ${MERGE_RULE}`}
         >
           <input
             ref={fileRef}
@@ -200,7 +207,7 @@ export function DataSection(props: { className?: string }): React.JSX.Element {
               : storage === 'protected'
                 ? 'Browser storage is protected.'
                 : protectRefused
-                  ? 'The browser did not allow it this time. Export a backup now and then.'
+                  ? `The browser did not allow it. Export a JSON backup every ${BACKUP_EVERY}.`
                   : 'The browser may clear this data when space is low.'
           }
         >

@@ -125,11 +125,12 @@ function PaletteBody(props: {
 
   const entries = useMemo(() => groups.flatMap((g) => g.entries), [groups])
 
-  // The first row is active again whenever the query changes.
+  // The first row is active again whenever the typed text changes. This follows the text, not the 80ms debounced
+  // search, so an arrow key pressed right after typing still counts when the new results arrive.
   const [active, setActive] = useState(0)
-  const [activeFor, setActiveFor] = useState(searched)
-  if (activeFor !== searched) {
-    setActiveFor(searched)
+  const [activeFor, setActiveFor] = useState(query)
+  if (activeFor !== query) {
+    setActiveFor(query)
     setActive(0)
   }
   const activeIndex = entries.length ? Math.min(active, entries.length - 1) : -1
@@ -180,7 +181,8 @@ function PaletteBody(props: {
   let index = 0
   return (
     <>
-      <div className="flex min-h-16 shrink-0 items-center gap-3 border-b border-line pr-3 pl-5 max-sm:pt-[env(safe-area-inset-top)] max-sm:pr-2 max-sm:pl-4">
+      {/* The input has no box, so its focus shows on the bar's bottom line. */}
+      <div className="flex min-h-16 shrink-0 items-center gap-3 border-b border-line pr-3 pl-5 transition-colors duration-150 has-[input:focus-visible]:border-indigo/60 max-sm:pt-[env(safe-area-inset-top)] max-sm:pr-2 max-sm:pl-4">
         <Search className="size-5 shrink-0 text-graphite" strokeWidth={ICON_STROKE} aria-hidden="true" />
         <input
           ref={inputRef}
@@ -219,7 +221,8 @@ function PaletteBody(props: {
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 pt-2 pb-3 [&_mark]:text-ink">
-        {!searched && !loading ? (
+        {/* Search tips only when there is something to search. */}
+        {!searched && !loading && notes.length + paragraphs.length > 0 ? (
           <p className="px-3 pt-1.5 pb-2 text-small text-graphite">Try: stable · visitors to · Travel</p>
         ) : null}
 

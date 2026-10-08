@@ -59,8 +59,10 @@ describe('ReviewScreen', () => {
 
   it('V1 empty queue shows the empty state', async () => {
     renderReview()
-    expect(await screen.findByRole('heading', { name: 'Nothing is waiting for review.' })).toBeInTheDocument()
-    expect(screen.getByText('Add notes and they will appear here.')).toBeInTheDocument()
+    // The session loads notes and settings first; give it longer than the 1s default under a full parallel run.
+    expect(await screen.findByRole('heading', { name: 'Nothing is waiting for review.' }, { timeout: 3000 })).toBeInTheDocument()
+    // The body waits for the due counts (a second live query), so it can land a moment after the heading.
+    expect(await screen.findByText('Add notes and they will appear here.', undefined, { timeout: 3000 })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Back to Today' })).toHaveAttribute('href', '/')
     expect(screen.getByRole('button', { name: 'Add a note' })).toBeInTheDocument()
   })
@@ -211,6 +213,59 @@ describe('ReviewScreen', () => {
     await screen.findByRole('heading', { name: 'Recall the better version' })
     await user.keyboard('{Escape}')
     expect(await screen.findByText('Today page')).toBeInTheDocument()
+  })
+
+  it('V10 an empty one-mode session names that mode’s next review only', async () => {
+    const tomorrow = startOfDay(addDays(new Date(), 1)).toISOString()
+    const inTenDays = startOfDay(addDays(new Date(), 10)).toISOString()
+    await db.notes.bulkAdd([
+      makeNote({ ...TRAVEL_NOTE, id: 's1', next_review_at: inTenDays }),
+      makeNote({ ...TRAVEL_NOTE, id: 's2', next_review_at: inTenDays }),
+      makeNote({ ...WRITING_NOTE, id: 'w1', next_review_at: tomorrow }),
+    ])
+    renderReview('/review?mode=speaking')
+    expect(await screen.findByRole('heading', { name: 'Nothing is waiting for review.' })).toBeInTheDocument()
+    expect(await screen.findByText('Next Speaking review in 10 days · 2 notes')).toBeInTheDocument()
+    expect(screen.queryByText(/tomorrow/)).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Speaking review' })).toBeInTheDocument()
+  })
+
+  it('V11 Again then Good: the end screen shows one count and does not list the note to see again soon', async () => {
+    await db.notes.add(makeNote({ ...TRAVEL_NOTE, id: 'travel' }))
+    const user = userEvent.setup({ delay: null })
+    renderReview()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Review' })).toBeInTheDocument()
+    expect(await screen.findByText('1 of 1')).toBeInTheDocument()
+    blurAll()
+    await user.keyboard(' ')
+    await screen.findByText('Better English')
+    await user.keyboard('1')
+    expect(await screen.findByText('2 of 2')).toBeInTheDocument()
+    blurAll()
+    await user.keyboard(' ')
+    await screen.findByText('Better English')
+    await user.keyboard('3')
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Session complete' })).toBeInTheDocument()
+    expect(screen.getByText('1 note reviewed.')).toBeInTheDocument()
+    expect(screen.queryByText(/\d+ of \d+/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/to see again soon/)).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'To see again soon' })).not.toBeInTheDocument()
+  })
+
+  it('V12 Writing cards ask to write or say the answer; Speaking cards to say it', async () => {
+    await db.notes.bulkAdd([
+      makeNote({ ...TRAVEL_NOTE, id: 'speaking', next_review_at: dueHoursAgo(48) }),
+      makeNote({ ...WRITING_NOTE, id: 'writing', next_review_at: dueHoursAgo(24) }),
+    ])
+    const user = userEvent.setup({ delay: null })
+    renderReview()
+    expect(await screen.findByText('Say it aloud first, then reveal.')).toBeInTheDocument()
+    blurAll()
+    await user.keyboard(' ')
+    await screen.findByText('Better English')
+    await user.keyboard('3')
+    expect(await screen.findByText('Write or say it first, then reveal.')).toBeInTheDocument()
   })
 
   it('V9 a note with only upgraded_text reviews without empty labels or "undefined"', async () => {

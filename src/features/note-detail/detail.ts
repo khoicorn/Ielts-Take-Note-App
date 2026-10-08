@@ -34,10 +34,14 @@ const BACK_LABELS: readonly [string, string][] = [
   ['/calendar', 'Calendar'],
   ['/review', 'Review'],
   ['/notes/', 'Back'],
-  ['/notes', 'All notes'],
+  // Page names, as in the navigation ("All Notes", "My Mistakes").
+  ['/notes', 'All Notes'],
 ]
 
-/** "All notes", "Speaking", "Today"… for the back link. */
+/** The toast after "I made this mistake again". */
+export const SEEN_AGAIN = 'Marked as seen again. It is back in today’s review.'
+
+/** "All Notes", "Speaking", "Today"… for the back link. */
 export function backLabel(state: DetailState): string {
   if (state.fromLabel) return state.fromLabel
   const path = (state.from ?? '/notes').split(/[?#]/)[0]

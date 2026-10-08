@@ -104,7 +104,7 @@ export function FirstRun(props: { title: string }): React.JSX.Element {
             </p>
           </Step>
           <Step icon={RotateCcw} n={3} title="Review it until it sticks.">
-            <p className="mt-1 text-body text-graphite">It comes back tomorrow, then in 3 days, then in a week.</p>
+            <p className="mt-1 text-body text-graphite">You review it today, then tomorrow, in 3 days and in a week.</p>
           </Step>
         </ol>
         <StarChart className="absolute -top-3 right-0 hidden h-[220px] w-[248px] text-graphite xl:block" />

@@ -106,7 +106,7 @@ describe('TodayScreen', () => {
     expect(await screen.findByText('Upgrade number 7.')).toBeInTheDocument()
     expect(screen.getByText('Upgrade number 3.')).toBeInTheDocument()
     expect(screen.queryByText('Upgrade number 2.')).not.toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /All notes/ })).toHaveAttribute('href', '/notes')
+    expect(screen.getByRole('link', { name: /All Notes/ })).toHaveAttribute('href', '/notes')
     expect(screen.getByText('Most repeated issue this week')).toBeInTheDocument()
     expect(screen.getByText('Prepositions')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /3 notes/ })).toHaveAttribute('href', '/mistakes#prepositions')

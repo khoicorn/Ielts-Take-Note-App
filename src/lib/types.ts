@@ -219,4 +219,9 @@ export interface ExportBundle {
   reviews: Review[]
   paragraphs: Paragraph[]
   settings?: Settings
+  /**
+   * Which rows are the app's example data (added by "Load example notes"), so a restored backup can still
+   * remove them and "Load example notes" does not duplicate them. Absent in backups made before 2026-10-08.
+   */
+  example_ids?: { notes: string[]; paragraphs: string[] }
 }

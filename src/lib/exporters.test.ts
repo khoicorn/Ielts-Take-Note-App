@@ -95,17 +95,73 @@ describe('exporters', () => {
       fix_pattern: '',
       mastery_status: 'learning',
       note_type: 'useful_expression',
-      task_type: '',
+      // A Writing note always belongs to a task, so it shows in a Writing tab.
+      task_type: 'task1',
       tags: ['trend-language'],
       updated_at: '2026-01-01T08:00:00.000Z',
       source_paragraph_id: null,
       times_reviewed: 0,
+      // No schedule was saved: due from the day it was made, so it comes back for review.
+      next_review_at: '2026-01-01T08:00:00.000Z',
     })
     expect(note.date_created).toMatch(/^2026-01-0[12]$/)
     expect(Object.keys(note).sort()).toEqual([...NOTE_FIELDS].sort())
     expect(b.reviews[0]).toMatchObject({ id: 'r-old', note_id: 'old', rating: 'good', review_type: 'upgrade', new_interval: 0 })
     expect(b.paragraphs).toEqual([])
     expect(b.settings).toBeUndefined()
+  })
+
+  it('E7c keeps "Do not review", and schedules notes whose date is missing or broken', () => {
+    const b = parseImport(
+      JSON.stringify({
+        app: 'ielts-upgrade-notebook',
+        exported_at: '2026-10-01T00:00:00.000Z',
+        notes: [
+          { id: 'off', upgraded_text: 'x', next_review_at: null, created_at: '2026-09-01T00:00:00.000Z' },
+          { id: 'missing', upgraded_text: 'x', review_stage: 3, created_at: '2026-09-02T00:00:00.000Z' },
+          { id: 'broken', upgraded_text: 'x', next_review_at: 'soon', created_at: '2026-09-03T00:00:00.000Z' },
+          { id: 'kept', upgraded_text: 'x', next_review_at: '2026-10-20T00:00:00.000Z' },
+          { id: 'undated', upgraded_text: 'x' },
+        ],
+      }),
+    )
+    const next = Object.fromEntries(b.notes.map((n) => [n.id, n.next_review_at]))
+    expect(next).toEqual({
+      off: null,
+      missing: '2026-09-02T00:00:00.000Z',
+      broken: '2026-09-03T00:00:00.000Z',
+      kept: '2026-10-20T00:00:00.000Z',
+      undated: '2026-10-01T00:00:00.000Z',
+    })
+  })
+
+  it('E7d a backup without an export time dates undated rows today but never as newer', () => {
+    const before = Date.now()
+    const b = parseImport(
+      JSON.stringify({
+        app: 'ielts-upgrade-notebook',
+        notes: [
+          { id: 'n', mode: 'writing', upgraded_text: 'x' },
+          { id: 'dated', upgraded_text: 'y', created_at: '2026-09-01T00:00:00.000Z' },
+        ],
+        paragraphs: [{ id: 'p', title: 'T', body: 'B' }],
+      }),
+    )
+    const [note, dated] = b.notes
+    expect(Date.parse(note.created_at)).toBeGreaterThanOrEqual(before)
+    expect(note.updated_at).toBe('1970-01-01T00:00:00.000Z')
+    expect(note.task_type).toBe('task1')
+    expect(dated.updated_at).toBe('2026-09-01T00:00:00.000Z')
+    expect(b.paragraphs[0].updated_at).toBe('1970-01-01T00:00:00.000Z')
+    expect(Date.parse(b.paragraphs[0].created_at)).toBeGreaterThanOrEqual(before)
+  })
+
+  it('E8c keeps example ids when they are lists of strings, and drops them otherwise', () => {
+    const base = { app: 'ielts-upgrade-notebook', version: 1, exported_at: '2026-10-07T10:00:00.000Z', notes: [], reviews: [], paragraphs: [] }
+    const ok = parseImport(JSON.stringify({ ...base, example_ids: { notes: ['a', 7, 'b'], paragraphs: ['p'] } }))
+    expect(ok.example_ids).toEqual({ notes: ['a', 'b'], paragraphs: ['p'] })
+    expect(parseImport(JSON.stringify({ ...base, example_ids: 'all' })).example_ids).toBeUndefined()
+    expect(parseImport(JSON.stringify(base)).example_ids).toBeUndefined()
   })
 
   it('E8 drops notes without an upgrade and rows without an id', () => {
@@ -141,6 +197,10 @@ describe('exporters', () => {
     expect(md.indexOf('## Writing')).toBeLessThan(md.indexOf('## Model paragraphs'))
     expect(md).toContain('### Task 1 — Opposite Trends')
     expect(md).not.toContain('undefined')
+    // ✦ marks Mastered only; Must Remember is a plain word (design refinement v1.1).
+    const fav = toMarkdown([makeNote({ id: 'f', is_favorite: true, mastery_status: 'mastered' })], [])
+    expect(fav).toContain('✦ Mastered · Must Remember ·')
+    expect(fav.match(/✦/g)).toHaveLength(1)
   })
 
   it('E7b stores imported times as canonical UTC so they sort in real time order', () => {

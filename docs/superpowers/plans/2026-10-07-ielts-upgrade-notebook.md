@@ -631,7 +631,7 @@ Each screen task follows the same steps:
 - Step 2, Writing: Task Type (UnderlineTabs: Academic Task 1 · Task 2), My Sentence, Band 7+ Upgrade (required), Reusable Pattern (hint: "Use ___ for slots"), Example Sentence, Save.
 - Placeholders use the brief's examples ("We enjoyed the scenario.", "The scenery was beautiful.", "The number of visitors to ___ increased steadily from ___ to ___.").
 - "More details" (collapsed by default; open state remembered in localStorage): Why (explanation), Error type (Select from `useErrorTypes()`), Mistake pattern → Fix pattern (two inputs on one row, placeholders "visitors of + place" → "visitors to + place"), Note type (Select), Subtopic (Speaking), Language topic (Combobox, `useTopics('writing', taskType)`) and Chart type / Essay type (Select from `genresFor`) for Writing, Recall prompt (Writing), Tags (TagInput), Review (SegmentedControl: Start today · Start tomorrow · Do not review), Must remember (FavoriteStar toggle with label), Date (date input, default today).
-- Smart paste: every TextArea passes `onPasteText`. If `parseSmartPaste` returns a result, show a quiet inline bar above the fields: "This looks like a correction. Fill N fields from it?" [Fill fields] [Keep as pasted]. Fill writes the parsed values into their fields (replacing the pasted block in the field it was pasted into). A toast "Fields filled." offers Undo, which restores the previous values.
+- Smart paste: every TextArea passes `onPasteText`. If `parseSmartPaste` returns a result, show a quiet inline bar above the fields: "This looks like a correction. Fill N fields from it?" [Fill fields] [Keep as pasted]. Fill writes the parsed values into their fields (replacing the pasted block in the field it was pasted into). An inline line "Fields filled · Undo" restores the previous values.
 - Validation: Save is enabled only when the upgrade field has text. On a save attempt without it, show the field error "Add the better version first." and focus the field.
 - Save: `createNote(draft, {start})`, then toast "Note saved." with action "View" (navigates to `/notes/:id`), `setLastStudied`, `onSaved`, close. Ctrl/Cmd+Enter saves. "Save and add another" (Ctrl/Cmd+Shift+Enter) keeps mode, topic, task type, tags and More details state; clears the text fields; focuses What I Said.
 - Draft: autosave all field values to localStorage `ielts-quickadd-draft` (300ms debounce). Opening without a prefill restores the draft and shows "Draft restored · Discard". Saved notes clear the draft. Closing with text keeps the draft (no confirm).
@@ -654,7 +654,7 @@ Each screen task follows the same steps:
 - State 2: the answer fades in (180ms opacity + 4px translate; none with reduced motion). answerLabel ("Better English") + answer in text-recall, upgrade color. Then "Context" + example (Markdown, text-body-lg). Pattern (if any) with slots. "Why" collapsed under a small toggle. If the user typed an answer: "Your answer" with `compareAnswer` marks (added = underline in upgrade color, removed = crimson dotted underline; plus text labels for screen readers).
 - Ratings: one compact row: Again · Hard · Good · Easy, each a secondary button with the label, the key (1–4) and the next gap in text-meta (`formatInterval(previewIntervals(note)[r])`). Good is the default focus. Keys 1–4.
 - After rating: `rateNote(id, rating, card.type)`. Again → append the note to the end of the queue once per session, and show "Review again soon." in text-small for 1.5s. When the note reaches mastered for the first time, show "✦ Marked as mastered." (fade). Then the next card.
-- End: serif "Session complete", "12 notes reviewed." "2 to see again soon." (if any), "N days of consistent study." (if streak ≥ 2), buttons "Back to Today" and "Review more" (only if more are due).
+- End: serif "Session complete", "12 notes reviewed." "2 to see again soon." (notes whose latest rating this session is Again), "N days of consistent study." (if streak ≥ 2), buttons "Back to Today" and "Review more" (only if more are due).
 - Empty queue: EmptyState "Nothing is waiting for review." body: next due from `useDueCounts` ("Next review tomorrow · 3 notes") or "Add notes and they will appear here."; actions "Back to Today", "Add a note".
 - Small "Open note" link (text-meta) opens `/notes/:id` in the same tab after confirming nothing is lost (progress is saved per card).
 - Mobile: ratings are a 4-column grid, 48px tall, fixed near the bottom with safe area.
@@ -677,7 +677,7 @@ Each screen task follows the same steps:
 - Delete: `useConfirm({title: 'Delete this note?', body: 'Its review history will be deleted too. This cannot be undone.', confirmLabel: 'Delete note', tone: 'danger'})` → `deleteNote` → navigate back → toast "Note deleted."
 - Archive: toast "Note archived." with Undo. Archived note shows a top line "This note is archived. It is hidden from review." [Restore].
 - Duplicate: navigate to the copy, toast "Note duplicated."
-- "I made this mistake again": `markSeenAgain`, toast "Logged. It will come back in today's review."
+- "I made this mistake again": `markSeenAgain`, toast "Marked as seen again. It is back in today’s review."
 - Prev/next: when `location.state.ids` is an array, show ‹ › controls and bind `[` and `]`.
 - Not found: EmptyState "This note does not exist." with a link to All Notes.
 - On open: `setLastStudied({mode, task_type, topic})`.
@@ -786,7 +786,7 @@ Settings (`/settings`, max 760px, sections separated by hairlines, `id`s for anc
 - Appearance (`#appearance`): Theme radio (System · Light · Dark) via `useTheme`.
 - Review (`#review`): Session size Select (10, 20, 30, 50). Review style: "Mixed review types" / "Always Mistake → Upgrade".
 - Topics (`#topics`): three lists (Speaking topics, Task 1 language topics, Task 2 language categories) showing defaults (muted, not removable) and custom ones (removable) with an add input each. Custom error types the same way.
-- Your data (`#data`): "Your notes stay in this browser. Export a copy to keep them safe." Last backup line. Buttons Export JSON (backup), Export CSV, Export Markdown → `exportBundle` / `toCSV` / `toMarkdown` → `downloadText(exportFileName(...))` → `markExported` (JSON only counts as a backup) → toast "Backup exported." Import: file input (accept .json) → `parseImport` → confirm dialog with counts ("Import 42 notes, 120 reviews and 2 paragraphs? Existing notes are kept; newer copies win.") → `importBundle` → toast with the summary. Errors show the `ImportError` message inline. Storage line: "Browser storage is protected." if `navigator.storage.persisted()` is true, else "The browser may clear this data when space is low." with a button "Protect storage" (`requestPersistentStorage`).
+- Your data (`#data`): "Your notes stay in this browser. Export a copy to keep them safe." Last backup line. Buttons Export JSON (backup), Export CSV, Export Markdown → `exportBundle` / `toCSV` / `toMarkdown` → `downloadText(exportFileName(...))` → `markExported` (JSON only counts as a backup) → toast "Backup exported." Import: file input (accept .json) → `parseImport` → confirm dialog with counts ("Import 42 notes, 120 reviews and 2 paragraphs? Notes only in this browser stay. If a note is in both, the copy edited last is kept.") → `importBundle` → toast with the summary. Errors show the `ImportError` message inline. Storage line: "Browser storage is protected." if `navigator.storage.persisted()` is true, else "The browser may clear this data when space is low." with a button "Protect storage" (`requestPersistentStorage`).
 - Archived notes link (`/notes?archived=1`) with count.
 - Example notes: "Load example notes" / "Remove example notes" (confirm, toast with count).
 - Danger zone: "Delete all data" → confirm with `requireText: 'DELETE'` → `deleteAllData` → toast "All data deleted."
@@ -806,6 +806,10 @@ Settings (`/settings`, max 760px, sections separated by hairlines, `id`s for anc
 
 ---
 
-## Workflow 3: QA (authored after Workflow 2)
+## Workflow 3: QA (done 2026-10-08)
+
+Result: 55 findings (4 high, 21 medium, 30 low), 54 fixed after reproduction; example-ids-in-backup fixed by the lead. Typecheck clean, 376/376 unit tests, 89/89 E2E (e2e/*.spec.ts), build OK, 230 final screenshots.
+
+### Original QA plan
 
 Reviewers by dimension, each with fresh context: (1) visual design vs brief (screenshots, 3 viewports × 2 themes), (2) core flows as Playwright E2E tests (the list in design §12), (3) data integrity and logic, (4) accessibility and keyboard, (5) clarity and microcopy (brief §36, §44). Every finding is checked by an independent skeptic before it is fixed. Fix agents own disjoint file sets. Final gate: typecheck, unit tests, build, E2E, and a last screenshot pass.

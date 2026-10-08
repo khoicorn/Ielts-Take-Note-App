@@ -64,22 +64,55 @@ describe('AllNotesScreen', () => {
     expect(localStorage.getItem('ielts-all-notes-view')).toBe('reading')
   })
 
-  it('AN3 the archived view shows Restore, and restoring removes the row', async () => {
-    await db.notes.bulkAdd([
-      makeNote({ upgraded_text: 'Archived upgrade', is_archived: true, archived_at: new Date(2026, 9, 2).toISOString() }),
-      makeNote({ upgraded_text: 'Active upgrade' }),
-    ])
+  it('AN3 the archived view shows Restore; restoring removes the row and focus moves on', async () => {
+    const archived = (text: string, day: number) =>
+      makeNote({
+        upgraded_text: text,
+        is_archived: true,
+        archived_at: new Date(2026, 9, day).toISOString(),
+        created_at: new Date(2026, 9, day).toISOString(),
+      })
+    await db.notes.bulkAdd([archived('First archived', 3), archived('Second archived', 2), makeNote({ upgraded_text: 'Active upgrade' })])
     const user = userEvent.setup({ delay: null })
     renderScreen('/notes', <AllNotesScreen />, '/notes?archived=1')
     expect(await screen.findByRole('heading', { name: 'Archived notes' })).toBeInTheDocument()
-    expect(await screen.findByText('Archived upgrade')).toBeInTheDocument()
+    expect(await screen.findByText('First archived')).toBeInTheDocument()
     expect(screen.queryByText('Active upgrade')).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'Restore' }))
-    await waitFor(() => expect(screen.queryByText('Archived upgrade')).not.toBeInTheDocument())
-    const restored = (await db.notes.toArray()).find((n) => n.upgraded_text === 'Archived upgrade')
+    // Each Restore names its note, so the buttons are not all called "Restore".
+    screen.getByRole('button', { name: 'Restore: First archived' }).focus()
+    await user.keyboard('{Enter}')
+    await waitFor(() => expect(screen.queryByText('First archived')).not.toBeInTheDocument())
+    const restored = (await db.notes.toArray()).find((n) => n.upgraded_text === 'First archived')
     expect(restored?.is_archived).toBe(false)
     expect(await screen.findByText('Note restored.')).toBeInTheDocument()
+    // Focus goes to the next row, not to the page body.
+    expect(screen.getByRole('link', { name: /Second archived/ })).toHaveFocus()
+
+    // The last row: focus goes to the page title.
+    screen.getByRole('button', { name: 'Restore: Second archived' }).focus()
+    await user.keyboard('{Enter}')
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Archived notes' })).toHaveFocus())
+  })
+
+  it('AN3b a list filter text with no match talks about the text, not filters', async () => {
+    await seed()
+    const user = userEvent.setup({ delay: null })
+    renderScreen('/notes', <AllNotesScreen />, '/notes?q=zzzz')
+    expect(await screen.findByText('No notes match “zzzz”.')).toBeInTheDocument()
+    expect(screen.getByText('Check the spelling or try one word.')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Clear search' }))
+    await waitFor(() => expect(currentUrl()).not.toContain('q='))
+    expect(await screen.findByText('Speaking upgrade')).toBeInTheDocument()
+  })
+
+  it('AN3c with a filter set, the no-match text still names the filters', async () => {
+    await seed()
+    renderScreen('/notes', <AllNotesScreen />, '/notes?mode=writing&q=zzzz')
+    expect(await screen.findByText('No notes match these filters.')).toBeInTheDocument()
+    expect(screen.getByText('Nothing matches “zzzz” with the current filters.')).toBeInTheDocument()
+    // One in the filter tag row, one in the empty state.
+    expect(screen.getAllByRole('button', { name: 'Clear filters' })).toHaveLength(2)
   })
 
   it('AN4 an empty notebook offers the first note', async () => {

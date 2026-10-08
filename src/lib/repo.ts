@@ -6,7 +6,16 @@ import { db, resetDb } from './db'
 import { isDayKey, timeOf, todayKey } from './dates'
 import { APP_ID, BACKUP_VERSION } from './exporters'
 import { newId } from './ids'
-import { cleanTags, isRecord, normalizeNote, normalizeParagraph, normalizeReview, normalizeSettings, UNTITLED_PARAGRAPH } from './records'
+import {
+  cleanTags,
+  isRecord,
+  normalizeNote,
+  normalizeParagraph,
+  normalizeReview,
+  normalizeSettings,
+  UNKNOWN_TIME,
+  UNTITLED_PARAGRAPH,
+} from './records'
 import { buildExampleData } from './seed'
 import { initialSchedule, manualMastery, schedule } from './srs'
 import { MODE_LABELS, NOTE_TYPES } from './taxonomy'
@@ -48,8 +57,11 @@ interface ExampleIds {
 
 const THEME_STORAGE_KEY = 'ielts-theme'
 const QUICK_ADD_DRAFT_KEY = 'ielts-quickadd-draft'
+/** Unsaved Note Detail edits. Same value as EDIT_DRAFTS_KEY in features/note-detail/editDraft.ts. */
+const EDIT_DRAFTS_KEY = 'ielts-note-edit-drafts'
 const EMPTY_UPGRADE = 'Add the better version first.'
 const NOTE_NOT_FOUND = 'Note not found.'
+const NOTE_ARCHIVED = 'This note is archived.'
 const PARAGRAPH_NOT_FOUND = 'Paragraph not found.'
 
 const MODES: readonly Mode[] = ['speaking', 'writing']
@@ -92,9 +104,10 @@ function cleanContent(input: NoteContentPatch): NoteContentPatch {
   return out
 }
 
-/** Speaking notes have no task type or chart/essay type. */
+/** Speaking notes have no task type or chart/essay type. A Writing note always has a task (Academic Task 1 by default). */
 function withModeRules(note: Note): Note {
-  return note.mode === 'speaking' ? { ...note, task_type: '', task_genre: '' } : note
+  if (note.mode === 'speaking') return { ...note, task_type: '', task_genre: '' }
+  return note.task_type ? note : { ...note, task_type: 'task1' }
 }
 
 function requireUpgrade(note: Note): void {
@@ -242,6 +255,8 @@ export async function rateNote(
   return db.transaction('rw', db.notes, db.reviews, db.meta, async () => {
     const note = await db.notes.get(id)
     if (!note) throw new Error(NOTE_NOT_FOUND)
+    // Archived notes are never reviewed (design §3.1), even when another tab archived one mid-session.
+    if (note.is_archived) throw new Error(NOTE_ARCHIVED)
     const r = schedule(note, rating, now)
     const updated: Note = {
       ...note,
@@ -387,13 +402,19 @@ export function readLastStudied(value: unknown): LastStudied | null {
 
 export async function exportBundle(now: Date = new Date()): Promise<ExportBundle> {
   return db.transaction('r', db.notes, db.reviews, db.paragraphs, db.meta, async () => {
-    const [notes, reviews, paragraphs, settings] = await Promise.all([
+    const [notes, reviews, paragraphs, settings, exampleIds] = await Promise.all([
       db.notes.toArray(),
       db.reviews.toArray(),
       db.paragraphs.toArray(),
       getSettings(),
+      readExampleIds(),
     ])
-    return { app: APP_ID, version: BACKUP_VERSION, exported_at: now.toISOString(), notes, reviews, paragraphs, settings }
+    const bundle: ExportBundle = { app: APP_ID, version: BACKUP_VERSION, exported_at: now.toISOString(), notes, reviews, paragraphs, settings }
+    const noteIds = new Set(notes.map((n) => n.id))
+    const paragraphIds = new Set(paragraphs.map((p) => p.id))
+    const example = { notes: exampleIds.notes.filter((id) => noteIds.has(id)), paragraphs: exampleIds.paragraphs.filter((id) => paragraphIds.has(id)) }
+    if (example.notes.length > 0 || example.paragraphs.length > 0) bundle.example_ids = example
+    return bundle
   })
 }
 
@@ -427,14 +448,48 @@ function uniqueById<T extends { id: string; updated_at?: ISODateTime }>(rows: T[
   return [...byId.values()]
 }
 
-/** Merges a backup by id: new rows are added, newer rows replace older ones. Settings are not imported. */
-export async function importBundle(b: ExportBundle): Promise<ImportSummary> {
-  const fallback = typeof b.exported_at === 'string' ? b.exported_at : new Date().toISOString()
-  const notes = uniqueById((b.notes ?? []).flatMap((n) => normalizeNote(n, fallback) ?? []))
-  const reviews = uniqueById((b.reviews ?? []).flatMap((r) => normalizeReview(r, fallback) ?? []))
-  const paragraphs = uniqueById((b.paragraphs ?? []).flatMap((p) => normalizeParagraph(p, fallback) ?? []))
+const CUSTOM_LISTS = ['custom_speaking_topics', 'custom_task1_topics', 'custom_task2_topics', 'custom_error_types'] as const
 
-  return db.transaction('rw', db.notes, db.reviews, db.paragraphs, async () => {
+/** The stored labels, then the backup's labels that are not there yet (case-insensitive). */
+function unionLabels(stored: string[], incoming: string[]): string[] {
+  const out = [...stored]
+  for (const label of incoming) {
+    if (!out.some((o) => o.toLowerCase() === label.toLowerCase())) out.push(label)
+  }
+  return out
+}
+
+/**
+ * Restores a backup's settings. Custom topics and error types are added to the stored lists.
+ * Session size, review style and theme come from the backup only when this browser has no settings yet
+ * (a fresh browser, or after "Delete all data"), so a restore never overrides choices made here.
+ * Runs inside importBundle's transaction.
+ */
+async function restoreSettings(incoming: unknown): Promise<void> {
+  if (!isRecord(incoming)) return
+  const backup = normalizeSettings(incoming)
+  const row = await db.meta.get(META_KEYS.settings)
+  const stored = normalizeSettings(row?.value)
+  const next: Settings = row ? { ...stored } : { ...backup }
+  for (const key of CUSTOM_LISTS) next[key] = unionLabels(stored[key], backup[key])
+  if (JSON.stringify(next) !== JSON.stringify(stored)) await db.meta.put({ key: META_KEYS.settings, value: next })
+}
+
+/**
+ * Merges a backup by id: new rows are added, newer rows replace older ones.
+ * Settings are restored as restoreSettings describes.
+ */
+export async function importBundle(b: ExportBundle): Promise<ImportSummary> {
+  const hasExportTime = typeof b.exported_at === 'string' && !Number.isNaN(Date.parse(b.exported_at))
+  const fallback = hasExportTime ? b.exported_at : new Date().toISOString()
+  // Undated rows never count as newer than stored ones when the backup has no export time (see parseImport).
+  const undated = hasExportTime ? fallback : UNKNOWN_TIME
+  const notes = uniqueById((b.notes ?? []).flatMap((n) => normalizeNote(n, fallback, undated) ?? []))
+  const reviews = uniqueById((b.reviews ?? []).flatMap((r) => normalizeReview(r, fallback) ?? []))
+  const paragraphs = uniqueById((b.paragraphs ?? []).flatMap((p) => normalizeParagraph(p, fallback, undated) ?? []))
+
+  return db.transaction('rw', db.notes, db.reviews, db.paragraphs, db.meta, async () => {
+    await restoreSettings(b.settings)
     const notePlan = mergePlan(notes, await db.notes.bulkGet(notes.map((n) => n.id)))
     const paragraphPlan = mergePlan(paragraphs, await db.paragraphs.bulkGet(paragraphs.map((p) => p.id)))
     await db.notes.bulkPut([...notePlan.added, ...notePlan.updated])
@@ -448,6 +503,20 @@ export async function importBundle(b: ExportBundle): Promise<ImportSummary> {
     const knownIds = new Set(noteIds.filter((_, i) => known[i]))
     const reviewsToAdd = fresh.filter((r) => knownIds.has(r.note_id))
     await db.reviews.bulkAdd(reviewsToAdd)
+
+    // Example data stays removable after a restore. Only rows this import wrote count, so a backup can never
+    // mark a note that was already here (the owner's own) as example data.
+    if (b.example_ids) {
+      const written = new Set([...notePlan.added, ...notePlan.updated, ...paragraphPlan.added, ...paragraphPlan.updated].map((r) => r.id))
+      const stored = await readExampleIds()
+      const merged: ExampleIds = {
+        notes: [...new Set([...stored.notes, ...b.example_ids.notes.filter((id) => written.has(id))])],
+        paragraphs: [...new Set([...stored.paragraphs, ...b.example_ids.paragraphs.filter((id) => written.has(id))])],
+      }
+      if (merged.notes.length > stored.notes.length || merged.paragraphs.length > stored.paragraphs.length) {
+        await db.meta.put({ key: META_KEYS.exampleIds, value: merged })
+      }
+    }
 
     return {
       notesAdded: notePlan.added.length,
@@ -520,15 +589,54 @@ export async function removeExampleData(): Promise<number> {
       await db.paragraphs.bulkDelete(paragraphIds)
     }
     await db.meta.delete(META_KEYS.exampleIds)
+    await forgetLastStudiedIfGone()
     return noteIds.length
   })
 }
 
-/** Clears every table and the unsent Quick Add draft. */
+/**
+ * Drops "Continue studying" when no note is left in its place (the last activity was on an example note),
+ * so Today never links to an empty topic. Runs inside the caller's transaction (notes and meta).
+ */
+async function forgetLastStudiedIfGone(): Promise<void> {
+  const last = readLastStudied((await db.meta.get(META_KEYS.lastStudied))?.value)
+  if (!last) return
+  const topic = last.topic.trim().toLowerCase()
+  const match = await db.notes
+    .filter(
+      (n) =>
+        !n.is_archived &&
+        n.mode === last.mode &&
+        (last.mode !== 'writing' || !last.task_type || n.task_type === last.task_type) &&
+        (!topic || n.topic.trim().toLowerCase() === topic),
+    )
+    .first()
+  if (!match) await db.meta.delete(META_KEYS.lastStudied)
+}
+
+/**
+ * Fixes rows that older versions saved in a shape the screens no longer expect. Run at app start; it
+ * changes nothing once the rows are right, keeps updated_at, and never throws. Returns the rows fixed.
+ * - A Writing note imported without a task (task_type '') gets Academic Task 1, so a Writing tab lists it.
+ */
+export async function repairStoredNotes(): Promise<number> {
+  try {
+    return await db.notes
+      .where('mode')
+      .equals('writing')
+      .filter((n) => !n.task_type)
+      .modify({ task_type: 'task1' })
+  } catch {
+    return 0
+  }
+}
+
+/** Clears every table, the unsent Quick Add draft and unsaved Note Detail edits. */
 export async function deleteAllData(): Promise<void> {
   await resetDb()
   try {
     localStorage.removeItem(QUICK_ADD_DRAFT_KEY)
+    localStorage.removeItem(EDIT_DRAFTS_KEY)
   } catch {
     // Storage can be blocked; nothing to remove then.
   }

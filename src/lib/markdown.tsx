@@ -39,20 +39,49 @@ function renderText(text: string, query: string | undefined, key: string): React
   ])
 }
 
+/** Punctuation right after a slot ("from ___ to ___."). It stays on the slot's line. */
+const TRAILING_PUNCT = /^[.,;:!?)\]”’"']+/
+
 function renderInline(nodes: MdInline[], query: string | undefined, key: string): ReactNode[] {
-  return nodes.flatMap((node, i): ReactNode[] => {
+  const out: ReactNode[] = []
+  let carry = 0 // characters of the next text node already drawn next to a slot
+  nodes.forEach((node, i) => {
     const k = `${key}-${i}`
+    const skip = carry
+    carry = 0
     switch (node.type) {
       case 'bold':
-        return [<strong key={k}>{renderText(node.text, query, k)}</strong>]
+        out.push(<strong key={k}>{renderText(node.text, query, k)}</strong>)
+        return
       case 'italic':
-        return [<em key={k}>{renderText(node.text, query, k)}</em>]
-      case 'slot':
-        return [<span key={k} role="img" aria-label="blank" className={SLOT_CLASS} />]
-      case 'text':
-        return renderText(node.text, query, k)
+        out.push(<em key={k}>{renderText(node.text, query, k)}</em>)
+        return
+      case 'slot': {
+        const slot = <span key={k} role="img" aria-label="blank" className={SLOT_CLASS} />
+        const next = nodes[i + 1]
+        const punct = next?.type === 'text' ? (TRAILING_PUNCT.exec(next.text)?.[0] ?? '') : ''
+        if (!punct) {
+          out.push(slot)
+          return
+        }
+        // An inline-block slot is a line-break point, so a closing "." could wrap onto a line of its own.
+        carry = punct.length
+        out.push(
+          <span key={`${k}-nw`} className="whitespace-nowrap">
+            {slot}
+            {punct}
+          </span>,
+        )
+        return
+      }
+      case 'text': {
+        const text = skip ? node.text.slice(skip) : node.text
+        if (text) out.push(...renderText(text, query, k))
+        return
+      }
     }
   })
+  return out
 }
 
 function renderBlock(block: MdBlock, index: number, query: string | undefined): ReactNode {

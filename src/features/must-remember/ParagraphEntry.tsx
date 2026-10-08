@@ -27,10 +27,10 @@ export function ParagraphEntry(props: { paragraph: Paragraph; ribbon: React.Reac
   const layout = useMemo(() => layoutBody(p.body), [p.body])
   const marks = useMemo(() => findSavedPhrases(layout.text, linked ?? []), [layout.text, linked])
   return (
-    <article className="group relative border-b border-line pt-7 pb-8">
+    <article data-entry className="group relative border-b border-line pt-7 pb-8">
       <div className="flex items-start justify-between gap-4">
         <h3 className={cn('min-w-0 font-serif text-section font-normal text-ink', WRAP)}>
-          <Link to={href} className="rounded-xs decoration-1 underline-offset-[5px] hover:underline">
+          <Link to={href} className="rounded-xs decoration-1 underline-offset-[5px] hover:underline max-sm:block max-sm:-my-2 max-sm:py-2">
             {p.title.trim() || 'Untitled paragraph'}
           </Link>
         </h3>

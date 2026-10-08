@@ -80,8 +80,11 @@ export function EmptyState(props: {
   action?: React.ReactNode
   decoration?: Decoration
   className?: string
+  /** 1 when the empty state is the whole page and nothing else gives it an h1 (404). Default 2. */
+  headingLevel?: 1 | 2
 }): React.JSX.Element {
-  const { title, body, action, decoration, className } = props
+  const { title, body, action, decoration, className, headingLevel = 2 } = props
+  const Heading = headingLevel === 1 ? 'h1' : 'h2'
   return (
     <div className={cn('mx-auto flex max-w-[420px] flex-col items-center px-4 py-12 text-center sm:py-16', className)}>
       {decoration ? (
@@ -94,7 +97,7 @@ export function EmptyState(props: {
           <Drawing kind={decoration} />
         </svg>
       ) : null}
-      <h2 className="font-serif text-section font-normal text-ink">{title}</h2>
+      <Heading className="font-serif text-section font-normal text-ink">{title}</Heading>
       <p className="mt-2 text-body text-graphite">{body}</p>
       {action ? <div className="mt-7 flex flex-wrap items-center justify-center gap-3">{action}</div> : null}
     </div>

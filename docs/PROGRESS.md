@@ -21,6 +21,8 @@ Last updated: 2026-10-08 (morning).
 | Design refinements v1.1 | Owner feedback applied: Must Remember ribbon, celestial dividers, lavender accent, ink reveal |
 | Workflow 2 (screens) | All 12 screens built. 3 agents (Review, Today + Calendar, Search + Settings) lost connection; integration built Review and Settings from their tests. Typecheck clean, 327/327 tests, main chunk 292 kB. Smoke: 14 routes × 2 sizes × 2 themes, 5 flows |
 | Hosting | GitHub Pages config: base path, router basename, PWA scope; tested under a Pages-like server (12/12 checks incl. offline). Vitest limited to 4 workers (21 workers on this 22-core laptop made tests flaky) |
+| Workflow 3 (QA) | 5 reviewers, 3 fixers, 1 gate: 55 findings, 54 fixed + 1 by lead. 376/376 unit, 89/89 E2E, build OK |
+| Witchier concepts | 3 directions in `docs/mockups/concepts/` (compare: `index.html`). Owner chose **A · Candlelit Library** |
 | Mockups | 21 screens in `docs/mockups/`: `png/` (42 PNGs, light + dark), `standalone/` (21 self-contained HTML), `index.html` gallery, `PROMPT.md` for outside AI reviewers |
 
 ## Hosting (owner decision 2026-10-08)
@@ -31,8 +33,5 @@ Done 2026-10-08: base path, basename, PWA scope, local Pages-like test. Owner se
 
 ## Next steps
 
-1. Done: both workflows finished and are committed.
-2. Done: pushed.
-3. Done: owner feedback applied; Workflow 2 done.
-4. Workflow 3: QA. Extra focus: Review and Settings (built by integration without a mockup comparison), Today/Calendar and Search (agents lost their reports).
-5. Workflow 3: QA (visual, flows, data integrity, accessibility, microcopy) with verified findings, then final checks.
+1. Apply Concept A (Candlelit Library) to the app: tokens, fonts, shared components, then every screen. Spec: `docs/mockups/concepts/a/README.md`. It changes refinement v1.1 rules 2 (ribbon → garnet) and 6 (dark button → deep indigo with gilt hairline); owner accepted by choosing A.
+2. Visual check of every screen in light and dark, desktop and phone; contrast test; unit + E2E; push (auto-deploys).

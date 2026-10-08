@@ -1,6 +1,6 @@
 import { ArrowRight } from 'lucide-react'
 import type React from 'react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useHotkeys } from '@/app/hotkeys'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/components/ui/cn'
@@ -13,67 +13,23 @@ import { modLabel } from '@/components/ui/Kbd'
 import { SegmentedControl, UnderlineTabs } from '@/components/ui/Tabs'
 import { TagInput } from '@/components/ui/TagInput'
 import { useToast } from '@/components/ui/Toast'
-import { isDayKey } from '@/lib/dates'
+import { DETAIL_PLACEHOLDERS, NOT_SET, PATTERN_HINT, PLACEHOLDERS } from '@/features/quick-add/form'
+import { DraftLine } from '@/features/quick-add/parts'
 import { useErrorTypes, useTopics } from '@/lib/hooks'
 import { updateNote } from '@/lib/repo'
 import { FIELD_LABELS, genresFor, MODE_LABELS, NOTE_TYPES, TASK_TYPES } from '@/lib/taxonomy'
-import type { DayKey, Mode, Note, NoteContentPatch, NoteType, TaskType } from '@/lib/types'
+import type { Mode, Note, NoteType, TaskType } from '@/lib/types'
+import {
+  clearEditDraft,
+  type FormState,
+  fromNote,
+  mergeDraft,
+  toPatch,
+  withMode,
+  writeEditDraft,
+} from './editDraft'
 
-/** The owner-written fields this form edits. Review fields are never touched (brief §41). */
-interface FormState {
-  mode: Mode
-  task_type: TaskType
-  topic: string
-  subtopic: string
-  task_genre: string
-  original_text: string
-  upgraded_text: string
-  explanation: string
-  example_sentence: string
-  reusable_pattern: string
-  model_paragraph: string
-  recall_prompt: string
-  note_type: NoteType
-  error_type: string
-  error_pattern: string
-  fix_pattern: string
-  tags: string[]
-  date_created: DayKey
-}
-
-function fromNote(n: Note): FormState {
-  return {
-    mode: n.mode,
-    task_type: n.task_type,
-    topic: n.topic,
-    subtopic: n.subtopic,
-    task_genre: n.task_genre,
-    original_text: n.original_text,
-    upgraded_text: n.upgraded_text,
-    explanation: n.explanation,
-    example_sentence: n.example_sentence,
-    reusable_pattern: n.reusable_pattern,
-    model_paragraph: n.model_paragraph,
-    recall_prompt: n.recall_prompt,
-    note_type: n.note_type,
-    error_type: n.error_type,
-    error_pattern: n.error_pattern,
-    fix_pattern: n.fix_pattern,
-    tags: [...n.tags],
-    date_created: n.date_created,
-  }
-}
-
-function toPatch(s: FormState): NoteContentPatch {
-  const { date_created, ...rest } = s
-  const patch: NoteContentPatch = { ...rest }
-  if (isDayKey(date_created)) patch.date_created = date_created
-  if (s.mode === 'speaking') {
-    patch.task_type = ''
-    patch.task_genre = ''
-  }
-  return patch
-}
+const DRAFT_DELAY_MS = 300
 
 /** Keeps a custom stored value selectable even when it is not in the list. */
 function withCurrent(options: readonly string[], current: string): string[] {
@@ -88,6 +44,7 @@ const ID = 'nd-edit'
 /**
  * Edit mode of Note Detail: the same fields as Quick Add, all visible, plus topic, task, error, tags and date.
  * Ctrl/Cmd+Enter saves. Esc cancels and asks first when something changed. Saving keeps review data.
+ * Unsaved edits are kept as a draft (editDraft.ts), so leaving by the sidebar, search or Back loses nothing.
  */
 export function NoteEditForm(props: {
   note: Note
@@ -95,14 +52,18 @@ export function NoteEditForm(props: {
   onDone: (saved?: Note) => void
   /** Tells the screen whether there are unsaved changes (the back link asks before leaving). */
   onDirtyChange?: (dirty: boolean) => void
+  /** Unsaved edits from an earlier visit (readEditDraft). The form opens with them. */
+  restored?: unknown
+  /** Set by the form: drops the draft, for a "Discard" the screen asks about (the back link). */
+  discardRef?: React.RefObject<(() => void) | null>
 }): React.JSX.Element {
-  const { note, onDone, onDirtyChange } = props
+  const { note, onDone, onDirtyChange, discardRef } = props
   const toast = useToast()
   const confirm = useConfirm()
   const dialogOpen = useAnyDialogOpen()
   // The screen remounts the form for another note, so the starting values are read once.
   const [initial] = useState(() => fromNote(note))
-  const [state, setState] = useState<FormState>(initial)
+  const [state, setState] = useState<FormState>(() => (props.restored ? mergeDraft(initial, props.restored) : initial))
   const [error, setError] = useState<string | undefined>()
   const [saving, setSaving] = useState(false)
   const firstRef = useRef<HTMLTextAreaElement>(null)
@@ -110,15 +71,58 @@ export function NoteEditForm(props: {
 
   const labels = FIELD_LABELS[state.mode]
   const isWriting = state.mode === 'writing'
+  const ph = PLACEHOLDERS[state.mode]
   const topics = useTopics(state.mode, isWriting ? state.task_type : undefined)
   const errorTypes = useErrorTypes()
   const genres = genresFor(isWriting ? state.task_type : '')
   const dirty = useMemo(() => JSON.stringify(state) !== JSON.stringify(initial), [state, initial])
+  const [showRestored, setShowRestored] = useState(() => Boolean(props.restored) && dirty)
   const canSave = state.upgraded_text.trim().length > 0
 
   useEffect(() => {
     onDirtyChange?.(dirty)
   }, [dirty, onDirtyChange])
+
+  /* ---------- draft ---------- */
+
+  // The latest values for the unmount and pagehide writes. `finished` is set by Save and Discard.
+  const latest = useRef({ state, dirty })
+  latest.current = { state, dirty }
+  const finished = useRef(false)
+  const noteId = note.id
+
+  const persist = useCallback(() => {
+    if (finished.current) return
+    if (latest.current.dirty) writeEditDraft(noteId, latest.current.state)
+    else clearEditDraft(noteId)
+  }, [noteId])
+
+  const dropDraft = useCallback(() => {
+    finished.current = true
+    clearEditDraft(noteId)
+  }, [noteId])
+
+  useEffect(() => {
+    const t = window.setTimeout(persist, DRAFT_DELAY_MS)
+    return () => window.clearTimeout(t)
+  }, [state, persist])
+
+  // Leaving the page by any route keeps the edits at once. React StrictMode runs this twice; writing twice is harmless.
+  useEffect(() => {
+    window.addEventListener('pagehide', persist)
+    return () => {
+      window.removeEventListener('pagehide', persist)
+      persist()
+    }
+  }, [persist])
+
+  useEffect(() => {
+    if (!discardRef) return
+    discardRef.current = dropDraft
+    return () => {
+      discardRef.current = null
+    }
+  }, [discardRef, dropDraft])
 
   // Closing or reloading the tab with unsaved edits: the browser asks first.
   useEffect(() => {
@@ -137,14 +141,16 @@ export function NoteEditForm(props: {
     if (key === 'upgraded_text' && error) setError(undefined)
   }
 
-  const setMode = (mode: Mode) =>
-    setState((s) => ({
-      ...s,
-      mode,
-      // A Writing note always belongs to a task. Speaking notes have none.
-      task_type: mode === 'writing' ? s.task_type || 'task1' : '',
-      task_genre: mode === 'writing' ? s.task_genre : '',
-    }))
+  const setMode = (mode: Mode) => setState((s) => withMode(s, mode, initial))
+
+  /** "Draft restored · Discard": back to the saved note, still in edit mode. */
+  const discardRestored = () => {
+    clearEditDraft(noteId)
+    setState(initial)
+    setShowRestored(false)
+    setError(undefined)
+    firstRef.current?.focus()
+  }
 
   const save = async () => {
     if (saving) return
@@ -156,6 +162,7 @@ export function NoteEditForm(props: {
     setSaving(true)
     try {
       const updated = await updateNote(note.id, toPatch(state))
+      dropDraft()
       toast.show('Changes saved.')
       onDirtyChange?.(false)
       onDone(updated)
@@ -176,6 +183,7 @@ export function NoteEditForm(props: {
       })
       if (!ok) return
     }
+    dropDraft()
     onDirtyChange?.(false)
     onDone()
   }
@@ -199,6 +207,11 @@ export function NoteEditForm(props: {
       <div className="mb-8">
         <h2 className="font-serif text-section font-normal text-ink">Edit note</h2>
         <p className="mt-1 text-small text-graphite">Editing keeps the review history and the mastery level.</p>
+        {showRestored ? (
+          <div className="mt-3">
+            <DraftLine onDiscard={discardRestored} />
+          </div>
+        ) : null}
       </div>
 
       <div className="flex flex-col gap-6">
@@ -233,7 +246,7 @@ export function NoteEditForm(props: {
               onChange={(v) => set('topic', v)}
               options={topics}
               allowCreate
-              placeholder={isWriting ? 'Increase' : 'Travel'}
+              placeholder={ph.topic}
             />
           </Field>
           {isWriting ? (
@@ -243,7 +256,7 @@ export function NoteEditForm(props: {
                 value={state.task_genre}
                 onChange={(e) => set('task_genre', e.target.value)}
                 options={withCurrent(genres, state.task_genre)}
-                placeholder="None"
+                placeholder={NOT_SET}
               />
             </Field>
           ) : (
@@ -252,7 +265,7 @@ export function NoteEditForm(props: {
                 id={`${ID}-subtopic`}
                 value={state.subtopic}
                 onChange={(e) => set('subtopic', e.target.value)}
-                placeholder="Nha Trang trip"
+                placeholder={DETAIL_PLACEHOLDERS.subtopic}
               />
             </Field>
           )}
@@ -264,7 +277,7 @@ export function NoteEditForm(props: {
             id={`${ID}-original`}
             value={state.original_text}
             onValueChange={(v) => set('original_text', v)}
-            placeholder={isWriting ? 'The number of visitors of the City Zoo increased steadily.' : 'We enjoyed the scenario.'}
+            placeholder={ph.original}
           />
         </Field>
 
@@ -275,7 +288,7 @@ export function NoteEditForm(props: {
             value={state.upgraded_text}
             onValueChange={(v) => set('upgraded_text', v)}
             required
-            placeholder={isWriting ? 'The number of visitors to the City Zoo increased steadily.' : 'The scenery was beautiful.'}
+            placeholder={ph.upgraded}
             // Larger and in deep sage: the upgrade stands out more than the mistake (brief §18, refinement 4).
             className="text-note! text-upgrade!"
           />
@@ -287,19 +300,25 @@ export function NoteEditForm(props: {
             value={state.explanation}
             onValueChange={(v) => set('explanation', v)}
             minRows={3}
+            placeholder={ph.explanation}
           />
         </Field>
 
         <Field label={labels.example} htmlFor={`${ID}-example`} hint="Bold words (Ctrl B) become the blank in review.">
-          <TextArea id={`${ID}-example`} value={state.example_sentence} onValueChange={(v) => set('example_sentence', v)} />
+          <TextArea
+            id={`${ID}-example`}
+            value={state.example_sentence}
+            onValueChange={(v) => set('example_sentence', v)}
+            placeholder={ph.example}
+          />
         </Field>
 
-        <Field label={labels.pattern} htmlFor={`${ID}-pattern`} hint="Use ___ for slots">
+        <Field label={labels.pattern} htmlFor={`${ID}-pattern`} hint={PATTERN_HINT}>
           <TextArea
             id={`${ID}-pattern`}
             value={state.reusable_pattern}
             onValueChange={(v) => set('reusable_pattern', v)}
-            placeholder={isWriting ? 'The number of visitors to ___ increased steadily from ___ to ___.' : undefined}
+            placeholder={ph.pattern}
           />
         </Field>
 
@@ -321,7 +340,7 @@ export function NoteEditForm(props: {
               id={`${ID}-recall`}
               value={state.recall_prompt}
               onChange={(e) => set('recall_prompt', e.target.value)}
-              placeholder="Describe a stable trend."
+              placeholder={DETAIL_PLACEHOLDERS.recallPrompt}
             />
           </Field>
         ) : null}
@@ -333,7 +352,7 @@ export function NoteEditForm(props: {
               value={state.error_type}
               onChange={(e) => set('error_type', e.target.value)}
               options={withCurrent(errorTypes, state.error_type)}
-              placeholder="None"
+              placeholder={NOT_SET}
             />
           </Field>
           <Field label="Note type" htmlFor={`${ID}-note-type`}>
@@ -352,7 +371,7 @@ export function NoteEditForm(props: {
               id={`${ID}-error-pattern`}
               value={state.error_pattern}
               onChange={(e) => set('error_pattern', e.target.value)}
-              placeholder="visitors of + place"
+              placeholder={DETAIL_PLACEHOLDERS.errorPattern}
             />
           </Field>
           <ArrowRight
@@ -365,14 +384,14 @@ export function NoteEditForm(props: {
               id={`${ID}-fix-pattern`}
               value={state.fix_pattern}
               onChange={(e) => set('fix_pattern', e.target.value)}
-              placeholder="visitors to + place"
+              placeholder={DETAIL_PLACEHOLDERS.fixPattern}
             />
           </Field>
         </div>
 
         <div className="grid gap-x-4 gap-y-6 sm:grid-cols-[minmax(0,1fr)_11rem]">
           <Field label="Tags" htmlFor={`${ID}-tags`}>
-            <TagInput id={`${ID}-tags`} value={state.tags} onChange={(v) => set('tags', v)} placeholder="trends, idiom" />
+            <TagInput id={`${ID}-tags`} value={state.tags} onChange={(v) => set('tags', v)} placeholder={DETAIL_PLACEHOLDERS.tags} />
           </Field>
           <Field label="Date" htmlFor={`${ID}-date`}>
             <TextInput

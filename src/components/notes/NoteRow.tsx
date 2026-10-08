@@ -4,11 +4,14 @@ import type { Note } from '@/lib/types'
 import { cn } from '@/components/ui/cn'
 import { FavoriteStar } from '@/components/ui/FavoriteStar'
 import { MasteryMark } from '@/components/ui/MasteryMark'
+import { ModeMark } from './ModeMark'
 import { NotePair } from './NotePair'
 
 /**
  * A full-width link row with a hairline under it and a gentle hover (brief §32, §37).
  * The hover surface reaches 12px past the text column; the hairline stays aligned with it.
+ * `showMode` puts the Speaking or Writing mark before the topic, for lists that mix both (Today,
+ * Calendar, Session complete; mockups 06, 11, m03). Without a topic, the mode's word stands in for it.
  */
 export function NoteRow(props: {
   note: Note
@@ -17,11 +20,20 @@ export function NoteRow(props: {
   linkState?: unknown
   highlight?: string
   trailing?: React.ReactNode
+  showMode?: boolean
   className?: string
 }): React.JSX.Element {
-  const { note, view = 'compact', to, linkState, highlight, trailing, className } = props
+  const { note, view = 'compact', to, linkState, highlight, trailing, showMode = false, className } = props
   const topic = note.topic.trim()
   const reading = view === 'reading'
+  const mode = showMode ? <ModeMark mode={note.mode} showLabel={!topic} /> : null
+  const topicLabel = (cls: string) =>
+    mode || topic ? (
+      <span className="flex min-w-0 items-center gap-1.5">
+        {mode}
+        {topic ? <span className={cls}>{topic}</span> : null}
+      </span>
+    ) : null
   return (
     <div className={cn('group -mx-3 flex items-stretch rounded-sm px-3 transition-colors duration-150 hover:bg-stone/60', className)}>
       <div className="flex min-w-0 flex-1 items-stretch border-b border-line">
@@ -47,8 +59,8 @@ export function NoteRow(props: {
               ) : null}
             </div>
             <p className="mt-1.5 flex items-center gap-2 text-meta text-graphite sm:hidden">
-              {topic ? <span className="truncate">{topic}</span> : null}
-              {topic ? <span aria-hidden="true">·</span> : null}
+              {topicLabel('truncate')}
+              {mode || topic ? <span aria-hidden="true">·</span> : null}
               <MasteryMark status={note.mastery_status} size="meta" />
             </p>
           </div>
@@ -62,14 +74,14 @@ export function NoteRow(props: {
               // Favorite mark beside the topic, mastery on its own line: the two ✦ never touch.
               <>
                 <span className="flex items-center gap-2">
-                  {topic ? <span className="max-w-40 truncate text-small text-graphite">{topic}</span> : null}
+                  {topicLabel('max-w-40 truncate text-small text-graphite')}
                   <FavoriteStar active={note.is_favorite} />
                 </span>
                 <MasteryMark status={note.mastery_status} />
               </>
-            ) : topic ? (
-              <span className="max-w-40 truncate text-small text-graphite">{topic}</span>
-            ) : null}
+            ) : (
+              topicLabel('max-w-40 truncate text-small text-graphite')
+            )}
             {reading ? null : (
               // Fixed width so the mastery words line up from row to row.
               <span className="w-[5.5rem]">

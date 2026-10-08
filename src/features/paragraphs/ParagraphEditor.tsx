@@ -71,6 +71,15 @@ function QuietSelect(props: {
   )
 }
 
+/**
+ * The bare paragraph field has no box, so focus shows as a thin indigo rule in the left margin. The negative margin
+ * and wider width keep the text where it was.
+ */
+const BODY_FOCUS = cn(
+  '-ml-3.5 w-[calc(100%+0.875rem)] border-l-2 border-transparent pl-3 transition-colors duration-150',
+  'focus-visible:border-indigo/60',
+)
+
 const TASK_OPTIONS = TASK_TYPES.map((t) => ({ value: t.value, label: t.label }))
 
 /** The topic Combobox, made quiet: no box until hover or focus. Sizes stay touch-friendly under 640px. */
@@ -135,6 +144,30 @@ export function ParagraphEditor(props: { paragraph: Paragraph; onDone: () => voi
     },
     [save],
   )
+
+  // A reload or a closed tab does not unmount the editor. Save a pending change at once, so the write starts
+  // before the page goes away. While a change is not saved yet, the browser also asks before leaving.
+  useEffect(() => {
+    const flush = () => {
+      if (dirty.current) void save()
+    }
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!dirty.current) return
+      void save()
+      e.preventDefault()
+    }
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') flush()
+    }
+    window.addEventListener('beforeunload', onBeforeUnload)
+    window.addEventListener('pagehide', flush)
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      window.removeEventListener('beforeunload', onBeforeUnload)
+      window.removeEventListener('pagehide', flush)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  }, [save])
 
   // Focus: a new paragraph starts at the title; an existing one at the end of the text.
   useLayoutEffect(() => {
@@ -230,7 +263,7 @@ export function ParagraphEditor(props: { paragraph: Paragraph; onDone: () => voi
           placeholder={UNTITLED}
           autoComplete="off"
           onChange={(e) => change({ title: e.target.value })}
-          className="block w-full border-0 border-b border-transparent bg-transparent p-0 pb-1 max-sm:min-h-11 font-serif text-title font-normal tracking-[-0.005em] text-ink placeholder:text-graphite focus-visible:border-line-strong focus-visible:outline-none"
+          className="block w-full border-0 border-b border-transparent bg-transparent p-0 pb-1 max-sm:min-h-11 font-serif text-title font-normal tracking-[-0.005em] text-ink transition-colors duration-150 placeholder:text-graphite focus-visible:border-indigo/60 focus-visible:outline-none"
         />
 
         <div role="group" aria-label="Paragraph details" className="mt-3 -ml-2 flex flex-wrap items-center gap-1">
@@ -275,7 +308,7 @@ export function ParagraphEditor(props: { paragraph: Paragraph; onDone: () => voi
           value={draft.body}
           placeholder="Write or paste the paragraph."
           onValueChange={(v) => change({ body: v })}
-          className={cn(PROSE, 'mt-10 placeholder:text-graphite')}
+          className={cn(PROSE, BODY_FOCUS, 'mt-10 placeholder:text-graphite')}
         />
       </main>
 

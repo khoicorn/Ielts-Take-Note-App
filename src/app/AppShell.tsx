@@ -20,14 +20,34 @@ const GRAIN = {
   dark: grain('0 0 0 0 0.92 0 0 0 0 0.9 0 0 0 0 0.86', 0.035),
 }
 
+/**
+ * Under 640px the sticky top bar (h-14 + 1px border) and the fixed bottom bar (h-16 + 1px border) cover
+ * the page edges. Scroll padding on <html> keeps a control focused by Tab clear of both, plus 8px
+ * (WCAG 2.4.11). Set only while the shell is shown: the full-screen Review has no bars.
+ */
+const BAR_SCROLL_PADDING = [
+  'max-sm:[scroll-padding-top:calc(3.5rem_+_1px_+_0.5rem_+_env(safe-area-inset-top))]',
+  'max-sm:[scroll-padding-bottom:calc(4rem_+_1px_+_0.5rem_+_env(safe-area-inset-bottom))]',
+]
+
 export function AppShell(): React.JSX.Element {
-  const { pathname } = useLocation()
+  const { pathname, hash } = useLocation()
   const { resolved } = useTheme()
   const paper: React.CSSProperties = { backgroundImage: GRAIN[resolved] }
 
+  // A new page starts at the top. Links with a hash (/settings#data, /mistakes#prepositions) are left to
+  // the screen, which scrolls to its section once loaded. This effect runs after the screen's effects.
+  const hasHash = hash.length > 1
   useEffect(() => {
-    window.scrollTo(0, 0)
+    if (!hasHash) window.scrollTo(0, 0)
+    // Only a new path resets the scroll. The hash is read, not watched.
   }, [pathname])
+
+  useEffect(() => {
+    const html = document.documentElement
+    html.classList.add(...BAR_SCROLL_PADDING)
+    return () => html.classList.remove(...BAR_SCROLL_PADDING)
+  }, [])
 
   return (
     <div className="relative min-h-dvh bg-page text-ink" style={paper}>

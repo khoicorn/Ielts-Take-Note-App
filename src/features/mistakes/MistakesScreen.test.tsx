@@ -104,7 +104,7 @@ describe('MistakesScreen', { timeout: 15000 }, () => {
     renderScreen()
     expect(await screen.findByText('No mistakes logged yet')).toBeInTheDocument()
     expect(
-      screen.getByText('When you save a correction, add its error type. Repeated habits appear here.'),
+      screen.getByText('In Quick Add, open More details and choose an Error type. Repeated habits appear here.'),
     ).toBeInTheDocument()
   })
 
@@ -124,5 +124,24 @@ describe('MistakesScreen', { timeout: 15000 }, () => {
     renderScreen('/mistakes?mode=speaking')
     expect(await screen.findByText('scenario (for views)')).toBeInTheDocument()
     expect(screen.queryByText('visitors of + place')).toBeNull()
+  })
+
+  it('MS5 group headers say how often a habit was seen; the narrow index keeps the two groups', async () => {
+    await db.notes.bulkAdd([1, 2, 3, 4].map((i) => visitorsNote(i)))
+    await db.notes.add(
+      makeNote({ id: 'once', mode: 'speaking', error_type: 'Word Choice', error_pattern: 'scenario (for views)', fix_pattern: 'scenery' }),
+    )
+    renderScreen()
+    const group = await screen.findByRole('region', { name: 'Prepositions' })
+    expect(within(group).getByText('Seen 4 times · 1 pattern')).toBeInTheDocument()
+
+    // Both indexes are in the DOM here (CSS shows one): the sticky one and the inline one for narrow screens.
+    const [, inline] = screen.getAllByRole('navigation', { name: 'Error types' })
+    const labels = [...inline.querySelectorAll('p')].map((p) => p.textContent)
+    expect(labels).toEqual(['Repeated', 'Not yet repeated'])
+    const [repeated, once] = within(inline).getAllByRole('list')
+    expect(within(repeated).getByRole('link', { name: /Prepositions/ })).toHaveAttribute('href', '#prepositions')
+    expect(within(once).getByRole('link', { name: /Word Choice/ })).toBeInTheDocument()
+    expect(within(repeated).queryByRole('link', { name: /Word Choice/ })).toBeNull()
   })
 })

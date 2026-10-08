@@ -15,7 +15,7 @@ import { ModeTabs, UnderlineTabs } from '@/components/ui/Tabs'
 import { groupByTopic, notebookSummary } from '@/features/all-notes/notebook'
 import { NotebookView } from '@/features/all-notes/NotebookView'
 import { MOBILE_QUERY, useMediaQuery } from '@/components/ui/uiState'
-import { ParagraphList } from '@/features/paragraphs/ParagraphList'
+import { NewParagraphButton, ParagraphList } from '@/features/paragraphs/ParagraphList'
 
 type WritingTab = 'task1' | 'task2' | 'paragraphs'
 type Task = Exclude<TaskType, ''>
@@ -142,8 +142,14 @@ export function WritingScreen(): React.JSX.Element {
   )
 
   const hasNotes = notes !== undefined && notes.length > 0
+  const hasParagraphs = paragraphs !== undefined && paragraphs.length > 0
+  // The same header slot holds the tab's main action, so it does not move when the tab changes.
   const actions =
-    hasNotes && tab !== 'paragraphs' ? (
+    tab === 'paragraphs' ? (
+      hasParagraphs ? (
+        <NewParagraphButton />
+      ) : undefined
+    ) : hasNotes ? (
       <>
         {due > 0 ? (
           <ButtonLink to="/review?mode=writing" variant="secondary" size="sm" icon={RotateCcw}>
@@ -161,7 +167,7 @@ export function WritingScreen(): React.JSX.Element {
   if (tab === 'paragraphs') {
     body = (
       <div className="mt-8">
-        <ParagraphList />
+        <ParagraphList headerAction />
       </div>
     )
   } else if (notes === undefined) {

@@ -148,7 +148,7 @@ function ArchiveLink(props: { archive: ArchiveInfo }): React.JSX.Element {
   if (inArchive) {
     return (
       <Link to="/notes" className={PANEL_LINK} onClick={onNavigate}>
-        Back to all notes
+        Back to All Notes
       </Link>
     )
   }

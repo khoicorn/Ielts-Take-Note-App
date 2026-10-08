@@ -37,4 +37,19 @@ describe('GlobalHotkeys', () => {
     fireEvent.keyDown(field, { key: 'k', ctrlKey: true })
     expect(screen.getByLabelText('state')).toHaveTextContent('search:true add:false')
   })
+
+  it('H7 N and Ctrl+K do nothing while a popover or menu is open', () => {
+    setup()
+    const layer = document.createElement('div')
+    layer.setAttribute('data-floating', '')
+    layer.tabIndex = -1
+    document.body.appendChild(layer)
+    act(() => layer.focus())
+    fireEvent.keyDown(layer, { key: 'n' })
+    fireEvent.keyDown(layer, { key: 'k', ctrlKey: true })
+    expect(screen.getByLabelText('state')).toHaveTextContent('search:false add:false')
+    layer.remove()
+    fireEvent.keyDown(document.body, { key: '/' })
+    expect(screen.getByLabelText('state')).toHaveTextContent('search:true add:false')
+  })
 })

@@ -66,6 +66,40 @@ describe('Dialog', { timeout: 15_000 }, () => {
     expect(document.activeElement).not.toBe(first)
   })
 
+  it('G2b a hidden last control does not break the Tab cycle; escaped focus comes back and Esc still closes', async () => {
+    const user = userEvent.setup({ delay: null })
+    const onClose = vi.fn()
+    render(
+      <div>
+        <button type="button">Behind</button>
+        <Dialog open title="Search notes" hideTitle onClose={onClose}>
+          <input aria-label="Search" />
+          {/* Like the mobile-only Close button (sm:hidden) on desktop. */}
+          <button type="button" style={{ display: 'none' }}>
+            Hidden close
+          </button>
+        </Dialog>
+      </div>,
+    )
+    const input = screen.getByLabelText('Search')
+    expect(document.activeElement).toBe(input)
+    // The input is the only Tab stop: Tab and Shift+Tab stay on it.
+    await user.tab()
+    expect(document.activeElement).toBe(input)
+    await user.tab({ shift: true })
+    expect(document.activeElement).toBe(input)
+
+    // Focus pushed to the page behind returns to the dialog.
+    screen.getByRole('button', { name: 'Behind' }).focus()
+    expect(document.activeElement).toBe(input)
+
+    // Focus lost to the body (a removed control): Esc still closes the dialog.
+    input.blur()
+    expect(document.activeElement).toBe(document.body)
+    fireEvent.keyDown(document.body, { key: 'Escape' })
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
   it('G1 clicking the backdrop closes; clicking inside does not', async () => {
     const onClose = vi.fn()
     render(

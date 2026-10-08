@@ -2,6 +2,7 @@ import { Archive, ArchiveRestore, ArrowLeft, ChevronLeft, ChevronRight, Copy, El
 import type React from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
+import { useDocumentTitle } from '@/app/documentTitle'
 import { useHotkeys } from '@/app/hotkeys'
 import { Button, ButtonLink } from '@/components/ui/Button'
 import { useConfirm } from '@/components/ui/Confirm'
@@ -26,7 +27,8 @@ import {
 import { MASTERY } from '@/lib/taxonomy'
 import { plainText } from '@/lib/text'
 import type { MasteryStatus, Note } from '@/lib/types'
-import { backLabel, type DetailState, readDetailState } from './detail'
+import { backLabel, type DetailState, readDetailState, SEEN_AGAIN } from './detail'
+import { clearEditDraft, readEditDraft } from './editDraft'
 import { NoteBody } from './NoteBody'
 import { NoteEditForm } from './NoteEditForm'
 import { NoteMeta } from './NoteMeta'
@@ -44,28 +46,39 @@ export function NoteDetailScreen(): React.JSX.Element {
   const nav = useMemo(() => readDetailState(location.state), [location.state])
 
   if (note === undefined) return <div className="mx-auto min-h-[60vh] max-w-[1040px]" aria-busy="true" />
-  if (note === null) {
-    return (
-      <div className="mx-auto max-w-[760px]">
-        <EmptyState
-          decoration="book"
-          title="This note does not exist."
-          body="It may have been deleted. Your other notes are in All Notes."
-          action={
-            <ButtonLink to="/notes" variant="secondary">
-              All notes
-            </ButtonLink>
-          }
-        />
-      </div>
-    )
-  }
+  if (note === null) return <NoteNotFound id={id} />
   // Keyed by id: edit mode and focus start fresh on another note.
   return <NoteDetail key={note.id} note={note} nav={nav} />
 }
 
+function NoteNotFound(props: { id: string | undefined }): React.JSX.Element {
+  const { id } = props
+  // Unsaved edits of a deleted note have nothing left to go back to.
+  useEffect(() => {
+    if (id) clearEditDraft(id)
+  }, [id])
+  return (
+    <div className="mx-auto max-w-[760px]">
+      <EmptyState
+        decoration="book"
+        headingLevel={1}
+        title="This note does not exist."
+        body="It may have been deleted. Your other notes are in All Notes."
+        action={
+          <ButtonLink to="/notes" variant="secondary">
+            All Notes
+          </ButtonLink>
+        }
+      />
+    </div>
+  )
+}
+
 function NoteDetail(props: { note: Note; nav: DetailState }): React.JSX.Element {
   const { nav } = props
+  // Unsaved edits left behind (by the sidebar, search or Back) open edit mode again, with the edits.
+  const [restored] = useState(() => readEditDraft(props.note.id))
+  const discardDraft = useRef<(() => void) | null>(null)
   // The note just saved, until the live query catches up (so the reading view never flashes the old text).
   const [saved, setSaved] = useState<Note | null>(null)
   const note = saved && saved.updated_at > props.note.updated_at ? saved : props.note
@@ -74,7 +87,9 @@ function NoteDetail(props: { note: Note; nav: DetailState }): React.JSX.Element 
   const toast = useToast()
   const confirm = useConfirm()
   const dialogOpen = useAnyDialogOpen()
-  const [editing, setEditing] = useState(false)
+  const [editing, setEditing] = useState(restored !== null)
+  // The draft is used once: Cancel or Save then Edit again starts from the saved note.
+  const [draftUsed, setDraftUsed] = useState(false)
   const dirty = useRef(false)
   const editButton = useRef<HTMLButtonElement>(null)
   const wasEditing = useRef(false)
@@ -82,6 +97,8 @@ function NoteDetail(props: { note: Note; nav: DetailState }): React.JSX.Element 
   const onDirtyChange = useCallback((d: boolean) => {
     dirty.current = d
   }, [])
+  // The tab shows the upgrade, so open notes are easy to tell apart.
+  useDocumentTitle(plainText(note.upgraded_text))
 
   // Opening a note counts as studying its topic ("Continue studying" on Today).
   useEffect(() => {
@@ -134,7 +151,7 @@ function NoteDetail(props: { note: Note; nav: DetailState }): React.JSX.Element 
 
   const seenAgain = run(async () => {
     await markSeenAgain(note.id)
-    toast.show("Logged. It will come back in today's review.")
+    toast.show(SEEN_AGAIN)
   })
 
   const remove = run(async () => {
@@ -167,7 +184,9 @@ function NoteDetail(props: { note: Note; nav: DetailState }): React.JSX.Element 
       cancelLabel: 'Keep editing',
       tone: 'danger',
     }).then((ok) => {
-      if (ok) navigate(from)
+      if (!ok) return
+      discardDraft.current?.()
+      navigate(from)
     })
   }
 
@@ -249,9 +268,12 @@ function NoteDetail(props: { note: Note; nav: DetailState }): React.JSX.Element 
               note={note}
               onDone={(updated) => {
                 if (updated) setSaved(updated)
+                setDraftUsed(true)
                 setEditing(false)
               }}
               onDirtyChange={onDirtyChange}
+              restored={draftUsed ? null : restored}
+              discardRef={discardDraft}
             />
           ) : (
             <NoteBody note={note} from={location.pathname} />

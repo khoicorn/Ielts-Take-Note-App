@@ -10,10 +10,14 @@ function plural(n: number, one: string, many: string): string {
   return `${n} ${n === 1 ? one : many}`
 }
 
-export const REVEAL_HINT = 'Say it aloud first, then reveal.'
+/** Speaking cards are said aloud. Writing cards can be written or said. */
+export function revealHint(mode: Mode): string {
+  return mode === 'writing' ? 'Write or say it first, then reveal.' : 'Say it aloud first, then reveal.'
+}
 export const RATE_HINT = 'How well did you recall it?'
 export const AGAIN_FEEDBACK = 'Review again soon.'
 export const MASTERED_FEEDBACK = 'Marked as mastered.'
+export const RATING_NOT_SAVED = 'Your rating was not saved. This note was skipped.'
 
 export function reviewedLine(n: number): string {
   return `${plural(n, 'note', 'notes')} reviewed.`
@@ -37,10 +41,14 @@ export function whenPhrase(next: ISODateTime, now: Date): string {
   return `on ${formatShortDate(next, now)}`
 }
 
-/** Empty state body: "Next review tomorrow · 3 notes", or a plain invitation when nothing is scheduled. */
-export function emptyBody(counts: DueCounts | undefined, now: Date): string {
+/**
+ * Empty state body: "Next review tomorrow · 3 notes", or a plain invitation when nothing is scheduled.
+ * For a one-mode session, pass that mode's counts and its label: "Next Speaking review in 10 days · 13 notes".
+ */
+export function emptyBody(counts: DueCounts | undefined | null, now: Date, modeLabel?: string): string {
   if (!counts?.nextDueAt) return 'Add notes and they will appear here.'
-  return `Next review ${whenPhrase(counts.nextDueAt, now)} · ${plural(counts.nextDueCount, 'note', 'notes')}`
+  const what = modeLabel ? `Next ${modeLabel} review` : 'Next review'
+  return `${what} ${whenPhrase(counts.nextDueAt, now)} · ${plural(counts.nextDueCount, 'note', 'notes')}`
 }
 
 /** For a one-mode session with nothing due while the other mode has notes waiting. */

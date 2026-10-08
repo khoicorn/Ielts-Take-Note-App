@@ -2,7 +2,7 @@
  * Export (JSON backup, CSV, Markdown) and JSON import parsing (brief §41, design §11).
  */
 import { formatShortDate, timeOf, todayKey } from './dates'
-import { isRecord, normalizeNote, normalizeParagraph, normalizeReview, normalizeSettings, NOTE_FIELDS } from './records'
+import { isRecord, normalizeNote, normalizeParagraph, normalizeReview, normalizeSettings, NOTE_FIELDS, UNKNOWN_TIME } from './records'
 import { FIELD_LABELS, MASTERY, MODE_LABELS, noteTypeLabel, taskTypeLabel } from './taxonomy'
 import type { ExportBundle, Mode, Note, Paragraph } from './types'
 
@@ -65,7 +65,8 @@ function noteMeta(n: Note): string {
     noteTypeLabel(n.note_type),
     n.error_type.trim(),
     `${MASTERY[n.mastery_status].symbol} ${MASTERY[n.mastery_status].label}`,
-    n.is_favorite ? '✦ Must remember' : '',
+    // ✦ means Mastered only (design refinement v1.1).
+    n.is_favorite ? 'Must Remember' : '',
     n.is_archived ? 'Archived' : '',
     formatShortDate(n.date_created),
     n.tags.length ? `Tags: ${n.tags.join(', ')}` : '',
@@ -149,13 +150,21 @@ export function parseImport(text: string): ExportBundle {
   }
   const version = typeof data.version === 'number' ? data.version : BACKUP_VERSION
   if (version > BACKUP_VERSION) throw new ImportError('This backup is from a newer version of the app.')
-  const exportedAt =
-    typeof data.exported_at === 'string' && !Number.isNaN(Date.parse(data.exported_at)) ? data.exported_at : new Date().toISOString()
-  const notes = dedupe(rows(data.notes).flatMap((r) => normalizeNote(r, exportedAt) ?? []))
+  const hasExportTime = typeof data.exported_at === 'string' && !Number.isNaN(Date.parse(data.exported_at))
+  const exportedAt = hasExportTime ? (data.exported_at as string) : new Date().toISOString()
+  // Without an export time, a row with no dates of its own gets today's date but the oldest updated_at.
+  // Importing the same file again then never counts it as newer than the stored copy (the owner's edits stay).
+  const undated = hasExportTime ? exportedAt : UNKNOWN_TIME
+  const notes = dedupe(rows(data.notes).flatMap((r) => normalizeNote(r, exportedAt, undated) ?? []))
   const reviews = dedupe(rows(data.reviews).flatMap((r) => normalizeReview(r, exportedAt) ?? []))
-  const paragraphs = dedupe(rows(data.paragraphs).flatMap((r) => normalizeParagraph(r, exportedAt) ?? []))
+  const paragraphs = dedupe(rows(data.paragraphs).flatMap((r) => normalizeParagraph(r, exportedAt, undated) ?? []))
   const bundle: ExportBundle = { app: APP_ID, version: BACKUP_VERSION, exported_at: exportedAt, notes, reviews, paragraphs }
   if (isRecord(data.settings)) bundle.settings = normalizeSettings(data.settings)
+  if (isRecord(data.example_ids)) {
+    const ids = data.example_ids
+    const list = (v: unknown) => (Array.isArray(v) ? v.filter((s): s is string => typeof s === 'string') : [])
+    bundle.example_ids = { notes: list(ids.notes), paragraphs: list(ids.paragraphs) }
+  }
   return bundle
 }
 

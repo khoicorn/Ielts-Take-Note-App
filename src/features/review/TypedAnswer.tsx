@@ -4,22 +4,12 @@ import { NOTE_LABEL } from '@/components/notes/NotePair'
 import { cn, WRAP } from '@/components/ui/cn'
 import { VisuallyHidden } from '@/components/ui/VisuallyHidden'
 import type { DiffToken } from '@/lib/diff'
-import { isWordToken, joinTokens } from '@/lib/diff'
-import { compareAnswer } from '@/lib/reviewTypes'
+import { joinTokens } from '@/lib/diff'
+import { typedMarks } from './typedDiff'
 
 /** True when a space goes between two tokens (no space before "," or after "("). */
 function spaced(prev: string, next: string): boolean {
   return joinTokens([prev, next]).length > prev.length + next.length
-}
-
-/**
- * Only words count. A missing full stop is not a mistake worth marking.
- * Missing punctuation is left out; extra punctuation shows as typed.
- */
-function visibleTokens(tokens: DiffToken[]): DiffToken[] {
-  return tokens
-    .filter((t) => isWordToken(t.text) || t.kind !== 'added')
-    .map((t) => (isWordToken(t.text) ? t : { ...t, kind: 'same' as const }))
 }
 
 function Token(props: { token: DiffToken }): React.JSX.Element {
@@ -46,11 +36,12 @@ function Token(props: { token: DiffToken }): React.JSX.Element {
 /**
  * The learner's typed answer next to the real one (design §5). Typing is optional.
  * Matching words stay plain; missing words are underlined in deep sage, extra words get a dotted crimson line.
- * Each mark also has a screen reader word, so the state is not shown by color alone (brief §39).
+ * Words typed in a pattern's ___ slots count as matching. Each mark also has a screen reader word,
+ * so the state is not shown by color alone (brief §39).
  */
 export function TypedAnswer(props: { typed: string; expected: string; compare: boolean; className?: string }): React.JSX.Element {
   const typed = props.typed.trim()
-  const tokens = props.compare ? visibleTokens(compareAnswer(typed, props.expected)) : []
+  const tokens = props.compare ? typedMarks(typed, props.expected) : []
   const matches = props.compare && tokens.length > 0 && tokens.every((t) => t.kind === 'same')
   const differs = props.compare && !matches
   return (

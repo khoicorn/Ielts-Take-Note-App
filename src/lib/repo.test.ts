@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { db, resetDb } from './db'
+import { parseImport } from './exporters'
 import { makeNote, makeParagraph, makeReview } from './fixtures'
 import {
   archiveNote,
@@ -18,6 +19,7 @@ import {
   markSeenAgain,
   rateNote,
   removeExampleData,
+  repairStoredNotes,
   restoreNote,
   restoreParagraph,
   setLastStudied,
@@ -152,6 +154,35 @@ describe('repo: notes', () => {
     expect(again.review).toMatchObject({ previous_stage: 1, new_stage: 1, previous_interval: 1, new_interval: 1 })
   })
 
+  it('P6b an archived note is never rated, even from an open session', async () => {
+    const note = await createNote({ mode: 'speaking', original_text: 'a', upgraded_text: 'b' }, { now: NOW })
+    await archiveNote(note.id, NOW)
+    await expect(rateNote(note.id, 'good', 'upgrade', LATER)).rejects.toThrow('This note is archived.')
+    expect(await db.reviews.count()).toBe(0)
+    expect(await db.notes.get(note.id)).toMatchObject({ times_reviewed: 0, next_review_at: NOW.toISOString() })
+  })
+
+  it('P6c a Writing note always gets a task', async () => {
+    const made = await createNote({ mode: 'writing', upgraded_text: 'w' }, { now: NOW })
+    expect(made.task_type).toBe('task1')
+    expect((await updateNote(made.id, { task_type: '' }, LATER)).task_type).toBe('task1')
+    expect((await updateNote(made.id, { task_type: 'task2' }, LATER)).task_type).toBe('task2')
+    expect((await updateNote(made.id, { mode: 'speaking' }, LATER)).task_type).toBe('')
+  })
+
+  it('P6d repairs Writing notes stored without a task, once, keeping updated_at', async () => {
+    await db.notes.bulkAdd([
+      makeNote({ id: 'old-w', mode: 'writing', task_type: '', updated_at: '2026-10-01T00:00:00.000Z' }),
+      makeNote({ id: 'ok-w', mode: 'writing', task_type: 'task2' }),
+      makeNote({ id: 'ok-s', mode: 'speaking', task_type: '' }),
+    ])
+    expect(await repairStoredNotes()).toBe(1)
+    expect(await db.notes.get('old-w')).toMatchObject({ task_type: 'task1', updated_at: '2026-10-01T00:00:00.000Z' })
+    expect((await db.notes.get('ok-w'))?.task_type).toBe('task2')
+    expect((await db.notes.get('ok-s'))?.task_type).toBe('')
+    expect(await repairStoredNotes()).toBe(0)
+  })
+
   it('P7 deleting a note deletes only its reviews', async () => {
     const a = await createNote({ mode: 'speaking', upgraded_text: 'a' }, { now: NOW })
     const b = await createNote({ mode: 'speaking', upgraded_text: 'b' }, { now: NOW })
@@ -261,6 +292,7 @@ describe('repo: paragraphs, settings and data', () => {
       makeNote({ id: 'b', upgraded_text: 'new b', updated_at: '2026-10-05T00:00:00.000Z' }),
     ])
     await db.paragraphs.add(makeParagraph({ id: 'p', title: 'old', updated_at: '2026-10-01T00:00:00.000Z' }))
+    await updateSettings({ session_size: 15 })
     const summary = await importBundle({
       app: 'ielts-upgrade-notebook',
       version: 1,
@@ -277,7 +309,64 @@ describe('repo: paragraphs, settings and data', () => {
     expect((await db.notes.get('a'))?.upgraded_text).toBe('new a')
     expect((await db.notes.get('b'))?.upgraded_text).toBe('new b')
     expect((await db.paragraphs.get('p'))?.title).toBe('new')
-    expect((await getSettings()).theme).toBe('system')
+    // This browser already has settings: the backup's choices do not override them.
+    expect(await getSettings()).toMatchObject({ theme: 'system', session_size: 15 })
+  })
+
+  it('P13b restores settings: all of them in a fresh browser, only the custom lists otherwise', async () => {
+    const settings = {
+      theme: 'dark' as const,
+      session_size: 10,
+      review_style: 'upgrade_only' as const,
+      custom_speaking_topics: ['Gardening'],
+      custom_task1_topics: [],
+      custom_task2_topics: ['Space'],
+      custom_error_types: ['Spelling'],
+    }
+    const backup: ExportBundle = { app: 'ielts-upgrade-notebook', version: 1, exported_at: NOW.toISOString(), notes: [], reviews: [], paragraphs: [], settings }
+    await importBundle(backup)
+    expect(await getSettings()).toEqual(settings)
+
+    await resetDb()
+    await updateSettings({ session_size: 30, custom_speaking_topics: ['gardening', 'Pets'], custom_error_types: ['Articles'] })
+    await importBundle(backup)
+    expect(await getSettings()).toEqual({
+      theme: 'system',
+      session_size: 30,
+      review_style: 'mixed',
+      custom_speaking_topics: ['gardening', 'Pets'],
+      custom_task1_topics: [],
+      custom_task2_topics: ['Space'],
+      custom_error_types: ['Articles', 'Spelling'],
+    })
+  })
+
+  it('P13c importing a partial backup again keeps the owner\'s edits', async () => {
+    const file = JSON.stringify({
+      app: 'ielts-upgrade-notebook',
+      notes: [
+        { id: 'p1', upgraded_text: 'PARTIAL speaking one' },
+        { id: 'p2', mode: 'writing', upgraded_text: 'Partial writing' },
+      ],
+      paragraphs: [{ id: 'para', title: 'Partial', body: 'Body' }],
+    })
+    expect(await importBundle(parseImport(file))).toMatchObject({ notesAdded: 2, paragraphsAdded: 1 })
+    await updateNote('p1', { upgraded_text: 'PARTIAL speaking one EDITED' })
+    await updateParagraph('para', { body: 'Edited body' })
+    expect(await importBundle(parseImport(file))).toEqual({
+      notesAdded: 0,
+      notesUpdated: 0,
+      notesSkipped: 2,
+      reviewsAdded: 0,
+      paragraphsAdded: 0,
+      paragraphsUpdated: 0,
+    })
+    expect((await db.notes.get('p1'))?.upgraded_text).toBe('PARTIAL speaking one EDITED')
+    expect((await db.paragraphs.get('para'))?.body).toBe('Edited body')
+    // Old backups without schedules still come back for review, and a Writing note keeps a task.
+    const p2 = await db.notes.get('p2')
+    expect(p2?.task_type).toBe('task1')
+    expect(p2 && isDue(p2, new Date())).toBe(true)
   })
 
   it('P14 loads example data once, covering every screen', async () => {
@@ -334,6 +423,20 @@ describe('repo: paragraphs, settings and data', () => {
     expect((await db.reviews.toArray()).every((r) => kept.has(r.note_id))).toBe(true)
   })
 
+  it('P15c drops "Continue studying" only when no note is left in its place', async () => {
+    await loadExampleData(NOW)
+    expect(await db.meta.get('last_studied')).toBeDefined()
+    await removeExampleData()
+    // The example plan pointed at an example topic; nothing is left there.
+    expect(await db.meta.get('last_studied')).toBeUndefined()
+
+    await createNote({ mode: 'writing', task_type: 'task1', topic: 'Stability', upgraded_text: 'mine' }, { now: NOW })
+    await loadExampleData(NOW)
+    await setLastStudied({ mode: 'writing', task_type: 'task1', topic: 'stability' }, NOW)
+    await removeExampleData()
+    expect((await db.meta.get('last_studied'))?.value).toMatchObject({ mode: 'writing', task_type: 'task1', topic: 'stability' })
+  })
+
   it('P15b keeps the owner\'s own notes and paragraphs tagged "example"', async () => {
     const mine = await createNote({ mode: 'speaking', upgraded_text: 'My own sentence.', tags: ['#Example'] }, { now: NOW })
     expect(mine.tags).toEqual([EXAMPLE_TAG])
@@ -349,6 +452,35 @@ describe('repo: paragraphs, settings and data', () => {
     expect(await db.notes.count()).toBe(1)
     // Example data can be loaded again after it was removed.
     expect((await loadExampleData(NOW)).notes).toBe(loaded.notes)
+  })
+
+  it('P15c a restored backup keeps its example data removable and does not duplicate it', async () => {
+    const mine = await createNote({ mode: 'speaking', upgraded_text: 'My own sentence.' }, { now: NOW })
+    const loaded = await loadExampleData(NOW)
+    const backup = parseImport(JSON.stringify(await exportBundle(LATER)))
+    expect(backup.example_ids?.notes).toHaveLength(loaded.notes)
+    expect(backup.example_ids?.paragraphs).toHaveLength(loaded.paragraphs)
+
+    // Restore into a fresh browser.
+    await resetDb()
+    await importBundle(backup)
+    expect(await loadExampleData(NOW)).toEqual({ notes: 0, paragraphs: 0 })
+    expect(await removeExampleData()).toBe(loaded.notes)
+    expect((await db.notes.toArray()).map((n) => n.id)).toEqual([mine.id])
+    expect(await db.paragraphs.count()).toBe(0)
+  })
+
+  it('P15d example ids in a backup only count for rows that exist after the import', async () => {
+    const mine = await createNote({ mode: 'speaking', upgraded_text: 'Mine.' }, { now: NOW })
+    const bundle: ExportBundle = {
+      ...parseImport(JSON.stringify(await exportBundle(LATER))),
+      example_ids: { notes: [mine.id, 'missing-id'], paragraphs: ['missing-paragraph'] },
+    }
+    // A hand-edited backup that marks the owner's note as example data cannot make it removable here,
+    // because the note already existed before the import and is not newer in the backup.
+    await importBundle(bundle)
+    expect(await removeExampleData()).toBe(0)
+    expect(await db.notes.count()).toBe(1)
   })
 
   it('P16 settings merge with defaults and mirror the theme', async () => {
@@ -375,5 +507,13 @@ describe('repo: paragraphs, settings and data', () => {
     await deleteAllData()
     expect(await db.notes.count()).toBe(0)
     expect(await db.meta.count()).toBe(0)
+  })
+
+  it('P17b delete all data also clears the Quick Add draft and unsaved note edits', async () => {
+    localStorage.setItem('ielts-quickadd-draft', '{"upgraded_text":"draft"}')
+    localStorage.setItem('ielts-note-edit-drafts', '{"n1":{"upgraded_text":"edit"}}')
+    await deleteAllData()
+    expect(localStorage.getItem('ielts-quickadd-draft')).toBeNull()
+    expect(localStorage.getItem('ielts-note-edit-drafts')).toBeNull()
   })
 })

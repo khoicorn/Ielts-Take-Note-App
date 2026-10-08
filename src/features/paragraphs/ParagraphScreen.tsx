@@ -1,5 +1,5 @@
 import type React from 'react'
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { ButtonLink } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -23,6 +23,8 @@ export function ParagraphScreen(): React.JSX.Element {
   const navigate = useNavigate()
   const location = useLocation()
   const editing = params.get('edit') === '1'
+  // Set when the focus editor closes, so the reader gives focus back to its Edit button.
+  const returnFocus = useRef(false)
 
   const startEdit = useCallback(() => {
     const next = new URLSearchParams(params)
@@ -31,6 +33,7 @@ export function ParagraphScreen(): React.JSX.Element {
   }, [navigate, location.pathname, params])
 
   const finishEdit = useCallback(() => {
+    returnFocus.current = true
     if ((location.state as EditState | null)?.fromReader) {
       navigate(-1)
       return
@@ -47,6 +50,7 @@ export function ParagraphScreen(): React.JSX.Element {
     return (
       <EmptyState
         decoration="book"
+        headingLevel={1}
         title="This paragraph does not exist."
         body="It may have been deleted."
         action={
@@ -61,6 +65,6 @@ export function ParagraphScreen(): React.JSX.Element {
   return editing ? (
     <ParagraphEditor key={paragraph.id} paragraph={paragraph} onDone={finishEdit} />
   ) : (
-    <ParagraphReader key={paragraph.id} paragraph={paragraph} onEdit={startEdit} />
+    <ParagraphReader key={paragraph.id} paragraph={paragraph} onEdit={startEdit} returnFocus={returnFocus} />
   )
 }

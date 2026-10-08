@@ -86,13 +86,15 @@ export function LedgerIndex(props: { repeated: IndexItem[]; once: IndexItem[] })
   )
 }
 
-/** The same index below 1024px: a wrapped line of links above the ledger. */
-export function LedgerIndexInline(props: { items: IndexItem[] }): React.JSX.Element | null {
-  if (props.items.length < 2) return null
+/** One labeled group of the inline index: "Repeated" or "Not yet repeated", as on the desktop index. */
+function InlineGroup(props: { label: string; items: IndexItem[] }): React.JSX.Element | null {
+  const { label, items } = props
+  if (items.length === 0) return null
   return (
-    <nav aria-label="Error types" className="mb-8">
+    <div>
+      <p className="font-serif text-body-lg text-graphite italic">{label}</p>
       <ul className="-ml-2 flex flex-wrap gap-x-1 gap-y-0.5">
-        {props.items.map((it) => (
+        {items.map((it) => (
           <li key={it.slug}>
             <a
               href={`#${it.slug}`}
@@ -104,6 +106,18 @@ export function LedgerIndexInline(props: { items: IndexItem[] }): React.JSX.Elem
           </li>
         ))}
       </ul>
+    </div>
+  )
+}
+
+/** The same index below 1024px: the two groups, each a labeled, wrapped line of links above the ledger. */
+export function LedgerIndexInline(props: { repeated: IndexItem[]; once: IndexItem[] }): React.JSX.Element | null {
+  const { repeated, once } = props
+  if (repeated.length + once.length < 2) return null
+  return (
+    <nav aria-label="Error types" className="mb-8 space-y-2">
+      <InlineGroup label="Repeated" items={repeated} />
+      <InlineGroup label="Not yet repeated" items={once} />
     </nav>
   )
 }

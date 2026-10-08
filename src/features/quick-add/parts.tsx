@@ -40,7 +40,7 @@ export const UpgradeField = React.forwardRef<
   )
 })
 
-/** The quiet offer after a labelled correction is pasted (mockup m01). Undo lives in the toast after Fill. */
+/** The quiet offer after a labelled correction is pasted (mockup m01). Undo lives in FilledLine after Fill. */
 export function PasteBar(props: {
   count: number
   labels: string[]
@@ -71,19 +71,32 @@ export function PasteBar(props: {
   )
 }
 
-/** "Draft restored · Discard" above the fields when an unsent note comes back. */
-export function DraftLine(props: { onDiscard: () => void }): React.JSX.Element {
+/** "Draft restored · Discard", "Fields filled · Undo": a quiet line above the fields with one action. */
+function ActionLine(props: { text: string; action: string; onAction: () => void; status?: boolean }): React.JSX.Element {
   return (
-    <p className="flex items-center gap-2 text-small text-graphite">
-      <span>Draft restored</span>
+    <p role={props.status ? 'status' : undefined} className="flex items-center gap-2 text-small text-graphite">
+      <span>{props.text}</span>
       <span aria-hidden="true">·</span>
       <button
         type="button"
-        onClick={props.onDiscard}
+        onClick={props.onAction}
         className="-mx-1 inline-flex cursor-pointer items-center rounded-xs px-1 text-small text-indigo underline decoration-indigo/35 underline-offset-3 hover:decoration-indigo max-sm:min-h-11"
       >
-        Discard
+        {props.action}
       </button>
     </p>
   )
+}
+
+/** "Draft restored · Discard" above the fields when an unsent note comes back. */
+export function DraftLine(props: { onDiscard: () => void }): React.JSX.Element {
+  return <ActionLine text="Draft restored" action="Discard" onAction={props.onDiscard} />
+}
+
+/**
+ * "Fields filled · Undo" after smart paste fills the fields. It lives in the form, not in a toast,
+ * so it goes away with the next edit, a save or a close, and Undo never points at a closed dialog.
+ */
+export function FilledLine(props: { onUndo: () => void }): React.JSX.Element {
+  return <ActionLine text="Fields filled" action="Undo" onAction={props.onUndo} status />
 }

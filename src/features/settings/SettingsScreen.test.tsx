@@ -16,10 +16,10 @@ vi.mock('@/lib/exporters', async (importOriginal) => {
   return { ...actual, downloadText: vi.fn() }
 })
 
-function renderSettings() {
+function renderSettings(path = '/settings') {
   render(
     <ThemeProvider>
-      <MemoryRouter initialEntries={['/settings']}>
+      <MemoryRouter initialEntries={[path]}>
         <ToastProvider>
           <ConfirmProvider>
             <SettingsScreen />
@@ -106,7 +106,7 @@ describe('SettingsScreen', () => {
     await user.upload(screen.getByLabelText('Backup file'), new File([JSON.stringify(backup)], 'backup.json', { type: 'application/json' }))
 
     const dialog = await screen.findByRole('dialog', { name: 'Import backup' })
-    expect(dialog).toHaveTextContent('Import 1 note? Existing notes are kept; newer copies win.')
+    expect(dialog).toHaveTextContent('Import 1 note? Notes only in this browser stay. If a note is in both, the copy edited last is kept.')
     await user.click(within(dialog).getByRole('button', { name: 'Import' }))
     await waitFor(async () => expect(await db.notes.count()).toBe(1))
     expect(await screen.findByText('Import done: 1 new note.')).toBeInTheDocument()
@@ -145,5 +145,39 @@ describe('SettingsScreen', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Remove Nha Trang trip' }))
     await waitFor(async () => expect((await db.meta.get('settings'))?.value).toMatchObject({ custom_speaking_topics: [] }))
+  })
+
+  it('ST6 a link to a section (/settings#data) opens the page at that section', async () => {
+    const scrolled: string[] = []
+    const original = Element.prototype.scrollIntoView
+    Element.prototype.scrollIntoView = function (this: Element) {
+      scrolled.push(this.id)
+    }
+    try {
+      renderSettings('/settings#data')
+      await waitFor(() => expect(scrolled).toEqual(['data']))
+    } finally {
+      Element.prototype.scrollIntoView = original
+    }
+  })
+
+  it('ST7 section links use the section titles; topic examples are not built in', () => {
+    renderSettings()
+    const nav = screen.getByRole('navigation', { name: 'Settings sections' })
+    expect(within(nav).getAllByRole('link').map((l) => l.textContent)).toEqual([
+      'Appearance',
+      'Review',
+      'Topics and error types',
+      'Your data',
+      'Notebook',
+      'Start over',
+      'Keyboard shortcuts',
+    ])
+    for (const link of within(nav).getAllByRole('link')) {
+      const id = link.getAttribute('href')!.slice(1)
+      expect(document.getElementById(id)).toHaveAccessibleName(link.textContent!)
+    }
+    expect(screen.getByLabelText('Add a Speaking topic')).toHaveAttribute('placeholder', 'e.g. Childhood')
+    expect(screen.getByLabelText('Add a Task 1 language topic')).toHaveAttribute('placeholder', 'e.g. Proportion')
   })
 })

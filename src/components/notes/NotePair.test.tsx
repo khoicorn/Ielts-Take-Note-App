@@ -134,3 +134,27 @@ describe('NotePair', () => {
     expect(metaMark).not.toHaveClass('text-small')
   })
 })
+
+describe('NoteRow showMode', () => {
+  it('N5 shows the Speaking or Writing mark before the topic only when asked', () => {
+    const { unmount } = render(
+      <MemoryRouter>
+        <NoteRow note={{ ...TRAVEL, topic: 'Travel' }} to="/notes/n1" />
+      </MemoryRouter>,
+    )
+    expect(screen.queryByRole('img', { name: 'Speaking' })).not.toBeInTheDocument()
+    unmount()
+    render(
+      <MemoryRouter>
+        <NoteRow note={{ ...TRAVEL, topic: 'Travel' }} to="/notes/n1" showMode />
+        <NoteRow note={{ ...TRAVEL, id: 'w', mode: 'writing', task_type: 'task1', topic: '' }} to="/notes/w" showMode />
+      </MemoryRouter>,
+    )
+    // Desktop meta and mobile meta line each carry the mark.
+    const speaking = screen.getAllByRole('img', { name: 'Speaking' })
+    expect(speaking).toHaveLength(2)
+    expect(speaking[0].nextElementSibling).toHaveTextContent('Travel')
+    // Without a topic, the mode's word stands in for it.
+    expect(screen.getAllByText('Writing').length).toBeGreaterThanOrEqual(1)
+  })
+})

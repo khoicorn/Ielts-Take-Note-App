@@ -141,7 +141,7 @@ function RecentNotes(props: { notes: Note[] }): React.JSX.Element {
       className="mt-12 sm:mt-16"
       action={
         <TextLink to="/notes" tone="quiet">
-          All notes
+          All Notes
         </TextLink>
       }
     >
@@ -160,6 +160,7 @@ function RecentNotes(props: { notes: Note[] }): React.JSX.Element {
             view="compact"
             to={`/notes/${note.id}`}
             linkState={{ from: '/', ids }}
+            showMode
             className={UPGRADE_TWO_LINES}
           />
         ))}

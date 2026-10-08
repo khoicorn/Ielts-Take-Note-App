@@ -73,7 +73,7 @@ export function EssentialNote(props: { note: Note; now: Date; linkState: unknown
   const pattern = note.reusable_pattern.trim()
   const due = isDue(note, now)
   return (
-    <article className="group relative grid grid-cols-1 gap-x-8 border-b border-line py-8 sm:grid-cols-[minmax(0,1fr)_9.5rem]">
+    <article data-entry className="group relative grid grid-cols-1 gap-x-8 border-b border-line py-8 sm:grid-cols-[minmax(0,1fr)_9.5rem]">
       <div className="min-w-0">
         <MetaLine note={note} />
         {original ? (
@@ -86,7 +86,11 @@ export function EssentialNote(props: { note: Note; now: Date; linkState: unknown
           <Link
             to={`/notes/${note.id}`}
             state={linkState}
-            className="rounded-xs decoration-1 underline-offset-[5px] hover:underline focus-visible:outline-offset-4"
+            className={cn(
+              'rounded-xs decoration-1 underline-offset-[5px] hover:underline focus-visible:outline-offset-4',
+              // The only way to open the note here: at least 44px tall on phones, with the layout unchanged.
+              'max-sm:block max-sm:-my-2.5 max-sm:py-2.5',
+            )}
           >
             <VisuallyHidden>{`${labels.upgraded}: `}</VisuallyHidden>
             <Quote text={note.upgraded_text} />

@@ -111,8 +111,16 @@ function labelList(v: unknown): string[] {
   return out
 }
 
-/** Returns null for rows without an id or without upgraded_text. */
-export function normalizeNote(raw: unknown, fallbackTime: ISODateTime): Note | null {
+/** The oldest possible time. A row with no time of its own can use it as updated_at, so it never counts as newer. */
+export const UNKNOWN_TIME: ISODateTime = '1970-01-01T00:00:00.000Z'
+
+/**
+ * Returns null for rows without an id or without upgraded_text.
+ * `fallbackTime` dates a row that has no created_at or date_created. `undatedUpdatedAt` is the updated_at of
+ * such a row (default `fallbackTime`). Imports without an export time pass UNKNOWN_TIME, so importing the
+ * same file again never replaces the owner's later edits.
+ */
+export function normalizeNote(raw: unknown, fallbackTime: ISODateTime, undatedUpdatedAt: ISODateTime = fallbackTime): Note | null {
   if (!isRecord(raw)) return null
   const noteId = id(raw.id)
   const upgraded = str(raw.upgraded_text)
@@ -121,7 +129,8 @@ export function normalizeNote(raw: unknown, fallbackTime: ISODateTime): Note | n
   const mode = oneOf(raw.mode, MODES, taskType ? 'writing' : 'speaking')
   const stage = int(raw.review_stage, 0, MAX_STAGE, 0) as ReviewStage
   const dateCreated = dayKey(raw.date_created)
-  const createdAt = iso(raw.created_at) ?? (dateCreated ? dayKeyToDate(dateCreated).toISOString() : fallbackTime)
+  const ownCreatedAt = iso(raw.created_at) ?? (dateCreated ? dayKeyToDate(dateCreated).toISOString() : null)
+  const createdAt = ownCreatedAt ?? fallbackTime
   const original = str(raw.original_text)
   return {
     id: noteId,
@@ -129,7 +138,8 @@ export function normalizeNote(raw: unknown, fallbackTime: ISODateTime): Note | n
     date_created: dateCreated ?? toDayKey(createdAt),
     topic: str(raw.topic),
     subtopic: str(raw.subtopic),
-    task_type: mode === 'speaking' ? '' : taskType,
+    // A Writing note always belongs to a task, as in Quick Add and the edit form.
+    task_type: mode === 'speaking' ? '' : taskType || 'task1',
     task_genre: mode === 'speaking' ? '' : str(raw.task_genre),
     original_text: original,
     upgraded_text: upgraded,
@@ -148,14 +158,16 @@ export function normalizeNote(raw: unknown, fallbackTime: ISODateTime): Note | n
     mastery_status: oneOf(raw.mastery_status, MASTERY, masteryForStage(stage)),
     review_stage: stage,
     last_reviewed_at: iso(raw.last_reviewed_at),
-    next_review_at: iso(raw.next_review_at),
+    // An explicit null means "Do not review". A missing or broken date means no schedule was ever saved
+    // (an old or hand-made backup): the note is due from the day it was made, like a new note.
+    next_review_at: raw.next_review_at === null ? null : (iso(raw.next_review_at) ?? createdAt),
     times_reviewed: int(raw.times_reviewed, 0, Number.MAX_SAFE_INTEGER, 0),
     times_seen: int(raw.times_seen, 1, Number.MAX_SAFE_INTEGER, 1),
     source_paragraph_id: id(raw.source_paragraph_id),
     is_archived: bool(raw.is_archived),
     archived_at: iso(raw.archived_at),
     created_at: createdAt,
-    updated_at: iso(raw.updated_at) ?? createdAt,
+    updated_at: iso(raw.updated_at) ?? ownCreatedAt ?? undatedUpdatedAt,
   }
 }
 
@@ -181,12 +193,17 @@ export function normalizeReview(raw: unknown, fallbackTime: ISODateTime): Review
   }
 }
 
-/** Returns null for rows without an id. */
-export function normalizeParagraph(raw: unknown, fallbackTime: ISODateTime): Paragraph | null {
+/** Returns null for rows without an id. The time fallbacks work as in normalizeNote. */
+export function normalizeParagraph(
+  raw: unknown,
+  fallbackTime: ISODateTime,
+  undatedUpdatedAt: ISODateTime = fallbackTime,
+): Paragraph | null {
   if (!isRecord(raw)) return null
   const paragraphId = id(raw.id)
   if (!paragraphId) return null
-  const createdAt = iso(raw.created_at) ?? fallbackTime
+  const ownCreatedAt = iso(raw.created_at)
+  const createdAt = ownCreatedAt ?? fallbackTime
   return {
     id: paragraphId,
     title: str(raw.title).trim() ? str(raw.title) : UNTITLED_PARAGRAPH,
@@ -198,7 +215,7 @@ export function normalizeParagraph(raw: unknown, fallbackTime: ISODateTime): Par
     is_favorite: bool(raw.is_favorite),
     is_archived: bool(raw.is_archived),
     created_at: createdAt,
-    updated_at: iso(raw.updated_at) ?? createdAt,
+    updated_at: iso(raw.updated_at) ?? ownCreatedAt ?? undatedUpdatedAt,
   }
 }
 

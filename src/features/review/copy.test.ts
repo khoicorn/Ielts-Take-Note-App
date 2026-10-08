@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { makeNote } from '@/lib/fixtures'
-import { againLine, backLabel, emptyBody, reviewedLine, streakLine, whenPhrase } from './copy'
+import { againLine, backLabel, emptyBody, revealHint, reviewedLine, streakLine, whenPhrase } from './copy'
 
 const NOW = new Date(2026, 9, 8, 20, 0)
 
@@ -21,6 +21,13 @@ describe('review copy', () => {
     const counts = { total: 0, speaking: 0, writing: 0, nextDueAt: new Date(2026, 9, 9).toISOString(), nextDueCount: 3 }
     expect(emptyBody(counts, NOW)).toBe('Next review tomorrow · 3 notes')
     expect(emptyBody({ ...counts, nextDueAt: null, nextDueCount: 0 }, NOW)).toBe('Add notes and they will appear here.')
+    const later = { ...counts, nextDueAt: new Date(2026, 9, 18).toISOString(), nextDueCount: 13 }
+    expect(emptyBody(later, NOW, 'Speaking')).toBe('Next Speaking review in 10 days · 13 notes')
+  })
+
+  it('K4 the reveal hint fits the mode', () => {
+    expect(revealHint('speaking')).toBe('Say it aloud first, then reveal.')
+    expect(revealHint('writing')).toBe('Write or say it first, then reveal.')
   })
 
   it('K3 "Back tomorrow" only when every note returns tomorrow', () => {

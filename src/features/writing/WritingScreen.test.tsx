@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { db, resetDb } from '@/lib/db'
-import { makeNote } from '@/lib/fixtures'
+import { makeNote, makeParagraph } from '@/lib/fixtures'
 import { currentUrl, renderScreen, setViewportWidth } from '@/features/all-notes/testUtils'
 import { WritingScreen } from './WritingScreen'
 
@@ -14,7 +14,10 @@ vi.mock('@/app/overlays', () => ({
 
 // ParagraphList belongs to the Model Paragraphs task; this test only checks that the tab renders it.
 vi.mock('@/features/paragraphs/ParagraphList', () => ({
-  ParagraphList: (props: { taskType?: string }) => <div data-testid="paragraph-list" data-task-type={props.taskType ?? ''} />,
+  ParagraphList: (props: { taskType?: string; headerAction?: boolean }) => (
+    <div data-testid="paragraph-list" data-task-type={props.taskType ?? ''} data-header-action={String(Boolean(props.headerAction))} />
+  ),
+  NewParagraphButton: () => <button type="button">New model paragraph</button>,
 }))
 
 beforeEach(async () => {
@@ -51,6 +54,18 @@ describe('WritingScreen', () => {
     await waitFor(() => expect(currentUrl()).toBe('/writing?tab=paragraphs'))
     expect(await screen.findByTestId('paragraph-list')).toBeInTheDocument()
     expect(screen.queryByText('Task two upgrade')).not.toBeInTheDocument()
+  })
+
+  it('WR1b Model Paragraphs puts "New model paragraph" in the header slot of "New Writing note"', async () => {
+    await db.notes.add(makeNote({ mode: 'writing', task_type: 'task1', topic: 'Increase', upgraded_text: 'Task one upgrade' }))
+    await db.paragraphs.add(makeParagraph({ id: 'p1', title: 'Task 1 — Opposite Trends', task_type: 'task1' }))
+    renderScreen('/writing', <WritingScreen />, '/writing?tab=paragraphs')
+
+    const header = (await screen.findByRole('heading', { level: 1, name: 'Writing' })).closest('header')!
+    expect(await within(header).findByRole('button', { name: 'New model paragraph' })).toBeInTheDocument()
+    expect(within(header).queryByRole('button', { name: 'New Writing note' })).not.toBeInTheDocument()
+    // The list leaves its own copy out, so the button shows once.
+    expect(screen.getByTestId('paragraph-list')).toHaveAttribute('data-header-action', 'true')
   })
 
   it('WR2 the genre filter narrows notes and New Writing note presets task and topic', async () => {

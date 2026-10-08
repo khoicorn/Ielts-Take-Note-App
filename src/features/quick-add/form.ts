@@ -226,6 +226,46 @@ export function reviewStartLabel(start: ReviewStart): string {
   return 'First review today'
 }
 
+/**
+ * The brief's own examples (plan C1), shared by Quick Add and the Note Detail edit form.
+ * "e.g." marks them as examples: without it, an empty field with a placeholder looks filled
+ * (graphite and deep sage are close in lightness).
+ */
+export const PLACEHOLDERS: Readonly<
+  Record<Mode, { topic: string; original: string; upgraded: string; example: string; pattern: string; explanation: string }>
+> = {
+  speaking: {
+    topic: 'e.g. Travel',
+    original: 'e.g. We enjoyed the scenario.',
+    upgraded: 'e.g. The scenery was beautiful.',
+    example: 'e.g. The scenery along the coast was beautiful.',
+    pattern: 'e.g. I’m pretty flexible about ___.',
+    explanation: 'e.g. “Scenery” is the view. “Scenario” is a situation.',
+  },
+  writing: {
+    topic: 'e.g. Increase',
+    original: 'e.g. The number of visitors of the City Zoo increased steadily.',
+    upgraded: 'e.g. The number of visitors to the City Zoo increased steadily.',
+    example: 'e.g. The number of visitors to the City Zoo increased steadily from 35,000 to 68,000.',
+    pattern: 'e.g. The number of visitors to ___ increased steadily from ___ to ___.',
+    explanation: 'e.g. Use “visitors to + place” rather than “visitors of + place”.',
+  },
+}
+
+export const DETAIL_PLACEHOLDERS = {
+  subtopic: 'e.g. Nha Trang trip',
+  errorPattern: 'e.g. visitors of + place',
+  fixPattern: 'e.g. visitors to + place',
+  recallPrompt: 'e.g. Describe a stable trend.',
+  tags: 'e.g. trends, idiom',
+} as const
+
+/** The hint under every Reusable pattern field. "Blank" is kept for Fill in the blank. */
+export const PATTERN_HINT = 'Type ___ for each slot.'
+
+/** The empty choice in a select. */
+export const NOT_SET = 'Not set'
+
 export const REVIEW_START_OPTIONS: { value: ReviewStart; label: string }[] = [
   { value: 'today', label: 'Start today' },
   { value: 'tomorrow', label: 'Start tomorrow' },

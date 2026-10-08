@@ -95,11 +95,37 @@ const FOCUSABLE = [
   '[contenteditable="true"]',
 ].join(',')
 
+/**
+ * False for controls that are not drawn (display: none, as with `sm:hidden`, or visibility: hidden).
+ * Tab skips them, so a focus trap must skip them too, or it never sees its real first and last stop.
+ */
+function isRendered(el: HTMLElement): boolean {
+  if (typeof el.checkVisibility === 'function') return el.checkVisibility({ visibilityProperty: true })
+  const style = getComputedStyle(el)
+  return style.display !== 'none' && style.visibility !== 'hidden'
+}
+
+/** The Tab stops inside `root`, in DOM order. Hidden, inert and aria-hidden controls are left out. */
 export function focusableIn(root: HTMLElement | null): HTMLElement[] {
   if (!root) return []
   return Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
-    (el) => !el.closest('[inert],[aria-hidden="true"]') && el.tabIndex !== -1,
+    (el) => !el.closest('[inert],[aria-hidden="true"]') && el.tabIndex !== -1 && isRendered(el),
   )
+}
+
+/** The Tab stop that comes after (or before) `from` in DOM order, wrapping at the ends. */
+function nextStop(items: HTMLElement[], from: Element | null, backwards: boolean): HTMLElement | undefined {
+  if (!from) return backwards ? items[items.length - 1] : items[0]
+  if (backwards) {
+    const before = items.filter((el) => from.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_PRECEDING && !el.contains(from))
+    return before[before.length - 1] ?? items[items.length - 1]
+  }
+  return items.find((el) => from.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING) ?? items[0]
+}
+
+/** Popovers, menus and listboxes portal to <body>. They handle their own keys and may hold focus. */
+function inFloatingLayer(target: EventTarget | null): boolean {
+  return target instanceof Element && target.closest('[data-floating]') !== null
 }
 
 const FADE_MS = 180
@@ -194,7 +220,34 @@ export function Dialog(props: DialogProps): React.JSX.Element | null {
         initialFocusRef?.current ?? focusableIn(bodyRef.current)[0] ?? focusableIn(footerRef.current)[0] ?? panel
       target.focus({ preventScroll: true })
     }
+    // Safety net while this dialog is on top: focus that leaves it (a removed control, a click on the page
+    // behind) comes back, and Esc still closes it when focus is outside.
+    const onTop = () => openRef.current && stack[stack.length - 1] === id
+    const outside = (t: EventTarget | null) => {
+      const backdrop = backdropRef.current
+      return !!backdrop && t instanceof Node && !backdrop.contains(t) && !inFloatingLayer(t)
+    }
+    const onFocusIn = (e: FocusEvent) => {
+      if (!onTop() || !outside(e.target)) return
+      const target = focusableIn(bodyRef.current)[0] ?? focusableIn(backdropRef.current)[0] ?? panelRef.current
+      target?.focus({ preventScroll: true })
+    }
+    const onDocKeyDown = (e: KeyboardEvent) => {
+      if (!onTop() || e.defaultPrevented || !outside(e.target)) return
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        onCloseRef.current()
+      } else if (e.key === 'Tab') {
+        e.preventDefault()
+        const items = focusableIn(backdropRef.current)
+        ;(e.shiftKey ? items[items.length - 1] : items[0])?.focus()
+      }
+    }
+    document.addEventListener('focusin', onFocusIn)
+    document.addEventListener('keydown', onDocKeyDown)
     return () => {
+      document.removeEventListener('focusin', onFocusIn)
+      document.removeEventListener('keydown', onDocKeyDown)
       removeDialog(id)
       unlockScroll()
     }
@@ -216,6 +269,9 @@ export function Dialog(props: DialogProps): React.JSX.Element | null {
       return
     }
     if (e.key === 'Tab') {
+      // React bubbles keys from portaled children (a popover or a dialog opened from this one) up to here.
+      // They manage their own Tab order.
+      if (e.defaultPrevented || !isTop() || !backdropRef.current?.contains(e.target as Node)) return
       // The backdrop holds the panel and, while this dialog is on top, the toasts (their Undo stays reachable).
       const items = focusableIn(backdropRef.current)
       if (items.length === 0) {
@@ -231,6 +287,11 @@ export function Dialog(props: DialogProps): React.JSX.Element | null {
       } else if (!e.shiftKey && active === last) {
         e.preventDefault()
         first.focus()
+      } else if (!items.includes(active as HTMLElement)) {
+        // Focus sits on something that is not a Tab stop (the panel, a list option). Pick the next stop here,
+        // so the browser never moves it out of the dialog.
+        e.preventDefault()
+        nextStop(items, active, e.shiftKey)?.focus()
       }
     }
   }
@@ -270,7 +331,8 @@ export function Dialog(props: DialogProps): React.JSX.Element | null {
           size === 'sm' && 'max-w-[420px]',
           size === 'md' && 'sm:max-w-[640px]',
           size === 'lg' && 'sm:max-w-[720px]',
-          placement === 'top' ? 'max-h-[calc(100dvh-2rem)] sm:max-h-[76dvh]' : 'max-h-[calc(100dvh-2rem)]',
+          // Top-placed dialogs start at 12vh and may use the space down to 1rem above the bottom edge.
+          placement === 'top' ? 'max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100dvh-12vh-1rem)]' : 'max-h-[calc(100dvh-2rem)]',
           sheet && 'max-sm:h-full max-sm:max-h-none max-sm:rounded-none max-sm:border-0',
           className,
         )}
