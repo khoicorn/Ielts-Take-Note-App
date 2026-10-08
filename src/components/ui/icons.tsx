@@ -39,6 +39,18 @@ export function SparkIcon(props: React.SVGProps<SVGSVGElement>): React.JSX.Eleme
   )
 }
 
+/**
+ * A slim book ribbon: the Must Remember mark (owner refinement 2026-10-08, replaces the ✦ of brief §29
+ * so it never reads as the ✦ Mastered mark). Pass fill="currentColor" for the filled form.
+ */
+export function RibbonIcon(props: React.SVGProps<SVGSVGElement>): React.JSX.Element {
+  return (
+    <svg {...base(props)}>
+      <path d="M8 2.75H16V21.25L12 17.9L8 21.25Z" />
+    </svg>
+  )
+}
+
 export function CrescentIcon(props: React.SVGProps<SVGSVGElement>): React.JSX.Element {
   return (
     <svg {...base(props)}>

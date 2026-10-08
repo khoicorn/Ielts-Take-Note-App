@@ -226,6 +226,9 @@ Other rules:
 - Focus ring: 2px indigo outline, 2px offset, on every interactive element.
 - Touch targets at least 44px on touch screens.
 - Mastery marks: ○ New, ◔ Learning, ◑ Familiar, ✦ Mastered, always with the word in text or `aria-label`.
+- Must Remember mark: a slim gold book ribbon (owner refinement 2026-10-08; replaces the ✦ of brief §29 so it never reads as Mastered).
+- Muted lavender `--lavender` (light `#A39CC0`, dark `#6F6891`): decorative only (celestial dividers, constellation strokes, selection tint).
+- Celestial details at most 1–2 per screen area; see plan "Design refinements v1.1".
 - Mistake vs upgrade: the upgrade is larger and in ink or deep sage. The mistake is smaller, in crimson, with a "What I said" label. No strikethrough-heavy red styling.
 
 ## 11. Data safety (browser-only storage)

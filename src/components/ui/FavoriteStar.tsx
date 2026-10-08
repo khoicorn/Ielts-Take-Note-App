@@ -1,9 +1,10 @@
 import type React from 'react'
 import { cn } from './cn'
-import { SparkIcon } from './icons'
+import { RibbonIcon } from './icons'
 
 /**
- * Must Remember marker (brief §29): a small antique-gold four-point star.
+ * Must Remember marker: a slim antique-gold book ribbon (owner refinement 2026-10-08; brief §29 used ✦,
+ * which clashed with ✦ Mastered). The component keeps its name for API stability.
  * With onToggle it is a toggle button (outline graphite → filled gold, 180ms).
  * Without onToggle it is a static mark, shown only when active.
  */
@@ -13,7 +14,7 @@ export function FavoriteStar(props: { active: boolean; onToggle?: () => void; cl
     if (!active) return <></>
     return (
       <span role="img" aria-label="Must remember" title="Must remember" className={cn('inline-flex text-gold', className)}>
-        <SparkIcon className="size-3.5 fill-current" strokeWidth={1.25} />
+        <RibbonIcon className="size-3.5 fill-current" strokeWidth={1.25} />
       </span>
     )
   }
@@ -30,7 +31,7 @@ export function FavoriteStar(props: { active: boolean; onToggle?: () => void; cl
         className,
       )}
     >
-      <SparkIcon
+      <RibbonIcon
         className={cn('size-[1.125rem] transition-[fill,color] duration-180', active ? 'fill-current' : 'fill-transparent')}
       />
     </button>

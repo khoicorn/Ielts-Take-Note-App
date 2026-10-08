@@ -22,6 +22,7 @@
   --sage: #747b69; /* Writing accent, mastered state. Icons and large text only */
   --crimson: #9a565c; /* The learner's mistake */
   --upgrade: #596d59; /* Deep Sage: improved language */
+  --lavender: #a39cc0; /* Muted lavender: decorative only (celestial dividers, constellation strokes, selection tint). Never text, never fills */
   --line: rgba(33, 31, 36, 0.1); /* Borders and separators */
   --line-strong: rgba(33, 31, 36, 0.18);
   --on-accent: #fbf9f4; /* Text on indigo fills */
@@ -41,6 +42,7 @@
   --sage: #89927e;
   --crimson: #c07a82; /* Brief #B66B73 lightened slightly to pass AA on Paper */
   --upgrade: #93a390;
+  --lavender: #6f6891;
   --line: rgba(255, 255, 255, 0.1);
   --line-strong: rgba(255, 255, 255, 0.18);
   --on-accent: #141319;
@@ -60,6 +62,7 @@
   --color-sage: var(--sage);
   --color-crimson: var(--crimson);
   --color-upgrade: var(--upgrade);
+  --color-lavender: var(--lavender);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-on-accent: var(--on-accent);
@@ -111,6 +114,33 @@
   --ease-quiet: cubic-bezier(0.2, 0, 0, 1);
   --default-transition-duration: 180ms;
   --default-transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Motion (brief §37, owner refinement 2026-10-08). animate-ink: the review answer settles in like fresh ink.
+     Reduced motion is handled by the global rule below. */
+  --animate-ink: ink-settle 220ms var(--ease-quiet) both;
+  --animate-fade: fade-in 180ms var(--ease-quiet) both;
+
+  @keyframes ink-settle {
+    from {
+      opacity: 0;
+      filter: blur(2px);
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      filter: none;
+      transform: none;
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 }
 
 @layer base {
@@ -132,7 +162,7 @@
   }
 
   ::selection {
-    background-color: color-mix(in srgb, var(--indigo) 22%, transparent);
+    background-color: color-mix(in srgb, var(--lavender) 35%, transparent);
   }
 
   :focus-visible {

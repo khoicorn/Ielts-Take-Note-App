@@ -1,5 +1,5 @@
 import { BookOpen, CalendarDays, Library, MessageCircle, PenLine, RotateCcw, ScrollText, Settings } from 'lucide-react'
-import { type IconType, SparkIcon } from '@/components/ui/icons'
+import { type IconType, RibbonIcon } from '@/components/ui/icons'
 
 export type NavKey =
   | 'today'
@@ -30,7 +30,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { key: 'speaking', label: 'Speaking', to: '/speaking', icon: MessageCircle, chord: 'g s' },
   { key: 'writing', label: 'Writing', to: '/writing', icon: PenLine, chord: 'g w' },
   { key: 'mistakes', label: 'Mistakes', to: '/mistakes', icon: ScrollText, chord: 'g m' },
-  { key: 'must-remember', label: 'Must Remember', to: '/must-remember', icon: SparkIcon, chord: 'g f' },
+  { key: 'must-remember', label: 'Must Remember', to: '/must-remember', icon: RibbonIcon, chord: 'g f' },
   { key: 'notes', label: 'All Notes', to: '/notes', icon: Library, chord: 'g a' },
   { key: 'calendar', label: 'Calendar', to: '/calendar', icon: CalendarDays, chord: 'g c' },
 ]

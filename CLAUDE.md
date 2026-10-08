@@ -19,7 +19,8 @@ Private, browser-only notebook for IELTS corrections with spaced review. React 1
 - Shared contract: `src/lib/types.ts` and `src/lib/taxonomy.ts`. Do not change them without a request to the lead.
 - Import with the `@/` alias (`@/lib/repo`, `@/components/ui/Button`).
 - The Tailwind theme is locked in `src/styles/index.css`. Only these exist:
-  - Colors: `page paper stone ink graphite indigo plum gold sage crimson upgrade line line-strong on-accent scrim`
+  - Colors: `page paper stone ink graphite indigo plum gold sage crimson upgrade lavender line line-strong on-accent scrim` (lavender is decorative only: dividers, constellation strokes; never text or fills)
+  - Motion: `animate-ink` (review answer reveal), `animate-fade`; transitions 150–220ms
   - Text sizes: `text-meta text-small text-body text-body-lg text-note text-section text-recall text-title`
   - Radii: `rounded-xs rounded-sm rounded-md rounded-lg rounded-full` (full only for small tags)
   - Shadow: `shadow-float` (menus and dialogs only)

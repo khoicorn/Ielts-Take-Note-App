@@ -591,6 +591,25 @@ export function ModeMark(props: { mode: Mode; showLabel?: boolean }): React.JSX.
 
 ## Workflow 2: Screens
 
+### Design refinements v1.1 (owner feedback, 2026-10-08)
+
+The owner reviewed the mockups in `docs/mockups/` with an outside AI and decided: **keep about 90% of the mockup layouts; add character only through small celestial details, typography, color and gentle motion.** These rules apply to every screen task below and override the brief where they differ.
+
+1. **Match your mockup.** Each screen task lists its mockup files. They were reviewed and fixed already. Build the same layout, spacing, labels and hierarchy. Open the PNGs in `docs/mockups/png/` and the HTML in `docs/mockups/`. Where a mockup and the brief disagree on behavior, follow the brief and this plan.
+2. **Must Remember is a gold book ribbon, not ✦.** `FavoriteStar` now renders `RibbonIcon` (outline graphite → filled gold). ✦ means Mastered only. Labels stay "Must Remember". (Changes brief §29; fixes the double-✦ clash.)
+3. **Celestial details, at most 1–2 per major screen area.** Use only these shared pieces:
+   - `<Ornament variant="star" | "moon" | "constellation" />`: celestial dividers (constellation dots are muted lavender).
+   - `mark` prop on `PageHeader` (✦ before the eyebrow) and `Section` (✦ before the title).
+   - `EmptyState decoration="constellation" | "quill" | "moon" | "book"`.
+   - Placements: Today: `mark` on "Most repeated issue this week", `Ornament variant="constellation"` above the backup line. Quick Add: a tiny gold ✦ before the upgrade field label only. Review: answer reveal uses `animate-ink`; Session complete has `Ornament variant="moon"` above the heading. Note Detail: `Ornament variant="constellation"` between the upgrade and Why. Model Paragraph: `mark` on the eyebrow. My Mistakes: `mark` on "Error Ledger". Must Remember: `mark` on "Essential Notes". Nothing else.
+4. **Upgrade in deep sage.** In Quick Add (upgrade field text), Review (answer), Note Detail and reading-view rows, the upgrade uses `text-upgrade` and is larger than the mistake. Dense compact table cells may use `text-ink`.
+5. **Motion:** 150–200ms transitions. The review answer uses `animate-ink` (220ms: opacity, 2px blur, 4px rise). Dialogs and menus use `animate-fade`. No other animation.
+6. **Dark mode:** keep the lavender primary button, with no glow and no shadow.
+7. **No heavy textures, no extra ornament, no fantasy wording.** Labels stay plain ("Must Remember", not "Grimoire").
+
+New shared tokens (in `src/styles/index.css`): `lavender` (decorative only: never text, never fills), `animate-ink`, `animate-fade`.
+
+
 Seven agents work in parallel. Each owns one or more folders under `src/features/` and replaces the stubs there. Shared components live in `src/components`; if you need a new shared primitive, build it inside your feature folder and report it under "Requests" so the integration step can promote it.
 
 Each screen task follows the same steps:
@@ -602,6 +621,8 @@ Each screen task follows the same steps:
 - [ ] **Step 5:** Run the app (`npx vite --port <your port> --strictPort`) and screenshot your screens with `MSYS_NO_PATHCONV=1 node scripts/screenshots.mjs --base http://localhost:<port> --seed --slices --viewports desktop,tablet,mobile --themes light,dark /your-route` (`--seed` loads example notes in the fresh browser profile; `--out` sets the folder). That covers 1440×900, 834×1112 and 390×844, light and dark. View the screenshots. Apply brief §43–44. Fix and repeat until the screens look right.
 
 ### Task C1: Quick Add (brief §19–20, §2 Principle 5, §45 priority 1)
+
+**Mockups:** `01-quick-add-choose`, `02-quick-add-speaking`, `03-quick-add-writing-details`, `m01-quick-add-mobile`.
 
 **Owns:** `src/features/quick-add/**`
 
@@ -622,6 +643,8 @@ Each screen task follows the same steps:
 
 ### Task C2: Review (brief §24–27, §6 Principle 6, §45 priority 2)
 
+**Mockups:** `04-review-recall`, `05-review-revealed`, `06-review-complete`, `07-review-fill-blank`, `m02-review-mobile`.
+
 **Owns:** `src/features/review/**`
 
 - Full-screen route `/review`, no shell. Query `?mode=speaking|writing` limits the session.
@@ -639,6 +662,8 @@ Each screen task follows the same steps:
 **Tests (`ReviewScreen.test.tsx`):** V1 empty queue shows the empty state. V2 Reveal by Space shows "Better English" and the answer. V3 pressing 3 (Good) writes a review row and advances. V4 Again re-queues the note once (it appears again at the end, then not a third time). V5 mode filter. V6 fill_blank card shows "_____" and the answer on reveal.
 
 ### Task C3: Note Detail (brief §18, §33, §41, §45 priority 3)
+
+**Mockups:** `08-note-detail`.
 
 **Owns:** `src/features/note-detail/**`
 
@@ -660,6 +685,8 @@ Each screen task follows the same steps:
 **Tests (`NoteDetailScreen.test.tsx`):** ND1 shows mistake before upgrade and hides empty sections. ND2 edit + save keeps review_stage, next_review_at and review rows. ND3 delete asks for confirmation; cancel keeps the note. ND4 archive then restore. ND5 mastery change calls setMastery and shows the toast. ND6 note with only upgraded_text renders cleanly.
 
 ### Task C4: Today and Calendar (brief §5, §34, §44, §45 priority 4)
+
+**Mockups:** `11-today`, `12-today-first-run`, `m03-today-mobile`. (Calendar has no mockup: follow the same page system.)
 
 **Owns:** `src/features/today/**`, `src/features/calendar/**`
 
@@ -684,6 +711,8 @@ Calendar (route `/calendar`, max 760px):
 **Tests:** T-1 Today copy for 0, 1, 12 due. T-2 first-run view shows the three lines and both actions. T-3 Begin Review links to /review. K-1 `aggregateMonth` counts by local day. K-2 calendar aria-label text.
 
 ### Task C5: Notebooks: All Notes, Speaking, Writing, Must Remember (brief §4, §16–17, §21–22, §29, §31–32, §35)
+
+**Mockups:** `14-all-notes`, `14b-all-notes-filter`, `16-speaking-notebook`, `17-must-remember`. (Writing follows `16` with the Writing sub-tabs.)
 
 **Owns:** `src/features/all-notes/**`, `src/features/speaking/**`, `src/features/writing/**`, `src/features/must-remember/**`
 
@@ -717,6 +746,8 @@ Must Remember (`/must-remember`):
 
 ### Task C6: My Mistakes and Model Paragraphs (brief §23, §28, §45 priorities 6–7)
 
+**Mockups:** `15-my-mistakes`, `09-model-paragraph`, `10-paragraph-focus-editor`.
+
 **Owns:** `src/features/mistakes/**`, `src/features/paragraphs/**`
 
 My Mistakes (`/mistakes`):
@@ -738,6 +769,8 @@ Model Paragraphs:
 **Tests:** MS1 ledger renders "visitors of + place", "Seen 4 times", "visitors to + place". MS2 related notes toggle. PG1 selecting "experienced a steady decline" (set the Selection range in jsdom) and choosing Save as Collocation calls quickAdd.open with the T16 sentence, note_type collocation and the paragraph id. PG2 editor autosaves after typing. PG3 delete asks for confirmation.
 
 ### Task C7: Search and Settings (brief §30, §41, design §6, §11)
+
+**Mockups:** `13-search`. (Settings has no mockup: follow the same page system.)
 
 **Owns:** `src/features/search/**`, `src/features/settings/**`
 
@@ -768,7 +801,7 @@ Settings (`/settings`, max 760px, sections separated by hairlines, `id`s for anc
 - [ ] Promote any feature-local primitives that other screens also need into `src/components`.
 - [ ] Remove the temporary example-data button from `/design`.
 - [ ] Lazy-load each route screen with `React.lazy` + `Suspense` so the main chunk drops below 500 kB (build warning at 508 kB after Workflow 1).
-- [ ] NoteRow shows two identical gold ✦ marks when a note is both Mastered and Must Remember. Make them distinct by position and label: keep `✦ Mastered` (with the word) in the meta area; show the Must Remember ✦ as a small margin mark immediately before the upgrade text, with `aria-label="Must remember"`.
+- [x] NoteRow double ✦: resolved by Design refinement 2 (Must Remember is a ribbon).
 - [ ] Playwright smoke: visit every route with example data, no console errors, no horizontal scroll at 390px.
 
 ---

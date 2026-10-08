@@ -679,6 +679,8 @@ export function DesignPreview(): React.JSX.Element {
         <Row label="Ornament, divider">
           <div className="w-full">
             <Ornament />
+            <Ornament variant="constellation" className="mt-6" />
+            <Ornament variant="moon" className="mt-6" />
             <Divider className="mt-6" />
           </div>
         </Row>
