@@ -38,7 +38,7 @@ function contents(notes: number, paragraphs: number): string {
 }
 
 /**
- * Must Remember, the Essential Notes (brief §29, mockup 17): notes marked with the gold ribbon in a calm
+ * Must Remember, the Essential Notes (brief §29, mockup 17): notes marked with the garnet ribbon in a calm
  * reading layout, then marked model paragraphs. Removing the ribbon takes an item off the page, with Undo.
  */
 export function MustRememberScreen(): React.JSX.Element {
@@ -157,6 +157,7 @@ export function MustRememberScreen(): React.JSX.Element {
     <div className={PAGE}>
       <PageHeader
         eyebrow="Essential Notes"
+        eyebrowTone="rubric"
         mark
         title="Must Remember"
         description={

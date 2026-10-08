@@ -55,6 +55,7 @@ export function SpeakingScreen(): React.JSX.Element {
     <div className="mx-auto max-w-[1040px]">
       <PageHeader
         eyebrow={EYEBROW}
+        eyebrowTone="rubric"
         title="Speaking"
         description={notes && notes.length > 0 ? notebookSummary(notes.length, topicCount, due) : undefined}
         actions={actions}

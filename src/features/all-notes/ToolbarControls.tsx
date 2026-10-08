@@ -11,7 +11,7 @@ import { ICON_STROKE } from '@/components/ui/icons'
 const SMALL_CONTROL = cn(
   'h-8 rounded-sm border border-line-strong bg-paper text-small max-sm:h-11 max-sm:text-body-lg',
   'placeholder:text-graphite transition-[border-color] duration-150',
-  'hover:border-ink/30 focus-visible:border-indigo focus-visible:outline-1 focus-visible:outline-offset-0 focus-visible:outline-indigo',
+  'hover:border-ink/30 focus-visible:border-focus focus-visible:outline-1 focus-visible:outline-offset-0 focus-visible:outline-focus',
 )
 
 export function ListFilterInput(props: {

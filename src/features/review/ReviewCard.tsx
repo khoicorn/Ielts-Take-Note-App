@@ -15,12 +15,25 @@ import type { ReviewCard } from '@/lib/reviewTypes'
 import { FIELD_LABELS, taskTypeLabel } from '@/lib/taxonomy'
 import { normalizeText } from '@/lib/text'
 import type { Note } from '@/lib/types'
+import { isSerifAnswer } from './answerStyle'
 import { TypedAnswer } from './TypedAnswer'
 
 /** A vertical rule that hangs just left of the text column, so the sentence lines up with its label. */
 const RULE = 'border-l-2 pl-4 -ml-[18px]'
 /** The opening quote mark hangs into the padding, like NotePair. */
 const HANG = '-indent-[0.36em]'
+
+/**
+ * The short answer (design v1.2 rule 7): Instrument Serif 40px (32px on phones) in the upgrade green, with a 3px
+ * upgrade rule. Its right edge lines up with the 2px rule of the prompt above.
+ * Instrument Serif has no bold, so a **marked** phrase is set in its real italic instead of a smeared fake bold.
+ */
+const SERIF_ANSWER =
+  'border-l-[3px] border-upgrade pl-4 -ml-[19px] font-serif text-answer tracking-[-0.005em] text-upgrade max-sm:text-[2rem] [&_strong]:font-normal [&_strong]:italic'
+/** The serif quote mark hangs a little less than Inter's. */
+const SERIF_HANG = '-indent-[0.3em]'
+/** A long answer (90 characters or more) stays in Inter, which reads faster over several lines. */
+const SANS_ANSWER = cn(RULE, 'border-sage text-recall text-upgrade')
 
 function Dot(): React.JSX.Element {
   return (
@@ -36,7 +49,8 @@ function Eyebrow(props: { note: Note }): React.JSX.Element {
   const task = note.mode === 'writing' ? taskTypeLabel(note.task_type, 'short') : ''
   const topic = note.topic.trim()
   return (
-    <p className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-small text-graphite">
+    // On a phone the bookmark hangs beside this line, so the line stops short of it.
+    <p className={cn('flex flex-wrap items-center gap-x-2.5 gap-y-1 text-small text-graphite', note.is_favorite && 'max-sm:pr-2')}>
       <ModeMark mode={note.mode} />
       {task ? (
         <>
@@ -165,6 +179,9 @@ export function ReviewCardView(props: ReviewCardViewProps): React.JSX.Element {
   const isUpgrade = card.type === 'upgrade'
   // A note with only its upgrade has nothing new to show as the answer. Say so plainly instead of repeating it.
   const answerRepeats = card.type === 'phrase_to_sentence' && same(card.answer, card.prompt)
+  // A phrase card's answer is its example sentence (Markdown, no quote marks). Every other answer is quoted.
+  const quoted = card.type !== 'phrase_to_sentence'
+  const serif = isSerifAnswer(card.answer)
 
   return (
     <div>
@@ -235,8 +252,16 @@ export function ReviewCardView(props: ReviewCardViewProps): React.JSX.Element {
               {answerRepeats ? (
                 <p className="text-body-lg text-graphite">No example saved yet. Say your own sentence, then rate it.</p>
               ) : (
-                <p className={cn(RULE, HANG, 'border-sage text-recall text-upgrade', WRAP)}>
-                  {card.type === 'phrase_to_sentence' ? <Markdown text={card.answer} inline /> : <Quote text={card.answer} />}
+                <p
+                  data-testid="review-answer"
+                  className={cn(
+                    serif ? SERIF_ANSWER : SANS_ANSWER,
+                    // Only a quoted answer has an opening quote mark to hang into the margin.
+                    quoted && (serif ? SERIF_HANG : HANG),
+                    WRAP,
+                  )}
+                >
+                  {quoted ? <Quote text={card.answer} /> : <Markdown text={card.answer} inline />}
                 </p>
               )}
             </Labeled>
@@ -278,5 +303,28 @@ export function ReviewCardView(props: ReviewCardViewProps): React.JSX.Element {
         </div>
       )}
     </div>
+  )
+}
+
+/**
+ * Must Remember on Review (design v1.2 rule 7): a garnet silk bookmark hangs from the top bar at the right edge of
+ * the reading column, with a gilt edge on each side (concept A `.bookmark`). 16px wide, 14px on a phone.
+ * Decorative: the meta line always says "Must Remember" in words. Its parent must be `relative`.
+ * Give it the card's key, so it drops 2px once when a marked card appears (animate-ribbon, 180ms; instant with
+ * reduced motion).
+ */
+export function Bookmark(): React.JSX.Element {
+  return (
+    <span
+      aria-hidden="true"
+      data-bookmark=""
+      className={cn(
+        'pointer-events-none absolute top-0 right-4 h-14 w-3.5 animate-ribbon bg-garnet sm:right-8 sm:h-[76px] sm:w-4',
+        // The swallowtail notch at the bottom.
+        '[clip-path:polygon(0_0,100%_0,100%_100%,50%_calc(100%_-_9px),0_100%)]',
+        'before:absolute before:inset-y-0 before:left-0 before:w-px before:bg-gold/70 dark:before:bg-gold/75',
+        'after:absolute after:inset-y-0 after:right-0 after:w-px after:bg-gold/70 dark:after:bg-gold/75',
+      )}
+    />
   )
 }

@@ -8,9 +8,9 @@ import { savedTitle } from './paragraphText'
 /** Serif reading text (mockup 09: Instrument Serif runs small, so 23px reads like a 19px book serif). */
 export const PROSE = 'font-serif text-[1.4375rem] leading-[1.7] text-ink max-sm:text-[1.3125rem]'
 
-/** A phrase already saved as a note: a dotted antique-gold underline. Opens the note. */
+/** A phrase already saved as a note: a dotted brass underline (design v1.2). Opens the note. */
 const SAVED =
-  'cursor-pointer rounded-xs underline decoration-gold decoration-dotted decoration-2 underline-offset-[6px] [text-decoration-skip-ink:none] transition-colors duration-150 hover:bg-gold/15'
+  'cursor-pointer rounded-xs underline decoration-brass decoration-dotted decoration-2 underline-offset-[6px] [text-decoration-skip-ink:none] transition-colors duration-150 hover:bg-gold/15'
 
 function hasSelection(): boolean {
   return typeof document.getSelection === 'function' && document.getSelection()?.isCollapsed === false

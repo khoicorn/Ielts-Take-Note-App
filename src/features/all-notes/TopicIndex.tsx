@@ -28,7 +28,7 @@ const ITEM = cn(
   'relative flex h-8 items-center justify-between gap-3 rounded-sm pr-2 pl-3 text-small transition-colors duration-150',
   'hover:bg-stone/60 hover:text-ink',
 )
-const ACTIVE_BAR = 'before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-indigo'
+const ACTIVE_BAR = 'before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-brass'
 
 /**
  * Sticky topic index beside the notebook at 1024px and wider (mockup 16): "All topics", topics with notes
@@ -109,7 +109,7 @@ export function TopicStrip(props: Omit<TopicIndexProps, 'empty'> & { selectedLab
         className={cn(
           'relative inline-flex h-9 items-center gap-1.5 rounded-sm px-2.5 text-small whitespace-nowrap transition-colors duration-150 hover:bg-stone/60 max-sm:min-h-11',
           active
-            ? 'text-ink after:absolute after:inset-x-2.5 after:bottom-1 after:h-[1.5px] after:bg-indigo max-sm:after:bottom-2'
+            ? 'text-ink after:absolute after:inset-x-2.5 after:bottom-1 after:h-0.5 after:bg-brass max-sm:after:bottom-2'
             : 'text-graphite hover:text-ink',
         )}
       >

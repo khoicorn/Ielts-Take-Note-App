@@ -268,6 +268,33 @@ describe('ReviewScreen', () => {
     expect(await screen.findByText('Write or say it first, then reveal.')).toBeInTheDocument()
   })
 
+  it('V10 design v1.2: a Must Remember card has the bookmark; a short answer is serif, a long one stays Inter', async () => {
+    const long = 'In conclusion, governments should introduce stricter policies to tackle this issue in the long term.'
+    await db.notes.bulkAdd([
+      makeNote({ ...TRAVEL_NOTE, id: 'marked', is_favorite: true, next_review_at: dueHoursAgo(48) }),
+      makeNote({ ...WRITING_NOTE, id: 'long', upgraded_text: long, next_review_at: dueHoursAgo(24) }),
+    ])
+    const user = userEvent.setup({ delay: null })
+    renderReview()
+    expect(await screen.findByText('1 of 2')).toBeInTheDocument()
+    // Decorative only: the meta line says "Must Remember" in words.
+    expect(document.querySelector('[data-bookmark]')).toHaveAttribute('aria-hidden', 'true')
+    expect(screen.getByText('Must Remember')).toBeInTheDocument()
+    blurAll()
+    await user.keyboard(' ')
+    expect(await screen.findByTestId('review-answer')).toHaveClass('font-serif', 'text-answer', 'text-upgrade')
+
+    await user.keyboard('3')
+    expect(await screen.findByText('2 of 2')).toBeInTheDocument()
+    expect(document.querySelector('[data-bookmark]')).toBeNull()
+    blurAll()
+    await user.keyboard(' ')
+    const answer = await screen.findByTestId('review-answer')
+    expect(answer).toHaveTextContent(long)
+    expect(answer).toHaveClass('text-recall', 'text-upgrade')
+    expect(answer).not.toHaveClass('font-serif')
+  })
+
   it('V9 a note with only upgraded_text reviews without empty labels or "undefined"', async () => {
     await db.notes.add(makeNote({ id: 'bare', upgraded_text: 'remained relatively stable' }))
     const user = userEvent.setup({ delay: null })

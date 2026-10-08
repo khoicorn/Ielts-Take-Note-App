@@ -2,6 +2,7 @@ import { ArrowRight, ChevronDown } from 'lucide-react'
 import type React from 'react'
 import { Link } from 'react-router'
 import { cn, WRAP } from '@/components/ui/cn'
+import { RIBBON_ON } from '@/components/ui/FavoriteStar'
 import { ICON_STROKE, RibbonIcon, type SvgIcon } from '@/components/ui/icons'
 import { MasteryGlyph } from '@/components/ui/MasteryMark'
 import { Menu } from '@/components/ui/Popover'
@@ -12,7 +13,7 @@ import { MASTERY, MASTERY_ORDER, noteTypeLabel, taskTypeLabel } from '@/lib/taxo
 import type { MasteryStatus, Note } from '@/lib/types'
 import { times } from './detail'
 
-/** Menu icons: the drawn mastery marks (the mastered ✦ stays gold). */
+/** Menu icons: the drawn mastery marks (the mastered ✦ stays brass). */
 const GLYPH_ICONS: Readonly<Record<MasteryStatus, SvgIcon>> = {
   new: () => <MasteryGlyph status="new" />,
   learning: () => <MasteryGlyph status="learning" />,
@@ -182,7 +183,7 @@ export function NoteMeta(props: {
       note.is_favorite ? (
         <Item key="favorite" label="Must Remember">
           <span className="flex items-center gap-2">
-            <RibbonIcon className="size-3.5 fill-current text-gold" strokeWidth={1.25} />
+            <RibbonIcon aria-hidden="true" data-ribbon="on" className={cn('size-3.5 shrink-0', RIBBON_ON)} strokeWidth={1.25} />
             Yes
           </span>
         </Item>

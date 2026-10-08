@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router'
 import { useHotkeys } from '@/app/hotkeys'
 import type { QuickAddOptions } from '@/app/overlays'
 import { Button } from '@/components/ui/Button'
+import { cn } from '@/components/ui/cn'
 import { Combobox } from '@/components/ui/Combobox'
 import { Dialog } from '@/components/ui/Dialog'
 import { Field, TextArea } from '@/components/ui/Field'
@@ -72,6 +73,16 @@ const MODE_TABS = [
   { value: 'writing', label: 'Writing', icon: PenLine },
 ]
 const TASK_TABS = TASK_TYPES.map((t) => ({ value: t.value, label: t.label }))
+
+/**
+ * The sticky Save row sits above the form (z-index 10), so it would cover the bottom of the dialog's bookplate frame
+ * (design v1.2 rule 6). It draws its own part of the frame: the sides and the bottom edge, 6px inside the panel edge.
+ * Its top line is brass and stops at the frame, like the Dialog footer. Phones show a full-screen sheet with no frame.
+ */
+const SAVE_ROW_PLATE = cn(
+  'before:pointer-events-none before:absolute before:inset-x-[7px] before:top-0 before:h-px before:bg-gold/55 dark:before:bg-gold/38 max-sm:before:inset-x-0',
+  'after:pointer-events-none after:absolute after:inset-x-1.5 after:top-0 after:bottom-1.5 after:rounded-b-sm after:border-x after:border-b after:border-gold/55 dark:after:border-gold/38 max-sm:after:hidden',
+)
 
 /**
  * Rendered by OverlayProvider at all times. Each open starts a fresh session (fresh state, draft check);
@@ -452,6 +463,9 @@ function QuickAddSession(props: QuickAddDialogProps): React.JSX.Element {
       onClose={onClose}
       title={title}
       description={description}
+      // Design v1.2 rule 3: the "What I Said → Native Upgrade" key line is an italic small-caps eyebrow.
+      // Step 1's description is a full sentence, so it stays plain and easy to read.
+      descriptionStyle={step === 'form' ? 'smallcaps' : 'plain'}
       size="md"
       placement="top"
       initialFocusRef={initialFocusRef}
@@ -522,7 +536,12 @@ function QuickAddSession(props: QuickAddDialogProps): React.JSX.Element {
             {textField('example_sentence', { placeholder: ph.example, hint: 'A full sentence that uses the upgrade.' })}
           </div>
 
-          <div className="sticky bottom-0 z-10 order-3 mt-auto flex items-center gap-2 border-t border-line bg-paper px-6 py-3.5 max-sm:px-4 max-sm:pb-[max(0.875rem,env(safe-area-inset-bottom))]">
+          <div
+            className={cn(
+              'sticky bottom-0 z-10 order-3 mt-auto flex items-center gap-2 bg-paper px-6 py-3.5 max-sm:px-4 max-sm:pb-[max(0.875rem,env(safe-area-inset-bottom))]',
+              SAVE_ROW_PLATE,
+            )}
+          >
             <Button
               variant="primary"
               className="order-3 max-sm:flex-[1_1_40%]"

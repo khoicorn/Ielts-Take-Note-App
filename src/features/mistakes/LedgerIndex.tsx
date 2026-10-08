@@ -1,5 +1,6 @@
 import type React from 'react'
 import { useEffect, useState } from 'react'
+import { BRASS_RULE, SMALL_CAPS } from '@/components/ui/candlelit'
 import { cn } from '@/components/ui/cn'
 
 export interface IndexItem {
@@ -46,7 +47,11 @@ function IndexList(props: { label: string; items: IndexItem[]; active?: string }
   if (items.length === 0) return null
   return (
     <div className="mb-5">
-      <p className="mb-1 pl-3 font-serif text-body-lg text-graphite italic">{label}</p>
+      {/* Like the sidebar groups: italic small caps, then a brass hairline to the edge (design v1.2). */}
+      <p className={cn('mb-1.5 flex items-center gap-2.5 pr-2 pl-3', SMALL_CAPS)}>
+        {label}
+        <span aria-hidden="true" className={cn('h-px flex-1', BRASS_RULE)} />
+      </p>
       <ul>
         {items.map((it) => {
           const isActive = it.slug === active
@@ -59,7 +64,7 @@ function IndexList(props: { label: string; items: IndexItem[]; active?: string }
                   'relative flex h-8 items-center justify-between gap-3 rounded-sm pr-2 pl-3 text-small transition-colors duration-150',
                   'hover:bg-stone/60 hover:text-ink',
                   isActive
-                    ? 'text-ink before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-indigo'
+                    ? 'text-ink before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-brass'
                     : 'text-graphite',
                 )}
               >
@@ -92,7 +97,10 @@ function InlineGroup(props: { label: string; items: IndexItem[] }): React.JSX.El
   if (items.length === 0) return null
   return (
     <div>
-      <p className="font-serif text-body-lg text-graphite italic">{label}</p>
+      <p className={cn('mb-0.5 flex items-center gap-2.5', SMALL_CAPS)}>
+        {label}
+        <span aria-hidden="true" className={cn('h-px flex-1', BRASS_RULE)} />
+      </p>
       <ul className="-ml-2 flex flex-wrap gap-x-1 gap-y-0.5">
         {items.map((it) => (
           <li key={it.slug}>

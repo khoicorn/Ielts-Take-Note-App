@@ -7,7 +7,7 @@ import { ICON_STROKE, SparkIcon } from '@/components/ui/icons'
 
 /**
  * The upgrade field: the one that matters most, so it is the strongest on the form (brief §18, plan C1).
- * Ink label with a tiny gold ✦ (refinement v1.1 #3), larger text in deep sage (refinement v1.1 #4).
+ * Ink label with a tiny brass ✦ (refinement v1.1 #3, design v1.2 rule 9), larger text in the upgrade green (refinement v1.1 #4).
  */
 export const UpgradeField = React.forwardRef<
   HTMLTextAreaElement,
@@ -18,7 +18,7 @@ export const UpgradeField = React.forwardRef<
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
       <label htmlFor={id} className="flex items-center gap-1.5 text-small font-medium text-ink">
-        <SparkIcon className="size-2.5 shrink-0 fill-current stroke-none text-gold" aria-hidden="true" />
+        <SparkIcon className="size-2.5 shrink-0 fill-current stroke-none text-brass" aria-hidden="true" />
         <span>{label}</span>
       </label>
       <TextArea
@@ -40,7 +40,10 @@ export const UpgradeField = React.forwardRef<
   )
 })
 
-/** The quiet offer after a labelled correction is pasted (mockup m01). Undo lives in FilledLine after Fill. */
+/**
+ * The quiet offer after a labelled correction is pasted (mockup m01). Undo lives in FilledLine after Fill.
+ * Design v1.2: a faint brass tint with a brass hairline (it was an indigo tint, which reads lavender at night).
+ */
 export function PasteBar(props: {
   count: number
   labels: string[]
@@ -50,7 +53,7 @@ export function PasteBar(props: {
   return (
     <div
       role="status"
-      className="flex flex-col gap-1.5 rounded-md border border-indigo/20 bg-indigo/[0.05] py-3 pr-3 pl-3.5 sm:flex-row sm:items-center sm:gap-4"
+      className="flex flex-col gap-1.5 rounded-md border border-gold/45 bg-gold/[0.07] py-3 pr-3 pl-3.5 sm:flex-row sm:items-center sm:gap-4 dark:border-gold/35"
     >
       <div className="flex min-w-0 flex-1 items-start gap-2.5">
         <ClipboardPaste className="mt-0.5 size-4 shrink-0 text-indigo" strokeWidth={ICON_STROKE} aria-hidden="true" />

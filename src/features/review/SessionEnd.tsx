@@ -3,6 +3,8 @@ import { forwardRef } from 'react'
 import { Link } from 'react-router'
 import { NoteRow } from '@/components/notes/NoteRow'
 import { Button, ButtonLink } from '@/components/ui/Button'
+import { BRASS_BORDER, TITLE_INITIAL } from '@/components/ui/candlelit'
+import { cn } from '@/components/ui/cn'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Ornament } from '@/components/ui/Ornament'
 import { MODE_LABELS } from '@/lib/taxonomy'
@@ -31,7 +33,7 @@ export const SessionComplete = forwardRef<
     <div className="mx-auto w-full max-w-[640px] px-4 pt-14 pb-16 sm:pt-28">
       <div className="text-center">
         <Ornament variant="moon" className="mb-7" />
-        <h1 ref={headingRef} tabIndex={-1} className="font-serif text-title font-normal text-ink outline-none">
+        <h1 ref={headingRef} tabIndex={-1} className={cn('font-serif text-title font-normal text-ink outline-none', TITLE_INITIAL)}>
           Session complete
         </h1>
         <div className="mt-5 space-y-1">
@@ -53,7 +55,7 @@ export const SessionComplete = forwardRef<
 
       {again.length > 0 ? (
         <section aria-labelledby="again-title" className="mt-16">
-          <div className="flex items-baseline justify-between gap-4 border-b border-line pb-2.5">
+          <div className={cn('flex items-baseline justify-between gap-4 border-b pb-2.5', BRASS_BORDER)}>
             <h2 id="again-title" className="font-serif text-section font-normal text-ink">
               To see again soon
             </h2>

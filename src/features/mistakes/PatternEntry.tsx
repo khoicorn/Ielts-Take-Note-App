@@ -35,7 +35,7 @@ export function PatternEntry(props: { pattern: LedgerPattern; now: Date; linkFro
           </p>
           {frequent ? (
             <span className="inline-flex items-center gap-1.5 text-meta text-ink">
-              <SparkIcon aria-hidden="true" className="size-2.5 fill-current stroke-none text-gold" />
+              <SparkIcon aria-hidden="true" className="size-2.5 fill-current stroke-none text-brass" />
               Frequent
             </span>
           ) : null}
@@ -61,7 +61,7 @@ export function PatternEntry(props: { pattern: LedgerPattern; now: Date; linkFro
             aria-expanded={open}
             aria-controls={open ? listId : undefined}
             onClick={() => setOpen((o) => !o)}
-            className="-ml-1.5 inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-xs px-1.5 text-indigo transition-colors duration-150 hover:bg-indigo/[0.07] max-sm:min-h-11"
+            className="-ml-1.5 inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-xs px-1.5 text-indigo transition-colors duration-150 hover:bg-stone/60 max-sm:min-h-11"
           >
             Related notes
             <span className="text-graphite tabular-nums">{noteCount}</span>
@@ -77,7 +77,8 @@ export function PatternEntry(props: { pattern: LedgerPattern; now: Date; linkFro
 
       <div aria-hidden="true" className="hidden flex-col items-center border-l border-line pt-0.5 text-center sm:flex">
         <span className="text-meta text-graphite">Seen</span>
-        <span className="my-0.5 text-recall leading-[1.15] text-ink tabular-nums">{pattern.seen}</span>
+        {/* A brass serif numeral, like the due counts on Today (design v1.2). */}
+        <span className="my-0.5 font-serif text-title leading-[1.05] font-normal text-brass tabular-nums lining-nums">{pattern.seen}</span>
         <span className="text-meta text-graphite">{pattern.seen === 1 ? 'time' : 'times'}</span>
         <span className="mt-1 text-meta text-graphite">in {plural(noteCount, 'note')}</span>
       </div>

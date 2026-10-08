@@ -23,7 +23,7 @@ function ParagraphRow(props: { paragraph: Paragraph; notes: number; trailing?: R
         <Link
           to={`/writing/paragraphs/${p.id}`}
           className={cn(
-            'flex min-w-0 flex-1 items-start gap-4 rounded-sm py-5 sm:gap-6 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-indigo',
+            'flex min-w-0 flex-1 items-start gap-4 rounded-sm py-5 sm:gap-6 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus',
             '-ml-3 pl-3',
             trailing ? null : '-mr-3 pr-3',
           )}

@@ -5,6 +5,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router'
 import { useDocumentTitle } from '@/app/documentTitle'
 import { isTypingTarget } from '@/app/hotkeys'
 import { useQuickAdd } from '@/app/overlays'
+import { CandleLight } from '@/components/ui/CandleLight'
 import { cn } from '@/components/ui/cn'
 import { isAnyDialogOpen } from '@/components/ui/Dialog'
 import { MasteryGlyph } from '@/components/ui/MasteryMark'
@@ -19,12 +20,19 @@ import { MODE_LABELS, REVIEW_TYPE_LABELS } from '@/lib/taxonomy'
 import type { Mode, Note, Rating } from '@/lib/types'
 import { RatingBar, RevealBar } from './ActionBar'
 import { AGAIN_FEEDBACK, emptyBody, MASTERED_FEEDBACK, otherMode, RATING_NOT_SAVED } from './copy'
-import { ReviewCardView } from './ReviewCard'
+import { Bookmark, ReviewCardView } from './ReviewCard'
 import { ReviewTopBar } from './ReviewTopBar'
 import { INITIAL_SESSION, type QueueItem, sessionReducer } from './session'
 import { NothingDue, SessionComplete } from './SessionEnd'
 
 const RATING_KEYS: Record<string, Rating> = { '1': 'again', '2': 'hard', '3': 'good', '4': 'easy' }
+
+/**
+ * The candle glow sits behind the answer (design v1.2 rule 1; concept A review.html). Its 900px-tall light is
+ * centered about 450px from the top on desktop and tablet, near the revealed answer. On a phone the answer is
+ * higher and the column narrow, so the light is smaller (0.55, about 650 by 500px) and centered about 300px down.
+ */
+const GLOW_AT = 'top-0 left-1/2 max-sm:top-[-150px] max-sm:scale-[0.55]'
 const FEEDBACK_MS = 1500
 
 function modeFrom(v: string | null): Mode | undefined {
@@ -221,7 +229,9 @@ export function ReviewScreen(props: { now?: Date }): React.JSX.Element {
   } else if (item && card) {
     body = (
       // 28px side margin on a phone (mockup m02), so the 2px rule left of the prompt has room inside the screen.
-      <div className="mx-auto flex w-full max-w-[784px] flex-1 flex-col px-7 sm:px-8">
+      // `relative`: a Must Remember card's bookmark hangs from the top bar at the right edge of this column.
+      <div className="relative mx-auto flex w-full max-w-[784px] flex-1 flex-col px-7 sm:px-8">
+        {item.note.is_favorite ? <Bookmark key={item.key} /> : null}
         <div
           ref={cardRef}
           tabIndex={-1}
@@ -256,7 +266,9 @@ export function ReviewScreen(props: { now?: Date }): React.JSX.Element {
 
   const feedback = state.feedback
   return (
-    <div className="relative flex min-h-dvh flex-col bg-page">
+    // `isolate`: the candle layer (z-index -10) paints above this page-colored background and below all content.
+    <div className="relative isolate flex min-h-dvh flex-col bg-page">
+      <CandleLight glowClassName={GLOW_AT} />
       {/*
         The count shows cards, and a card rated Again comes back once, so "7 of 7" can cover 6 notes.
         The end screen says "6 notes reviewed." and shows no count, so the two numbers never disagree.

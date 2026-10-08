@@ -6,7 +6,7 @@ import { useLocation } from 'react-router'
 import { useTheme } from '@/app/theme'
 import { ShortcutTable } from '@/app/ShortcutsDialog'
 import { Button, ButtonLink } from '@/components/ui/Button'
-import { READING_PAGE } from '@/components/ui/cn'
+import { cn, READING_PAGE } from '@/components/ui/cn'
 import { useConfirm } from '@/components/ui/Confirm'
 import { Select } from '@/components/ui/Field'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -102,7 +102,11 @@ function ReviewStyleField(props: { value: ReviewStyle }): React.JSX.Element {
                 value={s.value}
                 checked={props.value === s.value}
                 onChange={() => void save({ review_style: s.value })}
-                className="mt-1 size-4 shrink-0 cursor-pointer accent-indigo"
+                className={cn(
+                  'mt-1 size-4 shrink-0 cursor-pointer appearance-none rounded-full border border-line-strong bg-paper transition-colors duration-150 hover:border-ink/40',
+                  // Like Checkbox (design v1.2): indigo-fill with a cream dot; by night the deep fill gets a gilt edge.
+                  'checked:border-indigo-fill checked:bg-[radial-gradient(circle,var(--on-accent)_0_2.5px,var(--indigo-fill)_3px)] dark:checked:border-gold/75',
+                )}
               />
               <span className="min-w-0">
                 <span className="block text-body text-ink">{s.label}</span>

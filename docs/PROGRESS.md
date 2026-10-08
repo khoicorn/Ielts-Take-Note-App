@@ -22,6 +22,7 @@ Last updated: 2026-10-08 (morning).
 | Workflow 2 (screens) | All 12 screens built. 3 agents (Review, Today + Calendar, Search + Settings) lost connection; integration built Review and Settings from their tests. Typecheck clean, 327/327 tests, main chunk 292 kB. Smoke: 14 routes × 2 sizes × 2 themes, 5 flows |
 | Hosting | GitHub Pages config: base path, router basename, PWA scope; tested under a Pages-like server (12/12 checks incl. offline). Vitest limited to 4 workers (21 workers on this 22-core laptop made tests flaky) |
 | Workflow 3 (QA) | 5 reviewers, 3 fixers, 1 gate: 55 findings, 54 fixed + 1 by lead. 376/376 unit, 89/89 E2E, build OK |
+| Design v1.2 Candlelit Library | Applied to every screen: tokens, shared components, Today/Review/Quick Add details, 9-screen sweep. 395/395 unit, 89/89 E2E |
 | Witchier concepts | 3 directions in `docs/mockups/concepts/` (compare: `index.html`). Owner chose **A · Candlelit Library** |
 | Mockups | 21 screens in `docs/mockups/`: `png/` (42 PNGs, light + dark), `standalone/` (21 self-contained HTML), `index.html` gallery, `PROMPT.md` for outside AI reviewers |
 
@@ -33,5 +34,5 @@ Done 2026-10-08: base path, basename, PWA scope, local Pages-like test. Owner se
 
 ## Next steps
 
-1. Apply Concept A (Candlelit Library) to the app: tokens, fonts, shared components, then every screen. Spec: `docs/mockups/concepts/a/README.md`. It changes refinement v1.1 rules 2 (ribbon → garnet) and 6 (dark button → deep indigo with gilt hairline); owner accepted by choosing A.
-2. Visual check of every screen in light and dark, desktop and phone; contrast test; unit + E2E; push (auto-deploys).
+1. Owner tries the Candlelit look on the live site and sends feedback.
+2. Small open items: Review heading still shown on phones (concept hides it under 640px); Dialog footer slot so sticky footers do not cover the bookplate frame; edit form could reuse Quick Add's upgrade field (brass ✦).

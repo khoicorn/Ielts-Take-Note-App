@@ -5,6 +5,7 @@ import { Link } from 'react-router'
 import { ModeMark } from '@/components/notes/ModeMark'
 import { NOTE_LABEL, NotePair } from '@/components/notes/NotePair'
 import { Quote } from '@/components/notes/Quote'
+import { SMALL_CAPS } from '@/components/ui/candlelit'
 import { cn, WRAP } from '@/components/ui/cn'
 import { ICON_STROKE } from '@/components/ui/icons'
 import { Ornament } from '@/components/ui/Ornament'
@@ -26,15 +27,16 @@ export function eyebrowParts(note: Note): string[] {
 
 export function NoteEyebrow(props: { note: Note; className?: string }): React.JSX.Element {
   return (
-    <p data-testid="note-eyebrow" className={cn('font-serif text-note text-graphite italic', WRAP, props.className)}>
+    // Italic small caps in rubric, like the page eyebrows and Today's kicker (design v1.2 rule 3).
+    <p data-testid="note-eyebrow" className={cn(SMALL_CAPS, WRAP, props.className)}>
       {/* The mode word follows in text, so the glyph is decoration here. */}
       <span aria-hidden="true" className="mr-2.5 inline-flex -translate-y-px align-middle">
         <ModeMark mode={props.note.mode} showLabel={false} />
       </span>
       {eyebrowParts(props.note).map((part, i) => (
         <Fragment key={i}>
-          {/* The serif's word space is narrow; a little padding keeps "Writing · Task 1" from running together. */}
-          {i > 0 ? <span className="px-1">{' · '}</span> : null}
+          {/* A little padding keeps "Writing · Task 1" from running together. */}
+          {i > 0 ? <span className="px-0.5">{' · '}</span> : null}
           {part}
         </Fragment>
       ))}
@@ -63,7 +65,7 @@ function SourceParagraph(props: { paragraphId: string; from: string }): React.JS
         state={{ from: props.from }}
         className={cn(
           'group -mx-3 flex min-h-11 items-center gap-3 rounded-sm px-3 py-3 transition-colors duration-150 hover:bg-stone/60',
-          'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-indigo',
+          'focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus',
         )}
       >
         <FileText className="size-[1.125rem] shrink-0 text-graphite" strokeWidth={ICON_STROKE} aria-hidden="true" />

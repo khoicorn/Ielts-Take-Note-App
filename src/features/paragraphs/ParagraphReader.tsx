@@ -166,7 +166,7 @@ export function ParagraphReader(props: {
         </div>
 
         <div className="[&>header]:mb-0">
-          <PageHeader eyebrow="Model paragraph" mark title={paragraphTitle(p)} />
+          <PageHeader eyebrow="Model paragraph" eyebrowTone="rubric" mark title={paragraphTitle(p)} />
         </div>
         {metaParts.length > 0 ? (
           <p className="mt-2.5 flex flex-wrap items-center gap-y-1 text-small text-graphite">
@@ -274,7 +274,7 @@ export function ParagraphReader(props: {
               <span className="hidden items-center gap-5 text-graphite sm:inline-flex">
                 {marks.length > 0 ? (
                   <span className="inline-flex items-center gap-2">
-                    <span aria-hidden="true" className="inline-block w-[22px] border-b-2 border-dotted border-gold" />
+                    <span aria-hidden="true" className="inline-block w-[22px] border-b-2 border-dotted border-brass" />
                     Underlined in the text
                   </span>
                 ) : null}

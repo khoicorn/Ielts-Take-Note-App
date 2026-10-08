@@ -36,7 +36,7 @@ export function NotebookRow(props: {
           to={to}
           state={linkState}
           className={cn(
-            'flex min-w-0 flex-1 items-start gap-6 rounded-sm py-5 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-indigo',
+            'flex min-w-0 flex-1 items-start gap-6 rounded-sm py-5 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus',
             // The link reaches into the row's side padding, so the focus ring frames the hover surface.
             '-ml-3 pl-3',
             trailing ? null : '-mr-3 pr-3',

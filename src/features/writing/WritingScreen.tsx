@@ -8,6 +8,7 @@ import { isDue } from '@/lib/srs'
 import { FIELD_LABELS, genresFor, taskTypeLabel } from '@/lib/taxonomy'
 import type { Note, NoteDraft, TaskType } from '@/lib/types'
 import { Button, ButtonLink } from '@/components/ui/Button'
+import { BRASS_BORDER } from '@/components/ui/candlelit'
 import { cn } from '@/components/ui/cn'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -16,15 +17,16 @@ import { groupByTopic, notebookSummary } from '@/features/all-notes/notebook'
 import { NotebookView } from '@/features/all-notes/NotebookView'
 import { MOBILE_QUERY, useMediaQuery } from '@/components/ui/uiState'
 import { NewParagraphButton, ParagraphList } from '@/features/paragraphs/ParagraphList'
+import { WritingStudyPlan } from './WritingStudyPlan'
 
-type WritingTab = 'task1' | 'task2' | 'paragraphs'
+type WritingTab = 'task1' | 'task2' | 'study' | 'paragraphs'
 type Task = Exclude<TaskType, ''>
 
 const EYEBROW = `${FIELD_LABELS.writing.original} → ${FIELD_LABELS.writing.upgraded}`
 const EMPTY_BODY = 'Save the sentences you want to write better next time.'
 
 function parseTab(v: string | null): WritingTab {
-  return v === 'task2' || v === 'paragraphs' ? v : 'task1'
+  return v === 'task2' || v === 'study' || v === 'paragraphs' ? v : 'task1'
 }
 
 function lower(s: string): string {
@@ -60,7 +62,8 @@ function GenreFilter(props: { task: Task; genres: string[]; value: string | null
               'relative inline-flex h-7 cursor-pointer items-center rounded-full border px-3 text-small whitespace-nowrap transition-colors duration-150',
               // A 44px tall hit area on touch screens without a taller chip.
               "max-sm:after:absolute max-sm:after:inset-x-0 max-sm:after:-inset-y-2 max-sm:after:content-['']",
-              on ? 'border-indigo/40 bg-indigo/[0.07] text-indigo' : 'border-line-strong text-graphite hover:text-ink',
+              // On: a stone surface with a brass edge, like the selected segment (design v1.2). Ink text, never graphite on stone.
+              on ? cn('bg-stone text-ink', BRASS_BORDER) : 'border-line-strong text-graphite hover:text-ink',
             )}
           >
             {g}
@@ -79,7 +82,7 @@ export function WritingScreen(): React.JSX.Element {
   const [params, setParams] = useSearchParams()
   const quickAdd = useQuickAdd()
   const tab = parseTab(params.get('tab'))
-  const task: Task | undefined = tab === 'paragraphs' ? undefined : tab
+  const task: Task | undefined = tab === 'task1' || tab === 'task2' ? tab : undefined
   const topic = params.get('topic')
   const genre = params.get('genre')?.trim() || null
 
@@ -136,6 +139,7 @@ export function WritingScreen(): React.JSX.Element {
         // "Task 1" under 640px, so the three tabs fit on one line at 390px.
         { value: 'task1', label: taskTypeLabel('task1', mobile ? 'short' : 'label'), to: '/writing?tab=task1', count: count('task1') },
         { value: 'task2', label: taskTypeLabel('task2'), to: '/writing?tab=task2', count: count('task2') },
+        { value: 'study', label: '14-Day Study Plan', to: '/writing?tab=study' },
         { value: 'paragraphs', label: 'Model Paragraphs', to: '/writing?tab=paragraphs', count: nonZero(paragraphs?.length) },
       ]}
     />
@@ -145,7 +149,7 @@ export function WritingScreen(): React.JSX.Element {
   const hasParagraphs = paragraphs !== undefined && paragraphs.length > 0
   // The same header slot holds the tab's main action, so it does not move when the tab changes.
   const actions =
-    tab === 'paragraphs' ? (
+    tab === 'study' ? undefined : tab === 'paragraphs' ? (
       hasParagraphs ? (
         <NewParagraphButton />
       ) : undefined
@@ -164,7 +168,9 @@ export function WritingScreen(): React.JSX.Element {
     ) : undefined
 
   let body: React.ReactNode
-  if (tab === 'paragraphs') {
+  if (tab === 'study') {
+    body = <WritingStudyPlan />
+  } else if (tab === 'paragraphs') {
     body = (
       <div className="mt-8">
         <ParagraphList headerAction />
@@ -208,6 +214,7 @@ export function WritingScreen(): React.JSX.Element {
     <div className="mx-auto max-w-[1040px]">
       <PageHeader
         eyebrow={EYEBROW}
+        eyebrowTone="rubric"
         title="Writing"
         description={hasNotes ? notebookSummary(notes.length, topicCount, due) : undefined}
         actions={actions}

@@ -7,6 +7,7 @@ import { Markdown } from '@/lib/markdown'
 import { isDue } from '@/lib/srs'
 import { FIELD_LABELS, noteTypeLabel } from '@/lib/taxonomy'
 import type { Note } from '@/lib/types'
+import { BRASS_BORDER } from '@/components/ui/candlelit'
 import { cn, WRAP } from '@/components/ui/cn'
 import { FavoriteStar } from '@/components/ui/FavoriteStar'
 import { ICON_STROKE } from '@/components/ui/icons'
@@ -52,7 +53,7 @@ function TableRow(props: { note: Note; to: string; linkState?: unknown; highligh
       <Link
         to={to}
         state={linkState}
-        className="-mx-3 block rounded-sm px-3 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-indigo"
+        className="-mx-3 block rounded-sm px-3 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus"
       >
         {/* The hairline sits on the inner grid, so it lines up with the column labels, not the hover surface. */}
         <span className={cn(COLUMNS, 'border-b border-line py-3.5')}>
@@ -107,7 +108,7 @@ export const NotesTable = forwardRef<
   const { notes, sort, linkState, highlight, now, onKeyDown } = props
   return (
     <div>
-      <div aria-hidden="true" className={cn(COLUMNS, 'border-b border-line-strong pb-2.5')}>
+      <div aria-hidden="true" className={cn(COLUMNS, 'border-b pb-2.5', BRASS_BORDER)}>
         <SortedHead label="Topic" active={sort === 'topic'} />
         <span className={HEAD}>Mistake</span>
         <span className={HEAD}>Upgrade</span>

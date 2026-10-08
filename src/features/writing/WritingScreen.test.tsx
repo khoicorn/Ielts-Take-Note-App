@@ -56,6 +56,17 @@ describe('WritingScreen', () => {
     expect(screen.queryByText('Task two upgrade')).not.toBeInTheDocument()
   })
 
+  it('WR1a opens the structured fourteen-day study plan', async () => {
+    const user = userEvent.setup({ delay: null })
+    renderScreen('/writing', <WritingScreen />)
+
+    await user.click(await screen.findByRole('link', { name: '14-Day Study Plan' }))
+    await waitFor(() => expect(currentUrl()).toBe('/writing?tab=study'))
+    expect(screen.getByRole('heading', { name: 'One hour a day · Task 1, then Task 2' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Trend verbs and noun phrases' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Start targeted exercise' })).toBeInTheDocument()
+  })
+
   it('WR1b Model Paragraphs puts "New model paragraph" in the header slot of "New Writing note"', async () => {
     await db.notes.add(makeNote({ mode: 'writing', task_type: 'task1', topic: 'Increase', upgraded_text: 'Task one upgrade' }))
     await db.paragraphs.add(makeParagraph({ id: 'p1', title: 'Task 1 — Opposite Trends', task_type: 'task1' }))

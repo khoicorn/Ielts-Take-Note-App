@@ -23,7 +23,7 @@ export function ParagraphEntry(props: { paragraph: Paragraph; ribbon: React.Reac
   const words = wordCount(p.body)
   const meta = [taskTypeLabel(p.task_type), p.task_genre.trim(), p.topic.trim(), words > 0 ? plural(words, 'word') : ''].filter(Boolean)
   const href = `/writing/paragraphs/${p.id}`
-  // Phrases already saved as notes get the dotted gold underline, as on the paragraph page (mockup 17).
+  // Phrases already saved as notes get the dotted brass underline, as on the paragraph page (mockup 17).
   const layout = useMemo(() => layoutBody(p.body), [p.body])
   const marks = useMemo(() => findSavedPhrases(layout.text, linked ?? []), [layout.text, linked])
   return (

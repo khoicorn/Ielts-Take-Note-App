@@ -53,7 +53,8 @@ export function ModeChoice(props: {
               className={cn(
                 'flex min-w-0 cursor-pointer flex-col rounded-md border border-line-strong bg-paper px-5 pt-5 pb-4.5 text-left',
                 'transition-[background-color,border-color] duration-150 hover:bg-stone/30',
-                'focus:border-indigo focus:outline-1 focus:outline-offset-0 focus:outline-indigo',
+                // The focus token: ink-indigo by day, amber by night (design v1.2 rule 10).
+                'focus:border-focus focus:outline-1 focus:outline-offset-0 focus:outline-focus',
                 'max-sm:px-4 max-sm:pt-4 max-sm:pb-3.5',
               )}
             >

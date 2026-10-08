@@ -90,7 +90,8 @@ function MasteryToggles(props: { value: NoteFilter['mastery']; onChange: (v: Not
             }}
             className={cn(
               'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-xs px-2 text-small whitespace-nowrap transition-colors duration-150 max-sm:h-11 max-sm:px-2.5',
-              on ? 'bg-stone text-ink' : 'text-graphite hover:text-ink',
+              // On: like the selected segment of SegmentedControl, a stone surface with a faint brass edge.
+              on ? 'bg-stone text-ink shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--gold)_32%,transparent)]' : 'text-graphite hover:text-ink',
             )}
           >
             <MasteryGlyph status={m} />
@@ -110,13 +111,14 @@ function Row(props: { label: string; active: boolean; htmlFor?: string; stacked:
       {label}
       {active ? (
         <>
-          <span aria-hidden="true" className="ml-1.5 inline-block size-1 -translate-y-px rounded-full bg-indigo align-middle" />
+          <span aria-hidden="true" className="ml-1.5 inline-block size-1 -translate-y-px rounded-full bg-brass align-middle" />
           <VisuallyHidden> (in use)</VisuallyHidden>
         </>
       ) : null}
     </>
   )
-  const labelClass = cn('text-small text-graphite', stacked ? null : 'pt-1.5')
+  // No wrap beside the fields: "Must Remember" and its dot stay on one line (it may reach 2px into the gap).
+  const labelClass = cn('text-small text-graphite', stacked ? null : 'pt-1.5 whitespace-nowrap')
   return (
     <div className={stacked ? 'flex flex-col gap-1.5' : 'grid grid-cols-[6.75rem_minmax(0,1fr)] items-start gap-3'}>
       {htmlFor ? (

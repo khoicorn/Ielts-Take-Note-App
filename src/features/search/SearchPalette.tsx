@@ -182,7 +182,7 @@ function PaletteBody(props: {
   return (
     <>
       {/* The input has no box, so its focus shows on the bar's bottom line. */}
-      <div className="flex min-h-16 shrink-0 items-center gap-3 border-b border-line pr-3 pl-5 transition-colors duration-150 has-[input:focus-visible]:border-indigo/60 max-sm:pt-[env(safe-area-inset-top)] max-sm:pr-2 max-sm:pl-4">
+      <div className="flex min-h-16 shrink-0 items-center gap-3 border-b border-line pr-3 pl-5 transition-colors duration-150 has-[input:focus-visible]:border-focus/60 max-sm:pt-[env(safe-area-inset-top)] max-sm:pr-2 max-sm:pl-4">
         <Search className="size-5 shrink-0 text-graphite" strokeWidth={ICON_STROKE} aria-hidden="true" />
         <input
           ref={inputRef}

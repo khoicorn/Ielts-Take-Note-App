@@ -6,7 +6,8 @@ import { VisuallyHidden } from '@/components/ui/VisuallyHidden'
 
 /**
  * The quiet top bar of the full-screen review (mockups 04–07, m02).
- * Left: leave (Esc). Center: "3 of 12". Right: the review type. The bottom hairline is the progress track.
+ * Left: leave (Esc). Center: "3 of 12". Right: the review type. The bottom hairline is the progress track,
+ * and the progress is a 2px brass line on it (design v1.2 rule 4).
  */
 export function ReviewTopBar(props: {
   /** "End review" during a session, "Close" on the end and empty screens. */
@@ -51,7 +52,7 @@ export function ReviewTopBar(props: {
           aria-valuemax={total}
           aria-valuenow={position}
           aria-valuetext={`${position} of ${total}`}
-          className="absolute -bottom-px left-0 h-px bg-indigo transition-[width] duration-200"
+          className="absolute -bottom-px left-0 h-0.5 bg-brass transition-[width] duration-200"
           style={{ width: `${pct}%` }}
         />
       ) : null}

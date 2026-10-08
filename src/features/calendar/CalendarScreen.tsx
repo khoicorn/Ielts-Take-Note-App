@@ -3,6 +3,7 @@ import type React from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { NoteRow } from '@/components/notes/NoteRow'
 import { Button } from '@/components/ui/Button'
+import { BRASS_BORDER } from '@/components/ui/candlelit'
 import { cn, READING_PAGE as PAGE } from '@/components/ui/cn'
 import { IconButton } from '@/components/ui/IconButton'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -39,21 +40,22 @@ const WEEKDAYS: readonly { short: string; long: string }[] = [
 
 const EMPTY: DayStats = { reviews: 0, notesAdded: 0 }
 
-/** Studied day: a small indigo dot. */
+/** Studied day: a small brass dot (design v1.2: marks are brass; `brass` is the readable brass, 4.5:1 or more). */
 function StudiedDot(props: { className?: string }): React.JSX.Element {
   return (
-    <svg viewBox="0 0 6 6" className={cn('size-1.5 shrink-0 text-indigo', props.className)} aria-hidden="true" focusable="false">
+    <svg viewBox="0 0 6 6" className={cn('size-1.5 shrink-0 text-brass', props.className)} aria-hidden="true" focusable="false">
       <circle cx="3" cy="3" r="3" fill="currentColor" />
     </svg>
   )
 }
 
 /**
- * Notes added: a tiny gold glint (a thin plus). Not ✦, which means Mastered only (owner refinement 2026-10-08).
+ * Notes added: a tiny brass glint (a thin plus). Not ✦, which means Mastered only (owner refinement 2026-10-08).
+ * The shape tells it apart from the studied dot; the legend under the grid names both.
  */
 function AddedGlint(props: { className?: string }): React.JSX.Element {
   return (
-    <svg viewBox="0 0 10 10" className={cn('size-2 shrink-0 text-gold', props.className)} aria-hidden="true" focusable="false">
+    <svg viewBox="0 0 10 10" className={cn('size-2 shrink-0 text-brass', props.className)} aria-hidden="true" focusable="false">
       <path d="M5 0.75V9.25M0.75 5H9.25" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   )
@@ -186,7 +188,7 @@ export function CalendarScreen(props: { now?: Date } = {}): React.JSX.Element {
     <div className={PAGE}>
       <PageHeader title="Calendar" />
 
-      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b border-line pb-3">
+      <div className={cn('flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b pb-3', BRASS_BORDER)}>
         <div className="min-w-0">
           <h2 id="calendar-month" className="font-serif text-section font-normal text-ink" aria-live="polite">
             {monthTitle(view.year, view.month)}

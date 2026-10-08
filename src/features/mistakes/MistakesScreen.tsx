@@ -101,6 +101,7 @@ export function MistakesScreen(): React.JSX.Element {
     <div className="mx-auto max-w-[1040px]">
       <PageHeader
         eyebrow="Error Ledger"
+        eyebrowTone="rubric"
         mark
         title="My Mistakes"
         description="Your repeated habits, grouped. Fix the most frequent first."

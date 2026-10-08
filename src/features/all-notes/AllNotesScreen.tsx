@@ -12,6 +12,7 @@ import { plainText } from '@/lib/text'
 import type { Note, NoteFilter } from '@/lib/types'
 import { NoteRow } from '@/components/notes/NoteRow'
 import { Button } from '@/components/ui/Button'
+import { TITLE_INITIAL } from '@/components/ui/candlelit'
 import { cn } from '@/components/ui/cn'
 import { Dialog } from '@/components/ui/Dialog'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -61,7 +62,7 @@ function FilterButton(props: { count: number } & React.ButtonHTMLAttributes<HTML
         <>
           <span
             aria-hidden="true"
-            className="ml-0.5 inline-flex h-[1.125rem] min-w-[1.125rem] items-center justify-center rounded-full bg-indigo px-1 text-meta leading-none font-medium text-on-accent tabular-nums"
+            className="ml-0.5 inline-flex h-[1.125rem] min-w-[1.125rem] items-center justify-center rounded-full bg-indigo-fill px-1 text-meta leading-none font-medium text-on-accent tabular-nums"
           >
             {count}
           </span>
@@ -75,7 +76,7 @@ function FilterButton(props: { count: number } & React.ButtonHTMLAttributes<HTML
 function TitleLine(props: { title: string; count: number | undefined }): React.JSX.Element {
   return (
     <div className="flex flex-wrap items-baseline gap-x-3.5 gap-y-1">
-      <h1 className="font-serif text-title font-normal tracking-[-0.005em] text-ink">{props.title}</h1>
+      <h1 className={cn('font-serif text-title font-normal tracking-[-0.01em] text-ink', TITLE_INITIAL)}>{props.title}</h1>
       {props.count ? (
         <span className="text-body text-graphite tabular-nums">{plural(props.count, 'note')}</span>
       ) : null}

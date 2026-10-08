@@ -5,9 +5,9 @@ import { Link } from 'react-router'
 import { useQuickAdd } from '@/app/overlays'
 import { streakText } from '@/app/Sidebar'
 import { ModeMark } from '@/components/notes/ModeMark'
-import { NOTE_LABEL } from '@/components/notes/NotePair'
 import { NoteRow } from '@/components/notes/NoteRow'
 import { Button, ButtonLink } from '@/components/ui/Button'
+import { BRASS_DOUBLE_RULE, NUMERAL, SERIF_ASIDE, SMALL_CAPS, SMALL_CAPS_QUIET } from '@/components/ui/candlelit'
 import { cn, READING_PAGE as PAGE, WRAP } from '@/components/ui/cn'
 import { ICON_STROKE } from '@/components/ui/icons'
 import { Ornament } from '@/components/ui/Ornament'
@@ -51,17 +51,19 @@ function TextLink(props: { to: string; tone?: 'quiet' | 'accent'; children: Reac
 
 function DueColumn(props: { mode: Mode; count: number; second: boolean }): React.JSX.Element {
   const { mode, count, second } = props
+  // Design v1.2 rule 8: the count is a 44px brass serif numeral, "due" an italic serif aside.
   const body = (
     <>
       <ModeMark mode={mode} />
-      <span className="text-section text-ink tabular-nums">
-        {count} <span className="text-body text-graphite">due</span>
+      <span className="mt-0.5 flex items-baseline gap-2">
+        <span className={NUMERAL}>{count}</span> <span className={cn(SERIF_ASIDE, 'leading-none')}>due</span>
       </span>
     </>
   )
   const box = cn(
-    'relative flex min-w-0 flex-col gap-0.5 py-4 pr-8 sm:py-[18px] sm:pr-12',
-    second && 'border-l border-line pl-4 sm:pl-6',
+    'relative flex min-w-0 flex-col pt-4 pr-8 pb-3.5 sm:pr-12',
+    // The column rule is a pseudo line, so it stays straight next to the link's rounded focus ring.
+    second && 'pl-4 before:absolute before:inset-y-0 before:left-0 before:w-px before:bg-line sm:pl-6',
   )
   if (count === 0) return <div className={box}>{body}</div>
   return (
@@ -95,13 +97,16 @@ function ReviewBlock(props: { due: DueCounts; now: Date; onAdd: () => void }): R
   return (
     <>
       {/* The strongest element on the page (brief §5). */}
-      <ButtonLink to="/review" variant="primary" size="lg" iconRight={ArrowRight} className="w-full sm:w-auto sm:min-w-[200px]">
+      <ButtonLink to="/review" variant="primary" size="lg" iconRight={ArrowRight} className="w-full sm:w-auto sm:min-w-[212px]">
         <span className="flex-1 text-left">Begin Review</span>
       </ButtonLink>
-      <div role="group" aria-label="Due today by mode" className="mt-8 grid grid-cols-2 border-y border-line sm:mt-10">
-        {MODES.map((mode, i) => (
-          <DueColumn key={mode} mode={mode} count={due[mode]} second={i > 0} />
-        ))}
+      {/* A small ledger: a double brass rule on top (design v1.2 rule 4), a plain hairline below. */}
+      <div className={cn('mt-8 sm:mt-10', BRASS_DOUBLE_RULE)}>
+        <div role="group" aria-label="Due today by mode" className="grid grid-cols-2 border-b border-line">
+          {MODES.map((mode, i) => (
+            <DueColumn key={mode} mode={mode} count={due[mode]} second={i > 0} />
+          ))}
+        </div>
       </div>
     </>
   )
@@ -117,7 +122,7 @@ function ContinueStudying(props: { last: LastStudied; now: Date }): React.JSX.El
         className="group -mx-3 mt-1 flex min-h-11 items-center gap-3 rounded-sm px-3 py-3.5 transition-colors duration-150 hover:bg-stone/60 sm:gap-4 sm:py-4"
       >
         <span className="block min-w-0 flex-1">
-          <span className="block text-small text-graphite">{target.kicker}</span>
+          <span className={cn('block', SMALL_CAPS)}>{target.kicker}</span>
           <span className={cn('block font-serif text-recall leading-[1.2] text-ink', WRAP)}>{target.title}</span>
           <span className="mt-0.5 block text-meta text-graphite">{lastStudiedLine(last.at, now)}</span>
         </span>
@@ -147,7 +152,8 @@ function RecentNotes(props: { notes: Note[] }): React.JSX.Element {
     >
       {anyMistake ? (
         // One quiet key line, so a first-time reader knows what the two lines are (brief §44).
-        <p className={cn(NOTE_LABEL, 'pt-3')}>
+        // Design v1.2 rule 3: an italic small-caps eyebrow, in the quiet graphite tone (concept A today.html).
+        <p className={cn(SMALL_CAPS_QUIET, 'pt-3')}>
           Mistake <span aria-hidden="true">→</span>
           <VisuallyHidden>then</VisuallyHidden> Upgrade
         </p>

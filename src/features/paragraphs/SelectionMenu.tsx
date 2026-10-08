@@ -186,7 +186,7 @@ export function SelectionMenu(props: {
             className={cn(
               'relative flex w-full cursor-pointer items-center gap-3 text-left text-body text-ink transition-colors duration-150',
               'hover:bg-stone/60 focus-visible:bg-stone/60 focus-visible:outline-none',
-              'focus-visible:before:absolute focus-visible:before:inset-y-1.5 focus-visible:before:left-0 focus-visible:before:w-0.5 focus-visible:before:bg-indigo',
+              'focus-visible:before:absolute focus-visible:before:inset-y-1.5 focus-visible:before:left-0 focus-visible:before:w-0.5 focus-visible:before:bg-brass',
               narrow ? 'min-h-11 px-4' : 'min-h-9 px-3',
             )}
           >
