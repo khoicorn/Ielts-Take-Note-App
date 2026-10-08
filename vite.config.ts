@@ -38,5 +38,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
+    // Threads start more reliably than forks when several test runs share the machine.
+    pool: 'threads',
   },
 })

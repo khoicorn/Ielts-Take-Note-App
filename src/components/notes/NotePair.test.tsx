@@ -1,7 +1,9 @@
 import { render, screen, cleanup } from '@testing-library/react'
 import { describe, expect, it, afterEach } from 'vitest'
 import type { Note } from '@/lib/types'
+import { MemoryRouter } from 'react-router'
 import { NotePair } from './NotePair'
+import { NoteRow } from './NoteRow'
 afterEach(cleanup)
 
 function makeNote(patch: Partial<Note>): Note {
@@ -116,5 +118,19 @@ describe('NotePair', () => {
     unmount()
     render(<NotePair note={TRAVEL} size="compact" />)
     expect(screen.queryByTestId('note-example')).not.toBeInTheDocument()
+  })
+  it('N4 NoteRow keeps a keyboard focus ring and one text size in the mobile meta line', () => {
+    render(
+      <MemoryRouter>
+        <NoteRow note={{ ...TRAVEL, topic: 'Travel', mastery_status: 'mastered' }} to="/notes/n1" />
+      </MemoryRouter>,
+    )
+    const link = screen.getByRole('link')
+    // outline-none would set --tw-outline-style to none and hide the focus-visible ring (Tailwind 4).
+    expect(link).not.toHaveClass('outline-none')
+    expect(link).toHaveClass('focus-visible:outline-2', 'focus-visible:outline-indigo')
+    const metaMark = screen.getAllByText('Mastered')[0].parentElement as HTMLElement
+    expect(metaMark).toHaveClass('text-meta')
+    expect(metaMark).not.toHaveClass('text-small')
   })
 })

@@ -73,6 +73,13 @@ describe('htmlToMarkdown', () => {
     expect(htmlToMarkdown(html)).toBe('- first\nmore\n- second\n1. x\n2. y\n\nafter')
   })
 
+  it('T9f keeps asterisks in code literal, so they do not become italics', () => {
+    const md = htmlToMarkdown('<p>Use <code>a*b*c</code> here</p>')
+    expect(md).toBe('Use a\\*b\\*c here')
+    expect(plainText(md)).toBe('Use a*b*c here')
+    expect(htmlToMarkdown('<p><strong>Better:</strong> 5 <em>times</em> more</p>')).toBe('**Better:** 5 *times* more')
+  })
+
   it('T9e returns plain text untouched', () => {
     expect(htmlToMarkdown('just text')).toBe('just text')
     expect(htmlToMarkdown('')).toBe('')
@@ -208,6 +215,36 @@ describe('parseSmartPaste edge cases', () => {
     expect(parseSmartPaste(closing)?.upgraded_text).toBe('The scenery was beautiful.')
     expect(parseSmartPaste('Better-known brands sold more.\nWrong: x')).toBeNull()
   })
+
+  it('T15f never leaves a stray ** when the value starts with bold text', () => {
+    expect(parseSmartPaste('✅ **The scenery was beautiful.**\n❌ We enjoyed the scenario.')).toEqual({
+      upgraded_text: 'The scenery was beautiful.',
+      original_text: 'We enjoyed the scenario.',
+      fieldCount: 2,
+    })
+    expect(parseSmartPaste('Better: **The scenery** was beautiful.\nOriginal: We enjoyed the scenario.')?.upgraded_text).toBe(
+      '**The scenery** was beautiful.',
+    )
+    // The real paste path: ChatGPT HTML → Markdown → smart paste.
+    const md = htmlToMarkdown(
+      '<p><strong>Original:</strong><br>“We enjoyed the scenario.”</p><p><strong>Better:</strong> <strong>The scenery</strong> was beautiful.</p>',
+    )
+    expect(md).toBe('**Original:**\n“We enjoyed the scenario.”\n\n**Better:** **The scenery** was beautiful.')
+    expect(parseSmartPaste(md)).toEqual({
+      original_text: 'We enjoyed the scenario.',
+      upgraded_text: '**The scenery** was beautiful.',
+      fieldCount: 2,
+    })
+  })
+
+  it('T15g pairs label bold markers correctly in every position', () => {
+    const upgraded = (line: string) => parseSmartPaste(`${line}\n❌ We enjoyed the scenario.`)?.upgraded_text
+    expect(upgraded('**Better**: **The scenery** was beautiful.')).toBe('**The scenery** was beautiful.')
+    expect(upgraded('**✅ Better version:** The scenery was beautiful.')).toBe('The scenery was beautiful.')
+    expect(upgraded('✅ **Better:** The **scenery** was beautiful.')).toBe('The **scenery** was beautiful.')
+    expect(upgraded('**Better: The scenery was beautiful.**')).toBe('The scenery was beautiful.')
+    expect(upgraded('- **Native upgrade:** “**The scenery** was beautiful.”')).toBe('**The scenery** was beautiful.')
+  })
 })
 
 describe('extractSentence and normalizeText', () => {
@@ -227,6 +264,15 @@ describe('extractSentence and normalizeText', () => {
     expect(s.endsWith('three attractions.')).toBe(true)
     expect(extractSentence('One line\nSecond line here', 12, 14)).toBe('Second line here')
     expect(extractSentence('No full stop', 3, 7)).toBe('No full stop')
+  })
+
+  it('T16c does not split a sentence after "e.g." or before a lowercase word', () => {
+    expect(extractSentence('Prices rose, e.g. in May. Then they fell.', 13, 17)).toBe('Prices rose, e.g. in May.')
+    expect(extractSentence('Sales fell (i.e. by half). Then they rose.', 0, 5)).toBe('Sales fell (i.e. by half).')
+    expect(extractSentence('Costs rose in the U.S. and fell in Japan. Then prices fell.', 0, 5)).toBe(
+      'Costs rose in the U.S. and fell in Japan.',
+    )
+    expect(extractSentence('We saw lions, zebras, etc. Then we left.', 0, 5)).toBe('We saw lions, zebras, etc.')
   })
 
   it('T17 normalizes quotes, case and punctuation', () => {

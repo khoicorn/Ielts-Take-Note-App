@@ -9,7 +9,7 @@ import { newId } from './ids'
 import { cleanTags, isRecord, normalizeNote, normalizeParagraph, normalizeReview, normalizeSettings, UNTITLED_PARAGRAPH } from './records'
 import { buildExampleData } from './seed'
 import { initialSchedule, manualMastery, schedule } from './srs'
-import { EXAMPLE_TAG, MODE_LABELS, NOTE_TYPES } from './taxonomy'
+import { MODE_LABELS, NOTE_TYPES } from './taxonomy'
 import { cleanSentence } from './text'
 import type {
   ExportBundle,
@@ -37,7 +37,14 @@ export const META_KEYS = {
   lastExport: 'last_export_at',
   lastStudied: 'last_studied',
   persistRequested: 'persist_requested',
+  exampleIds: 'example_ids',
 } as const
+
+/** Ids of the rows loadExampleData added. Only these count as example data, not every row tagged "example". */
+interface ExampleIds {
+  notes: string[]
+  paragraphs: string[]
+}
 
 const THEME_STORAGE_KEY = 'ielts-theme'
 const QUICK_ADD_DRAFT_KEY = 'ielts-quickadd-draft'
@@ -457,15 +464,38 @@ export async function importBundle(b: ExportBundle): Promise<ImportSummary> {
 /* Example data, deletion, storage                                     */
 /* ------------------------------------------------------------------ */
 
-/** Adds the example notebook once. Does nothing while any example note exists. */
+function stringList(v: unknown): string[] {
+  return Array.isArray(v) ? v.filter((s): s is string => typeof s === 'string') : []
+}
+
+async function readExampleIds(): Promise<ExampleIds> {
+  const value = (await db.meta.get(META_KEYS.exampleIds))?.value
+  return isRecord(value) ? { notes: stringList(value.notes), paragraphs: stringList(value.paragraphs) } : { notes: [], paragraphs: [] }
+}
+
+/** The ids from `ids` that still have a row in the table. */
+async function stillThere<T>(table: { bulkGet: (keys: string[]) => Promise<(T | undefined)[]> }, ids: string[]): Promise<T[]> {
+  return (await table.bulkGet(ids)).filter((row): row is T => row !== undefined)
+}
+
+/**
+ * Adds the example notebook once. Does nothing while any example note it added still exists.
+ * The added ids are saved in meta, so the owner's own notes tagged "example" never count as example data.
+ */
 export async function loadExampleData(now: Date = new Date()): Promise<{ notes: number; paragraphs: number }> {
   return db.transaction('rw', db.notes, db.reviews, db.paragraphs, db.meta, async () => {
-    if ((await db.notes.where('tags').equals(EXAMPLE_TAG).count()) > 0) return { notes: 0, paragraphs: 0 }
-    const existingParagraphs = (await db.paragraphs.toArray()).filter((p) => p.tags.includes(EXAMPLE_TAG))
+    const stored = await readExampleIds()
+    if ((await stillThere<Note>(db.notes, stored.notes)).length > 0) return { notes: 0, paragraphs: 0 }
+    const existingParagraphs = await stillThere<Paragraph>(db.paragraphs, stored.paragraphs)
     const data = buildExampleData(now, existingParagraphs)
     await db.paragraphs.bulkAdd(data.paragraphs)
     await db.notes.bulkAdd(data.notes)
     await db.reviews.bulkAdd(data.reviews)
+    const ids: ExampleIds = {
+      notes: data.notes.map((n) => n.id),
+      paragraphs: [...existingParagraphs, ...data.paragraphs].map((p) => p.id),
+    }
+    await db.meta.put({ key: META_KEYS.exampleIds, value: ids })
     if (!(await db.meta.get(META_KEYS.lastStudied))) {
       await db.meta.put({ key: META_KEYS.lastStudied, value: data.lastStudied })
     }
@@ -473,18 +503,23 @@ export async function loadExampleData(now: Date = new Date()): Promise<{ notes: 
   })
 }
 
-/** Removes example notes (with their reviews) and example paragraphs. Returns the number of notes removed. */
+/**
+ * Removes the notes (with their reviews) and paragraphs that loadExampleData added.
+ * The owner's own notes and paragraphs stay, even when tagged "example". Returns the number of notes removed.
+ */
 export async function removeExampleData(): Promise<number> {
   const nowIso = new Date().toISOString()
-  return db.transaction('rw', db.notes, db.reviews, db.paragraphs, async () => {
-    const noteIds = (await db.notes.where('tags').equals(EXAMPLE_TAG).primaryKeys()) as string[]
-    const paragraphIds = (await db.paragraphs.toArray()).filter((p) => p.tags.includes(EXAMPLE_TAG)).map((p) => p.id)
+  return db.transaction('rw', db.notes, db.reviews, db.paragraphs, db.meta, async () => {
+    const stored = await readExampleIds()
+    const noteIds = (await stillThere<Note>(db.notes, stored.notes)).map((n) => n.id)
+    const paragraphIds = (await stillThere<Paragraph>(db.paragraphs, stored.paragraphs)).map((p) => p.id)
     await db.reviews.where('note_id').anyOf(noteIds).delete()
     await db.notes.bulkDelete(noteIds)
     if (paragraphIds.length > 0) {
       await db.notes.where('source_paragraph_id').anyOf(paragraphIds).modify({ source_paragraph_id: null, updated_at: nowIso })
       await db.paragraphs.bulkDelete(paragraphIds)
     }
+    await db.meta.delete(META_KEYS.exampleIds)
     return noteIds.length
   })
 }

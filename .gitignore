@@ -8,3 +8,8 @@ e2e/screenshots/
 *.log
 .DS_Store
 .vite/
+.workflows/
+docs/mockups/_drafts/
+docs/mockups/_render/
+docs/mockups/_critique/
+src/lib/__probe__/

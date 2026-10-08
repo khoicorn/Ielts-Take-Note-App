@@ -65,15 +65,23 @@ const SUFFIXES: readonly [string, string][] = [
 ]
 const MIN_STEM = 4
 
-/** Strips one suffix, keeping at least 4 letters: stable, stability and stably all become "stab". */
+/** A final "i" becomes "y", so "steadily" (steadi) and "steady" share a stem. */
+function iToY(s: string): string {
+  return s.length >= MIN_STEM && s.endsWith('i') ? `${s.slice(0, -1)}y` : s
+}
+
+/**
+ * Strips one suffix, keeping at least 4 letters: stable, stability and stably all become "stab".
+ * Then a final "i" becomes "y": steady, steadily → "steady"; easy, easily → "easy".
+ */
 export function stem(word: string): string {
   const w = word.toLowerCase().replace(/'s$|'$/, '')
   for (const [suffix, replacement] of SUFFIXES) {
     if (!w.endsWith(suffix)) continue
     const candidate = w.slice(0, w.length - suffix.length) + replacement
-    if (candidate.length >= MIN_STEM) return candidate
+    if (candidate.length >= MIN_STEM) return iToY(candidate)
   }
-  return w
+  return iToY(w)
 }
 
 interface QueryToken {
@@ -218,7 +226,9 @@ export function searchAll(query: string, notes: Note[], paragraphs: Paragraph[],
     .map((h) => h.hit)
 }
 
-const WORD_RE = /[\p{L}\p{M}\p{N}]+(?:['’][\p{L}\p{M}\p{N}]+)*['’]?/gu
+// Words with in-word apostrophes ("don't"). A trailing apostrophe stays only after "s" (plural
+// possessive "visitors'"), the same rule as normalizeText, so a closing quote is not highlighted.
+const WORD_RE = /[\p{L}\p{M}\p{N}]+(?:['’][\p{L}\p{M}\p{N}]+)*(?:(?<=[sS])['’](?![\p{L}\p{M}\p{N}]))?/gu
 
 export function matchRanges(text: string, query: string): Array<[number, number]> {
   const { tokens } = queryTokens(query)

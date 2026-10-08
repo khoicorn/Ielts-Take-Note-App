@@ -71,8 +71,15 @@ function oneOf<T extends string>(v: unknown, allowed: readonly T[], fallback: T)
   return typeof v === 'string' && (allowed as readonly string[]).includes(v) ? (v as T) : fallback
 }
 
+/**
+ * A valid date-time as canonical UTC ("2026-10-05T03:00:00.000Z"), so stored values sort correctly as strings.
+ * A bare day ("2026-10-05") means local midnight of that day.
+ */
 function iso(v: unknown): ISODateTime | null {
-  return typeof v === 'string' && v.trim() !== '' && !Number.isNaN(Date.parse(v)) ? v : null
+  if (typeof v !== 'string' || v.trim() === '') return null
+  const s = v.trim()
+  const time = isDayKey(s) ? dayKeyToDate(s).getTime() : Date.parse(s)
+  return Number.isNaN(time) ? null : new Date(time).toISOString()
 }
 
 function dayKey(v: unknown): DayKey | null {

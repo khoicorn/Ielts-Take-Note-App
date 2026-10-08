@@ -20,6 +20,18 @@ describe('markdown', () => {
     expect(parseInline('** not bold **')).toEqual([{ type: 'text', text: '** not bold **' }])
   })
 
+  it('M1c reads "\\*" as a literal asterisk, also inside bold', () => {
+    expect(parseInline('Use a\\*b\\*c here')).toEqual([{ type: 'text', text: 'Use a*b*c here' }])
+    expect(parseInline('**5\\*** and *x\\*y*')).toEqual([
+      { type: 'bold', text: '5*' },
+      { type: 'text', text: ' and ' },
+      { type: 'italic', text: 'x*y' },
+    ])
+    const { container } = render(<Markdown text="Use a\*b\*c here" />)
+    expect(container.textContent).toBe('Use a*b*c here')
+    expect(container.querySelector('em')).toBeNull()
+  })
+
   it('M2 parses lists and paragraphs', () => {
     expect(parseMarkdown('- a\n- b\n\npara')).toEqual([
       { type: 'ul', items: [[{ type: 'text', text: 'a' }], [{ type: 'text', text: 'b' }]] },

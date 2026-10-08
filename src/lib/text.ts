@@ -9,7 +9,10 @@ import { flattenMarkdown } from './mdparse'
 
 type Run = { text: string; bold: boolean; italic: boolean }
 type Block = { text: string; marker: string | null; listId: number | null }
-type Style = { bold: boolean; italic: boolean; pre: boolean }
+/** code: inside code, pre, kbd or samp, where an asterisk is always a literal character. */
+type Style = { bold: boolean; italic: boolean; pre: boolean; code: boolean }
+
+const CODE_TAGS = new Set(['CODE', 'PRE', 'KBD', 'SAMP', 'TT'])
 
 const DROP_TAGS = new Set(['SCRIPT', 'STYLE', 'META', 'LINK', 'HEAD', 'TITLE', 'NOSCRIPT', 'TEMPLATE', 'SVG', 'IFRAME', 'OBJECT'])
 const BLOCK_TAGS = new Set([
@@ -122,7 +125,8 @@ class MarkdownWriter {
 
 function walk(node: Node, w: MarkdownWriter, style: Style): void {
   if (node.nodeType === Node.TEXT_NODE) {
-    const value = node.nodeValue ?? ''
+    // In code, "a*b*c" is literal: "\*" stops it from turning into italics.
+    const value = style.code ? (node.nodeValue ?? '').replace(/\*/g, '\\*') : (node.nodeValue ?? '')
     w.text(style.pre ? value.replace(/ /g, ' ') : value.replace(/\s+/g, ' '), style)
     return
   }
@@ -143,6 +147,7 @@ function walk(node: Node, w: MarkdownWriter, style: Style): void {
     bold: isBoldElement(el, style.bold),
     italic: isItalicElement(el, style.italic),
     pre: style.pre || tag === 'PRE',
+    code: style.code || CODE_TAGS.has(tag),
   }
   const children = () => el.childNodes.forEach((child) => walk(child, w, childStyle))
 
@@ -181,7 +186,7 @@ export function htmlToMarkdown(html: string): string {
   if (!html.trim()) return ''
   const doc = new DOMParser().parseFromString(html, 'text/html')
   const writer = new MarkdownWriter()
-  walk(doc.body, writer, { bold: false, italic: false, pre: false })
+  walk(doc.body, writer, { bold: false, italic: false, pre: false, code: false })
   writer.flush()
   return writer.result()
 }
@@ -311,19 +316,52 @@ function matchWordLabel(line: string): { field: PasteField; rest: string } | nul
   return found ? { field: found.field, rest: line.slice(m[0].length) } : null
 }
 
+function countBold(s: string): number {
+  return s.match(/\*\*/g)?.length ?? 0
+}
+
+/**
+ * The label regexes may take a "**" right after the separator. That "**" closes a bold label
+ * ("**Better:** …") only when the label opened one. Otherwise it opens bold text in the value
+ * ("Better: **The scenery** was …"), so it goes back to the value.
+ */
+function giveBackBold(line: string, rest: string): string {
+  const prefix = line.slice(0, line.length - rest.length)
+  if (countBold(prefix) % 2 === 0) return rest
+  const m = /\*\*\s*$/.exec(prefix)
+  return m ? `**${rest}` : rest
+}
+
 /** Reads a label at the start of a line. A word label after an emoji wins ("✅ Better: …"). */
 function matchLabel(line: string): { field: PasteField; rest: string } | null {
   const emoji = EMOJI_RE.exec(line)
+  let found: { field: PasteField; rest: string } | null
   if (emoji) {
     const rest = line.slice(emoji[0].length)
-    return matchWordLabel(rest) ?? { field: EMOJI_LABELS[emoji[1]], rest }
+    found = matchWordLabel(rest) ?? { field: EMOJI_LABELS[emoji[1]], rest }
+  } else {
+    found = matchWordLabel(line)
   }
-  return matchWordLabel(line)
+  return found ? { field: found.field, rest: giveBackBold(line, found.rest) } : null
+}
+
+/**
+ * Bold around the whole value ("**The scenery was beautiful.**") is emphasis, not content: it is removed.
+ * A lone "**" left over from a bold label is dropped.
+ */
+function tidyBold(value: string): string {
+  let v = value.trim()
+  if (countBold(v) % 2 === 1) {
+    if (v.endsWith('**')) v = v.slice(0, -2).trimEnd()
+    else if (v.startsWith('**')) v = v.slice(2).trimStart()
+  }
+  if (countBold(v) === 2 && v.startsWith('**') && v.endsWith('**') && v.length > 4) v = v.slice(2, -2).trim()
+  return v
 }
 
 function cleanValue(field: PasteField, lines: string[]): string {
-  const value = lines.join('\n').replace(/^\s*\*\*\s*/, '').trim()
-  return SENTENCE_FIELDS.has(field) ? cleanSentence(value) : value
+  const value = tidyBold(lines.join('\n'))
+  return SENTENCE_FIELDS.has(field) ? tidyBold(cleanSentence(value)) : value
 }
 
 /**
@@ -369,10 +407,24 @@ export function parseSmartPaste(text: string): SmartPasteResult | null {
 // A sentence ends after . ! ? or … (plus closing quotes or brackets) followed by whitespace, or at a line break.
 const SENTENCE_END_RE = /[.!?…]+["'”’)\]]*(?=\s)|\n+/g
 
+// A full stop after these never ends a sentence.
+const ABBREVIATIONS = new Set(['e.g.', 'i.e.', 'eg.', 'ie.', 'approx.', 'vs.', 'cf.', 'mr.', 'mrs.', 'ms.', 'dr.', 'prof.'])
+
+/** False for a full stop after an abbreviation ("e.g."), or when the next word starts with a lowercase letter. */
+function endsSentence(text: string, m: RegExpExecArray): boolean {
+  if (m[0].startsWith('\n')) return true
+  const next = /^\s*(\S)/.exec(text.slice(m.index + m[0].length))?.[1]
+  if (next && /\p{Ll}/u.test(next)) return false
+  if (m[0] !== '.') return true
+  const word = /(\S+)$/.exec(text.slice(0, m.index + 1))?.[1] ?? ''
+  return !ABBREVIATIONS.has(word.replace(/^[(["'“‘]+/, '').toLowerCase())
+}
+
 export function extractSentence(text: string, start: number, end: number): string {
   const bounds: [number, number][] = []
   let from = 0
   for (const m of text.matchAll(SENTENCE_END_RE)) {
+    if (!endsSentence(text, m)) continue
     const stop = m[0].startsWith('\n') ? m.index : m.index + m[0].length
     bounds.push([from, stop])
     from = m.index + m[0].length

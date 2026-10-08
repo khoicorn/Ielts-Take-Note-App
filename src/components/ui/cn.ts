@@ -5,3 +5,9 @@ export function cn(...parts: (string | false | null | undefined | 0)[]): string 
 
 /** Long words and URLs wrap instead of pushing the page sideways (Review Focus 3). */
 export const WRAP = 'break-words [overflow-wrap:anywhere]'
+
+/**
+ * The active option of a listbox (Combobox, TagInput), where focus stays in the input:
+ * a 2px indigo bar at the left edge, like the active nav item, plus a light tint.
+ */
+export const ACTIVE_OPTION = 'relative bg-stone/60 before:absolute before:inset-y-1.5 before:left-0 before:w-0.5 before:bg-indigo'

@@ -29,15 +29,26 @@ function ToastView(props: { item: ToastItem; onDismiss: (id: number) => void }):
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const remaining = useRef(item.duration ?? DEFAULT_MS)
   const startedAt = useRef(0)
+  // The timer pauses while the pointer is over the toast or keyboard focus is inside it (Undo stays reachable).
+  const held = useRef({ hover: false, focus: false })
 
   const start = useCallback(() => {
+    if (timer.current !== undefined) return
     startedAt.current = Date.now()
     timer.current = setTimeout(() => onDismiss(item.id), remaining.current)
   }, [item.id, onDismiss])
 
-  const pause = () => {
-    if (timer.current) clearTimeout(timer.current)
+  const pause = useCallback(() => {
+    if (timer.current === undefined) return
+    clearTimeout(timer.current)
+    timer.current = undefined
     remaining.current = Math.max(1200, remaining.current - (Date.now() - startedAt.current))
+  }, [])
+
+  const hold = (kind: 'hover' | 'focus', on: boolean) => {
+    held.current[kind] = on
+    if (held.current.hover || held.current.focus) pause()
+    else start()
   }
 
   useEffect(() => {
@@ -45,14 +56,19 @@ function ToastView(props: { item: ToastItem; onDismiss: (id: number) => void }):
     start()
     return () => {
       cancelAnimationFrame(raf)
-      if (timer.current) clearTimeout(timer.current)
+      if (timer.current !== undefined) clearTimeout(timer.current)
+      timer.current = undefined
     }
   }, [start])
 
   return (
     <div
-      onMouseEnter={pause}
-      onMouseLeave={start}
+      onMouseEnter={() => hold('hover', true)}
+      onMouseLeave={() => hold('hover', false)}
+      onFocus={() => hold('focus', true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) hold('focus', false)
+      }}
       className={cn(
         'pointer-events-auto flex min-h-11 max-w-[min(440px,100%)] items-center gap-4 rounded-md border border-line bg-paper py-2 pr-2 pl-4',
         'text-small text-ink shadow-float transition-[opacity,transform] duration-180 ease-quiet',

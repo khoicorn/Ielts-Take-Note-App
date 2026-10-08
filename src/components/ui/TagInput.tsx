@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { normalizeTag } from '@/lib/text'
-import { cn } from './cn'
+import { ACTIVE_OPTION, cn } from './cn'
 import { useFloatingPosition } from './floating'
 import { Tag } from './Tag'
 
@@ -131,7 +131,7 @@ export function TagInput(props: {
                   aria-selected={i === active}
                   onMouseMove={() => setActive(i)}
                   onClick={() => add(m)}
-                  className={cn('flex min-h-9 cursor-pointer items-center px-3 text-body text-ink max-sm:min-h-11', i === active && 'bg-stone/70')}
+                  className={cn('flex min-h-9 cursor-pointer items-center px-3 text-body text-ink max-sm:min-h-11', i === active && ACTIVE_OPTION)}
                 >
                   {m}
                 </li>

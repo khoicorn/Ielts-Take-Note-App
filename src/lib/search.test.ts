@@ -79,6 +79,28 @@ describe('search', () => {
     expect(stem('the')).toBe('the')
   })
 
+  it('F7b matches y and i word forms: steady finds steadily and back', () => {
+    expect(stem('steadily')).toBe(stem('steady'))
+    expect(stem('heavily')).toBe(stem('heavy'))
+    expect(stem('easily')).toBe(stem('easy'))
+    const notes = [
+      makeNote({ id: 'adverb', upgraded_text: 'The number of visitors increased steadily.' }),
+      makeNote({ id: 'adjective', upgraded_text: 'a steady rise' }),
+      makeNote({ id: 'other', upgraded_text: 'Prices rose.' }),
+    ]
+    const ids = (q: string) => searchAll(q, notes, []).map((h) => (h.kind === 'note' ? h.note.id : '')).sort()
+    expect(ids('steady increase')).toEqual(['adverb'])
+    expect(ids('steady')).toEqual(['adjective', 'adverb'])
+    expect(ids('steadily')).toEqual(['adjective', 'adverb'])
+    expect(matchRanges('Visitors increased steadily.', 'steady')).toEqual([[19, 27]])
+  })
+
+  it('F6b does not highlight a closing quote, but keeps a plural possessive', () => {
+    expect(matchRanges("the 'stable' trend", 'stable')).toEqual([[5, 11]])
+    expect(matchRanges("the visitors' numbers", 'visitors')).toEqual([[4, 13]])
+    expect(matchRanges("it's stable", 'it')).toEqual([[0, 4]])
+  })
+
   it('F8 needs every query word to match and uses Markdown-free snippets', () => {
     const notes = [
       makeNote({ id: 'x', upgraded_text: 'The **scenery** was beautiful.', topic: 'Travel', tags: ['nha-trang'] }),

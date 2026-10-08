@@ -202,7 +202,7 @@ export function SegmentedControl<T extends string>(props: {
               ref.current?.querySelectorAll<HTMLElement>('[role="radio"]')[next]?.focus()
             }}
             className={cn(
-              'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-xs px-3 text-small whitespace-nowrap transition-colors duration-150 max-sm:h-10',
+              'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-xs px-3 text-small whitespace-nowrap transition-colors duration-150 max-sm:h-11',
               selected ? 'bg-stone text-ink' : 'text-graphite hover:text-ink',
             )}
           >

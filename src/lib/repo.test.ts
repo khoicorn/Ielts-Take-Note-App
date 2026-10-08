@@ -334,6 +334,23 @@ describe('repo: paragraphs, settings and data', () => {
     expect((await db.reviews.toArray()).every((r) => kept.has(r.note_id))).toBe(true)
   })
 
+  it('P15b keeps the owner\'s own notes and paragraphs tagged "example"', async () => {
+    const mine = await createNote({ mode: 'speaking', upgraded_text: 'My own sentence.', tags: ['#Example'] }, { now: NOW })
+    expect(mine.tags).toEqual([EXAMPLE_TAG])
+    const myParagraph = await createParagraph({ title: 'Mine', body: 'Text', tags: [EXAMPLE_TAG] }, NOW)
+    const loaded = await loadExampleData(NOW)
+    expect(loaded.notes).toBeGreaterThanOrEqual(20)
+    expect(loaded.paragraphs).toBe(2)
+    expect(await loadExampleData(NOW)).toEqual({ notes: 0, paragraphs: 0 })
+    expect(await removeExampleData()).toBe(loaded.notes)
+    expect((await db.notes.toArray()).map((n) => n.id)).toEqual([mine.id])
+    expect((await db.paragraphs.toArray()).map((p) => p.id)).toEqual([myParagraph.id])
+    expect(await removeExampleData()).toBe(0)
+    expect(await db.notes.count()).toBe(1)
+    // Example data can be loaded again after it was removed.
+    expect((await loadExampleData(NOW)).notes).toBe(loaded.notes)
+  })
+
   it('P16 settings merge with defaults and mirror the theme', async () => {
     expect(await getSettings()).toMatchObject({ theme: 'system', session_size: 20 })
     const s = await updateSettings({ theme: 'dark', session_size: 30 })

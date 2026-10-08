@@ -30,6 +30,16 @@ function useOutsidePointer(open: boolean, refs: React.RefObject<HTMLElement | nu
 
 type AnyProps = Record<string, unknown>
 
+/**
+ * Style for the first frame, before the layer has a position. Opacity, not visibility: with
+ * prefers-reduced-motion the global CSS gives every element a 0.01ms transition, so a visibility
+ * change is still "hidden" when the next frame moves focus into the layer, and focus() fails.
+ */
+const UNPLACED: React.CSSProperties = { opacity: 0, pointerEvents: 'none', top: 0, left: 0 }
+
+/** Left-edge bar shown on the focused menu item. The color is set per tone with focus:before:bg-*. */
+const OPTION_FOCUS_BAR = 'focus:before:absolute focus:before:inset-y-1.5 focus:before:left-0 focus:before:w-0.5'
+
 function triggerProps(trigger: React.ReactElement): AnyProps {
   return isValidElement(trigger) ? (trigger.props as AnyProps) : {}
 }
@@ -50,9 +60,12 @@ export function Popover(props: {
   align?: 'start' | 'end'
   children: React.ReactNode
   className?: string
+  /** Name of the panel. Without it, the panel is named by the trigger's text. */
+  'aria-label'?: string
 }): React.JSX.Element {
   const { open, onOpenChange, trigger, align = 'start', children, className } = props
   const id = useId()
+  const autoTriggerId = useId()
   const wrapRef = useRef<HTMLSpanElement>(null)
   const layerRef = useRef<HTMLDivElement>(null)
   const pos = useFloatingPosition(wrapRef, open, { align, gap: 6, preferredHeight: 520, layer: layerRef })
@@ -90,7 +103,9 @@ export function Popover(props: {
     }
   }
 
+  const triggerId = typeof tp.id === 'string' && tp.id ? tp.id : autoTriggerId
   const clone = cloneElement(trigger as React.ReactElement<AnyProps>, {
+    id: triggerId,
     'aria-expanded': open,
     'aria-haspopup': 'dialog',
     'aria-controls': open ? id : undefined,
@@ -118,10 +133,13 @@ export function Popover(props: {
             <div
               ref={layerRef}
               id={id}
+              role="dialog"
+              aria-label={props['aria-label']}
+              aria-labelledby={props['aria-label'] ? undefined : triggerId}
               data-floating=""
               tabIndex={-1}
               onKeyDown={onLayerKeyDown}
-              style={pos ? { top: pos.top, left: pos.left, maxHeight: pos.maxHeight } : { visibility: 'hidden', top: 0, left: 0 }}
+              style={pos ? { top: pos.top, left: pos.left, maxHeight: pos.maxHeight } : UNPLACED}
               className={cn(
                 'fixed z-[60] overflow-y-auto rounded-md border border-line bg-paper text-ink shadow-float outline-none',
                 className ?? 'w-72 p-4',
@@ -238,7 +256,7 @@ export function Menu(props: {
               aria-label={props['aria-label']}
               data-floating=""
               onKeyDown={onMenuKeyDown}
-              style={pos ? { top: pos.top, left: pos.left, maxHeight: pos.maxHeight } : { visibility: 'hidden', top: 0, left: 0 }}
+              style={pos ? { top: pos.top, left: pos.left, maxHeight: pos.maxHeight } : UNPLACED}
               className="fixed z-[60] min-w-52 overflow-y-auto rounded-md border border-line bg-paper py-1 shadow-float"
             >
               {items.map((item, i) => {
@@ -258,9 +276,13 @@ export function Menu(props: {
                     }}
                     onMouseMove={(e) => e.currentTarget.focus({ preventScroll: true })}
                     className={cn(
-                      'flex min-h-9 w-full cursor-pointer items-center gap-3 px-3 text-left text-body outline-none max-sm:min-h-11',
+                      'relative flex min-h-9 w-full cursor-pointer items-center gap-3 px-3 text-left text-body outline-none max-sm:min-h-11',
                       'disabled:cursor-not-allowed disabled:opacity-45',
-                      danger ? 'text-crimson focus:bg-crimson/[0.07]' : 'text-ink focus:bg-stone/60',
+                      // Focused item: a 2px bar at the left edge (like the active nav item) plus a light tint.
+                      OPTION_FOCUS_BAR,
+                      danger
+                        ? 'text-crimson focus:bg-crimson/[0.07] focus:before:bg-crimson'
+                        : 'text-ink focus:bg-stone/60 focus:before:bg-indigo',
                     )}
                   >
                     {Icon ? (

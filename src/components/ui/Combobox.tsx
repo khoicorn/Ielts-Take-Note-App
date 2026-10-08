@@ -2,7 +2,7 @@ import { Check, ChevronDown, Plus } from 'lucide-react'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { normalizeText } from '@/lib/text'
-import { cn } from './cn'
+import { ACTIVE_OPTION, cn } from './cn'
 import { controlClass } from './Field'
 import { useFloatingPosition } from './floating'
 import { ICON_STROKE } from './icons'
@@ -229,7 +229,7 @@ export function Combobox(props: {
                       onClick={() => choose(item)}
                       className={cn(
                         'flex min-h-9 cursor-pointer items-center justify-between gap-3 px-3 text-body text-ink max-sm:min-h-11',
-                        i === active && 'bg-stone/70',
+                        i === active && ACTIVE_OPTION,
                       )}
                     >
                       <span className="flex min-w-0 items-center gap-2">

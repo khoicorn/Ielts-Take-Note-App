@@ -5,7 +5,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useMemo, useState } from 'react'
 import { db } from './db'
-import { addDays, startOfDay, todayKey } from './dates'
+import { addDays, startOfDay, timeOf, todayKey } from './dates'
 import { applyFilter, sortNotes } from './filters'
 import { getSettings, META_KEYS, readLastStudied } from './repo'
 import { computeDueCounts, mergeLabels, studyStreak } from './stats'
@@ -38,8 +38,9 @@ function useToday(): DayKey {
   return day
 }
 
+/** Compares times, not strings, so values with a time zone offset still sort in real time order. */
 function newestFirst<T extends { created_at: ISODateTime }>(a: T, b: T): number {
-  return b.created_at.localeCompare(a.created_at)
+  return timeOf(b.created_at) - timeOf(a.created_at)
 }
 
 export function useNotes(filter?: NoteFilter): Note[] | undefined {
@@ -71,7 +72,7 @@ export function useParagraphs(opts?: { archived?: boolean; task_type?: TaskType 
     const all = await db.paragraphs.toArray()
     return all
       .filter((p) => p.is_archived === archived && (taskType === undefined || p.task_type === taskType))
-      .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
+      .sort((a, b) => timeOf(b.updated_at) - timeOf(a.updated_at))
   }, [archived, taskType])
 }
 
@@ -111,7 +112,7 @@ export function useLastExportAt(): ISODateTime | null | undefined {
 export function useReviewsBetween(from: DayKey, to: DayKey): Review[] | undefined {
   return useLiveQuery(async () => {
     const reviews = await db.reviews.where('review_date').between(from, to, true, true).toArray()
-    return reviews.sort((a, b) => a.created_at.localeCompare(b.created_at))
+    return reviews.sort((a, b) => timeOf(a.created_at) - timeOf(b.created_at))
   }, [from, to])
 }
 

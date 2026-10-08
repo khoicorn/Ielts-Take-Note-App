@@ -71,6 +71,21 @@ describe('reviewTypes', () => {
     expect(findBlank(long)).toBeNull()
   })
 
+  it('R2b leaves the full stop of a bold span outside the blank', () => {
+    const note = makeNote({ upgraded_text: 'remained stable', example_sentence: 'Numbers **remained stable.**' })
+    expect(findBlank(note)?.answer).toBe('remained stable')
+    expect(buildReviewCard(note, 'fill_blank').prompt).toBe('Numbers _____.')
+  })
+
+  it('R3c treats hyphens as part of a word and curly apostrophes as straight ones', () => {
+    expect(findBlank(makeNote({ upgraded_text: 'known', example_sentence: 'It is a well-known fact.' }))).toBeNull()
+    expect(findBlank(makeNote({ upgraded_text: 'it', example_sentence: "It's clear that it rose." }))).toMatchObject({ answer: 'it', start: 16 })
+    const curly = makeNote({ upgraded_text: 'I’m pretty flexible', example_sentence: "I'm pretty flexible about the rest." })
+    expect(findBlank(curly)).toMatchObject({ answer: "I'm pretty flexible", start: 0, end: 19 })
+    expect(availableReviewTypes(curly)).toEqual(['phrase_to_sentence', 'fill_blank'])
+    expect(findBlank(makeNote({ upgraded_text: 'visitors', example_sentence: "The visitors' numbers rose." }))?.answer).toBe('visitors')
+  })
+
   it('R4 blanks the changed words from the word diff', () => {
     const note = makeNote({
       original_text: 'The number of visitors of the City Zoo increased steadily.',

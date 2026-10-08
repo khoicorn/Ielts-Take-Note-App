@@ -28,13 +28,25 @@ export function MasteryGlyph(props: { status: MasteryStatus; className?: string 
   )
 }
 
-/** Symbol plus word ("✦ Mastered"). With showLabel=false the word moves to aria-label (brief §39). */
-export function MasteryMark(props: { status: MasteryStatus; showLabel?: boolean; className?: string }): React.JSX.Element {
-  const { status, showLabel = true, className } = props
+/**
+ * Symbol plus word ("✦ Mastered"). With showLabel=false the word moves to aria-label (brief §39).
+ * Set the text size with `size`, not className: cn() does not resolve two text-* classes.
+ */
+export function MasteryMark(props: {
+  status: MasteryStatus
+  showLabel?: boolean
+  size?: 'small' | 'meta'
+  className?: string
+}): React.JSX.Element {
+  const { status, showLabel = true, size = 'small', className } = props
   const label = MASTERY[status].label
   return (
     <span
-      className={cn('inline-flex items-center gap-1.5 text-small whitespace-nowrap text-graphite', className)}
+      className={cn(
+        'inline-flex items-center gap-1.5 whitespace-nowrap text-graphite',
+        size === 'meta' ? 'text-meta' : 'text-small',
+        className,
+      )}
       role={showLabel ? undefined : 'img'}
       aria-label={showLabel ? undefined : label}
       title={showLabel ? undefined : label}

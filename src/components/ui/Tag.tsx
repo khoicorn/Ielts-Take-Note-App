@@ -50,8 +50,8 @@ export function Tag(props: {
           aria-label={name ? `Remove ${name}` : 'Remove'}
           className={cn(
             'relative inline-flex size-4 shrink-0 cursor-pointer items-center justify-center rounded-full opacity-70 hover:bg-ink/10 hover:opacity-100',
-            // Larger hit area on touch screens without changing the look.
-            'max-sm:after:absolute max-sm:after:-inset-3 max-sm:after:content-[""]',
+            // A 44 x 44px hit area on touch screens (16px button + 14px each side) without changing the look.
+            'max-sm:after:absolute max-sm:after:-inset-[14px] max-sm:after:content-[""]',
           )}
         >
           <X className="size-3" strokeWidth={ICON_STROKE} aria-hidden="true" />

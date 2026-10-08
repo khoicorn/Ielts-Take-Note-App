@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, cleanup } from '@testing-library/react'
 import { useState } from 'react'
 import { describe, expect, it, vi, afterEach } from 'vitest'
-import { Field, TextArea } from './Field'
+import { Field, Select, Switch, TextArea } from './Field'
 afterEach(cleanup)
 
 function Controlled(props: { initial?: string; onPasteText?: (s: string) => void; onValue?: (s: string) => void }) {
@@ -86,5 +86,43 @@ describe('Field and TextArea', () => {
     expect(input.getAttribute('aria-describedby')).toContain('pattern-hint')
     expect(input.getAttribute('aria-describedby')).toContain('pattern-error')
     expect(screen.getByText('Add the better version first.')).toBeInTheDocument()
+  })
+  it('A3 Switch toggles from anywhere in its row, once per click', () => {
+    function Row() {
+      const [on, setOn] = useState(false)
+      return <Switch checked={on} onChange={setOn} label="Show example data" />
+    }
+    render(<Row />)
+    const sw = screen.getByRole('switch', { name: 'Show example data' })
+    expect(sw).toHaveAttribute('aria-checked', 'false')
+    fireEvent.click(screen.getByText('Show example data'))
+    expect(sw).toHaveAttribute('aria-checked', 'true')
+    fireEvent.click(sw)
+    expect(sw).toHaveAttribute('aria-checked', 'false')
+    // The row itself (the 44px label) is the hit target.
+    const row = sw.closest('label')
+    expect(row).not.toBeNull()
+    expect(row?.className).toContain('max-sm:min-h-11')
+    fireEvent.click(row as HTMLElement)
+    expect(sw).toHaveAttribute('aria-checked', 'true')
+  })
+
+  it('A4 Select shows its placeholder in graphite and a chosen value in ink', () => {
+    const { rerender } = render(<Select aria-label="Error type" value="" onChange={() => {}} placeholder="None" options={['Articles']} />)
+    const select = screen.getByRole('combobox', { name: 'Error type' })
+    expect(select).toHaveClass('text-graphite')
+    expect(select).not.toHaveClass('text-ink')
+    rerender(<Select aria-label="Error type" value="Articles" onChange={() => {}} placeholder="None" options={['Articles']} />)
+    expect(select).toHaveClass('text-ink')
+    expect(select).not.toHaveClass('text-graphite')
+  })
+
+  it('A4 an uncontrolled Select switches from graphite to ink when a value is chosen', () => {
+    render(<Select aria-label="Mode" defaultValue="" placeholder="Speaking and Writing" options={['Speaking', 'Writing']} />)
+    const select = screen.getByRole('combobox', { name: 'Mode' })
+    expect(select).toHaveClass('text-graphite')
+    fireEvent.change(select, { target: { value: 'Writing' } })
+    expect(select).toHaveValue('Writing')
+    expect(select).toHaveClass('text-ink')
   })
 })

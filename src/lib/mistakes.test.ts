@@ -108,6 +108,24 @@ describe('mistakes', () => {
     expect(mostRepeatedIssue(tie, NOW)).toEqual({ error_type: 'Articles', count: 2 })
   })
 
+  it('X5b counts error types case-insensitively in both the ledger and the weekly issue', () => {
+    const notes = [
+      makeNote({ error_type: 'prepositions', date_created: '2026-10-07' }),
+      makeNote({ error_type: 'Prepositions', date_created: '2026-10-06' }),
+    ]
+    expect(buildLedger(notes, ERROR_TYPES).map((g) => [g.error_type, g.seen])).toEqual([['Prepositions', 2]])
+    expect(mostRepeatedIssue(notes, NOW)).toEqual({ error_type: 'Prepositions', count: 2 })
+    const custom = [
+      makeNote({ error_type: 'Spelling', date_created: '2026-10-07' }),
+      makeNote({ error_type: 'spelling ', date_created: '2026-10-07' }),
+    ]
+    expect(buildLedger(custom, ERROR_TYPES).map((g) => [g.error_type, g.seen])).toEqual([['Spelling', 2]])
+    expect(mostRepeatedIssue(custom, NOW)).toEqual({ error_type: 'Spelling', count: 2 })
+    expect(buildLedger([makeNote({ error_type: 'other' }), makeNote({ error_pattern: 'x' })], ERROR_TYPES).map((g) => g.error_type)).toEqual([
+      'Other',
+    ])
+  })
+
   it('X6 makes anchor slugs', () => {
     expect(errorTypeSlug('Word Forms')).toBe('word-forms')
     expect(errorTypeSlug('Academic Task 1')).toBe('academic-task-1')

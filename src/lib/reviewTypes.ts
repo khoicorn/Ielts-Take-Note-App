@@ -47,9 +47,25 @@ function wordCount(s: string): number {
   return tokenizeWords(s).filter(isWordToken).length
 }
 
-function isWordChar(ch: string | undefined): boolean {
+function isLetterOrDigit(ch: string | undefined): boolean {
   return ch !== undefined && /[\p{L}\p{N}]/u.test(ch)
 }
+
+const JOINERS = new Set(['-', "'", '’', '‘'])
+
+/** True when the text continues the word across `edge`: a letter, or a hyphen or apostrophe inside a word ("well-known", "it's"). */
+function joinsWord(text: string, edge: number, step: 1 | -1): boolean {
+  const ch = text[edge]
+  if (isLetterOrDigit(ch)) return true
+  return ch !== undefined && JOINERS.has(ch) && isLetterOrDigit(text[edge + step])
+}
+
+/** Curly quotes become straight ones. Each swap is one character for one, so indices stay valid. */
+function straightQuotes(s: string): string {
+  return s.replace(/[‘’]/g, "'").replace(/[“”]/g, '"')
+}
+
+const TRAILING_PUNCT_RE = /[\s.,;:!?…]+$/
 
 /** A blank is only useful if some words stay visible around it. */
 function makeTarget(sentence: string, plain: string, start: number, end: number): BlankTarget | null {
@@ -64,11 +80,11 @@ function boldBlank(example: string): BlankTarget | null {
   const { text, spans } = flattenMarkdown(example)
   const bold = spans.find((s) => s.type === 'bold' && text.slice(s.start, s.end).trim())
   if (!bold) return null
-  // Trim spaces inside the bold span so the indices cover only the words.
+  // Trim spaces, and a closing full stop or comma, so the blank covers only the words.
   const raw = text.slice(bold.start, bold.end)
   const start = bold.start + (raw.length - raw.trimStart().length)
-  const end = bold.end - (raw.length - raw.trimEnd().length)
-  return makeTarget(example, text, start, end)
+  const end = bold.start + raw.replace(TRAILING_PUNCT_RE, '').length
+  return end > start ? makeTarget(example, text, start, end) : null
 }
 
 /** (2) The upgraded phrase (1–6 words) inside the example, case-insensitive, on word edges. */
@@ -77,11 +93,13 @@ function phraseBlank(upgraded: string, example: string): BlankTarget | null {
   const count = wordCount(phrase)
   if (count < 1 || count > MAX_PHRASE_WORDS) return null
   const plain = plainText(example)
-  const haystack = plain.toLowerCase()
-  const needle = phrase.toLowerCase()
+  // Lowercasing can change the length of a few letters (İ), which would shift the indices.
+  const haystack = straightQuotes(plain).toLowerCase()
+  const needle = straightQuotes(phrase).toLowerCase()
+  if (haystack.length !== plain.length) return null
   for (let at = haystack.indexOf(needle); at >= 0; at = haystack.indexOf(needle, at + 1)) {
     const end = at + needle.length
-    if (!isWordChar(plain[at - 1]) && !isWordChar(plain[end])) return makeTarget(example, plain, at, end)
+    if (!joinsWord(plain, at - 1, -1) && !joinsWord(plain, end, 1)) return makeTarget(example, plain, at, end)
   }
   return null
 }

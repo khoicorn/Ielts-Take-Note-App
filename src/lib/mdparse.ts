@@ -1,7 +1,7 @@
 /**
  * Parser for the light Markdown subset used in note text (design §7):
  * **bold**, *italic*, ___ slots, paragraphs, "- " bullets and "1. " lists.
- * No HTML. Unclosed markers stay literal text.
+ * No HTML. Unclosed markers stay literal text. "\*" is a literal asterisk.
  * React rendering lives in markdown.tsx; this file has no React so text.ts can use it.
  */
 
@@ -15,6 +15,11 @@ function isSpace(ch: string | undefined): boolean {
   return ch === undefined || /\s/.test(ch)
 }
 
+/** "\*" is a literal asterisk (htmlToMarkdown writes it for "*" in pasted text). */
+function unescapeStars(s: string): string {
+  return s.replace(/\\\*/g, '*')
+}
+
 /** Finds a closing marker for an emphasis run that starts at `open`. Content must not start or end with whitespace. */
 function findClose(src: string, open: number, marker: string): number {
   const contentStart = open + marker.length
@@ -23,6 +28,11 @@ function findClose(src: string, open: number, marker: string): number {
   while (from <= src.length) {
     const close = src.indexOf(marker, from)
     if (close < 0) return -1
+    // An escaped "\*" is text, not a marker.
+    if (src[close - 1] === '\\') {
+      from = close + 1
+      continue
+    }
     // For single *, skip a ** pair (it belongs to bold).
     if (marker === '*' && src[close + 1] === '*') {
       from = close + 2
@@ -43,11 +53,16 @@ export function parseInline(src: string): MdInline[] {
   }
   let i = 0
   while (i < src.length) {
+    if (src[i] === '\\' && src[i + 1] === '*') {
+      text += '*'
+      i += 2
+      continue
+    }
     if (src.startsWith('**', i)) {
       const close = findClose(src, i, '**')
       if (close > i + 2) {
         flush()
-        out.push({ type: 'bold', text: src.slice(i + 2, close) })
+        out.push({ type: 'bold', text: unescapeStars(src.slice(i + 2, close)) })
         i = close + 2
         continue
       }
@@ -59,7 +74,7 @@ export function parseInline(src: string): MdInline[] {
       const close = findClose(src, i, '*')
       if (close > i + 1) {
         flush()
-        out.push({ type: 'italic', text: src.slice(i + 1, close) })
+        out.push({ type: 'italic', text: unescapeStars(src.slice(i + 1, close)) })
         i = close + 1
         continue
       }

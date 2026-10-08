@@ -9,6 +9,7 @@ import React, {
   useImperativeHandle,
   useLayoutEffect,
   useRef,
+  useState,
 } from 'react'
 import { htmlToMarkdown } from '@/lib/text'
 import { cn } from './cn'
@@ -19,12 +20,15 @@ import { ICON_STROKE } from './icons'
  * Focus: the border and a 1px outline turn indigo (a crisp 2px edge, no glow).
  * Under 640px the text is 16px so mobile Safari does not zoom on focus.
  */
-export const controlClass = cn(
-  'w-full rounded-sm border border-line-strong bg-paper text-body text-ink max-sm:text-body-lg',
+const controlBase = cn(
+  'w-full rounded-sm border border-line-strong bg-paper text-body max-sm:text-body-lg',
   'placeholder:text-graphite transition-[border-color,background-color] duration-150',
   'hover:border-ink/30 focus-visible:border-indigo focus-visible:outline-1 focus-visible:outline-offset-0 focus-visible:outline-indigo',
   'aria-invalid:border-crimson/70 disabled:cursor-not-allowed disabled:opacity-50',
 )
+
+/** controlBase plus ink text. Select sets its own text color, because cn() does not resolve two text-* colors. */
+export const controlClass = cn(controlBase, 'text-ink')
 
 /* ---------- Field ---------- */
 
@@ -247,13 +251,25 @@ export function Select(
     placeholder?: string
   },
 ): React.JSX.Element {
-  const { options, placeholder, className, value, ...rest } = props
-  const empty = value === '' || value === undefined
+  const { options, placeholder, className, value, onChange, ...rest } = props
+  // Uncontrolled selects (defaultValue) keep their own value here, so the text color can follow it.
+  const [ownValue, setOwnValue] = useState(() => String(rest.defaultValue ?? ''))
+  const current = value !== undefined ? String(value) : ownValue
+  // The placeholder option ("None") reads as a hint, in graphite. A chosen value is ink.
+  const showsPlaceholder = placeholder !== undefined && current === ''
   return (
     <div className={cn('relative min-w-0', className)}>
       <select
         value={value}
-        className={cn(controlClass, 'h-10 cursor-pointer appearance-none truncate pr-9 pl-3 max-sm:h-11', empty && placeholder !== undefined && 'text-graphite')}
+        onChange={(e) => {
+          if (value === undefined) setOwnValue(e.target.value)
+          onChange?.(e)
+        }}
+        className={cn(
+          controlBase,
+          'h-10 cursor-pointer appearance-none truncate pr-9 pl-3 max-sm:h-11',
+          showsPlaceholder ? 'text-graphite' : 'text-ink',
+        )}
         {...rest}
       >
         {placeholder !== undefined ? (
@@ -318,8 +334,9 @@ export function Switch(props: { checked: boolean; onChange: (v: boolean) => void
   const id = props.id ?? auto
   const labelId = `${id}-label`
   const { checked } = props
+  // The whole row is a <label> for the button, so a tap anywhere in its 44px height toggles the switch.
   return (
-    <div className="inline-flex min-h-8 items-center gap-3 max-sm:min-h-11">
+    <label htmlFor={id} className="inline-flex min-h-8 cursor-pointer items-center gap-3 select-none max-sm:min-h-11">
       <button
         id={id}
         type="button"
@@ -340,9 +357,9 @@ export function Switch(props: { checked: boolean; onChange: (v: boolean) => void
           )}
         />
       </button>
-      <label id={labelId} htmlFor={id} className="cursor-pointer text-body text-ink select-none">
+      <span id={labelId} className="text-body text-ink">
         {props.label}
-      </label>
-    </div>
+      </span>
+    </label>
   )
 }

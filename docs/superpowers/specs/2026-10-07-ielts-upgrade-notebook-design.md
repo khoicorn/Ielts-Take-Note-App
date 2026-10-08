@@ -167,7 +167,7 @@ Example notes: the empty Today screen offers "Load example notes" (the brief's e
 
 ## 7. Text, paste and capture
 
-- Every text field is a plain string with a small Markdown subset: `**bold**`, `*italic*`, paragraphs, `- ` bullets, `1. ` lists, `___` slots. A small renderer turns it into React elements. No `dangerouslySetInnerHTML`.
+- Every text field is a plain string with a small Markdown subset: `**bold**`, `*italic*`, paragraphs, `- ` bullets, `1. ` lists, `___` slots.  `*` is a plain asterisk (pasted code keeps its asterisks this way). A small renderer turns it into React elements. No `dangerouslySetInnerHTML`.
 - Paste: if the clipboard has HTML (ChatGPT does), convert bold, italic, paragraphs and lists to the subset and drop everything else. Smart quotes and line breaks are kept.
 - Sentence fields drop one pair of wrapping quotes on save. The display adds typographic quotes.
 - Smart split: when pasted text has labels such as `❌ / ✅`, `Original: / Better:`, `You said: / More natural:`, `Why:`, `Example:`, `Pattern:`, Quick Add offers "Fill fields from pasted text" (one click, undoable).

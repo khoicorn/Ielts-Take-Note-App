@@ -26,10 +26,37 @@ describe('hotkeys', () => {
 
     const editable = document.createElement('div')
     editable.setAttribute('contenteditable', 'true')
-    document.body.append(editable)
+    const child = document.createElement('span')
+    editable.append(child)
+    const select = document.createElement('select')
+    const checkbox = document.createElement('input')
+    checkbox.type = 'checkbox'
+    document.body.append(editable, select, checkbox)
     expect(isTypingTarget(input)).toBe(true)
     expect(isTypingTarget(textarea)).toBe(true)
+    expect(isTypingTarget(editable)).toBe(true)
+    expect(isTypingTarget(child)).toBe(true)
+    expect(isTypingTarget(select)).toBe(true)
+    expect(isTypingTarget(checkbox)).toBe(false)
     expect(isTypingTarget(document.body)).toBe(false)
+    fireEvent.keyDown(editable, { key: 'n' })
+    fireEvent.keyDown(child, { key: 'n' })
+    fireEvent.keyDown(select, { key: 'n' })
+    expect(fn).toHaveBeenCalledTimes(1)
+    fireEvent.keyDown(checkbox, { key: 'n' })
+    expect(fn).toHaveBeenCalledTimes(2)
+  })
+
+  it('H5 "mod+k" listed in allowInInputs opens from a text field; "/" does not', () => {
+    const search = vi.fn()
+    const slash = vi.fn()
+    renderHook(() => useHotkeys({ 'mod+k': search, '/': slash }, { allowInInputs: ['mod+k'] }))
+    const input = document.createElement('input')
+    document.body.append(input)
+    fireEvent.keyDown(input, { key: 'k', ctrlKey: true })
+    fireEvent.keyDown(input, { key: '/' })
+    expect(search).toHaveBeenCalledTimes(1)
+    expect(slash).not.toHaveBeenCalled()
   })
 
   it('H1 "n" does not fire with Ctrl held, and "mod+n" does', () => {

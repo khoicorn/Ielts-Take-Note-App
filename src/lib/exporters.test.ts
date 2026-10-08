@@ -143,6 +143,24 @@ describe('exporters', () => {
     expect(md).not.toContain('undefined')
   })
 
+  it('E7b stores imported times as canonical UTC so they sort in real time order', () => {
+    const bundle = {
+      app: 'ielts-upgrade-notebook',
+      version: 1,
+      notes: [{ id: 'n', upgraded_text: 'x', created_at: '2026-10-05', updated_at: '2026-10-05T10:00:00+07:00' }],
+      paragraphs: [
+        { id: 'early', title: 'a', updated_at: '2026-10-05T10:00:00+07:00' },
+        { id: 'late', title: 'b', updated_at: '2026-10-05T05:00:00.000Z' },
+      ],
+    }
+    const b = parseImport(JSON.stringify(bundle))
+    expect(b.notes[0].updated_at).toBe('2026-10-05T03:00:00.000Z')
+    expect(b.notes[0].created_at).toBe(new Date(2026, 9, 5).toISOString())
+    expect(b.notes[0].date_created).toBe('2026-10-05')
+    const newestFirst = [...b.paragraphs].sort((x, y) => y.updated_at.localeCompare(x.updated_at)).map((p) => p.id)
+    expect(newestFirst).toEqual(['late', 'early'])
+  })
+
   it('E10 names export files by local date', () => {
     expect(exportFileName('json', new Date(2026, 9, 7, 23, 30))).toBe('ielts-notebook-2026-10-07.json')
     expect(exportFileName('csv', new Date(2026, 0, 2))).toBe('ielts-notebook-2026-01-02.csv')

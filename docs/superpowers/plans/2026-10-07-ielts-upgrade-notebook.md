@@ -266,7 +266,7 @@ export const EXAMPLE_PARAGRAPHS: ParagraphDraft[]                 // brief §23 
 - `markSeenAgain`: `times_seen + 1`, stage 1, mastery learning, `next_review_at = now`.
 - `deleteParagraph`: deletes the paragraph and sets `source_paragraph_id = null` on linked notes. Notes are kept.
 - `importBundle`: notes, reviews, paragraphs merge by `id`. Existing row with newer or equal `updated_at` → skipped. Older → replaced. Reviews: added if the id is new. Settings are not imported. Runs in one transaction.
-- `loadExampleData`: idempotent (does nothing if any note tagged `example` exists). Gives the example notes varied states so every screen has content: about 6 due today, a few at each mastery level, `date_created` spread over the last 21 days, 3 favorites, at least 4 notes with error type Prepositions and the same `error_pattern` "visitors of + place" (the brief §28 example), and review rows on about 12 of the last 21 days so the Calendar and streak show data. Example paragraphs are tagged `example` too.
+- `loadExampleData`: idempotent. It records the ids it adds in meta key `example_ids` and does nothing while those rows exist. The owner's own notes tagged `example` are never treated as example data. Gives the example notes varied states so every screen has content: about 6 due today, a few at each mastery level, `date_created` spread over the last 21 days, 3 favorites, at least 4 notes with error type Prepositions and the same `error_pattern` "visitors of + place" (the brief §28 example), and review rows on about 12 of the last 21 days so the Calendar and streak show data. Example paragraphs are tagged `example` too.
 - `schedule()`: Again → stage 1, interval 1 day, `requeue = true`. Hard → stage `max(1, s)`, interval `max(1, round(intervalForStage(stage) / 2))`. Good → stage `min(7, s + 1)`. Easy → stage `min(7, s + 2)`. `next_review_at = startOfDay(addDays(now, interval)).toISOString()`. `previous_interval = intervalForStage(s)`.
 - `initialSchedule`: today → stage 0, `next_review_at = now`; tomorrow → stage 0, start of tomorrow; none → stage 0, `null`. Mastery `new`.
 - `manualMastery`: stage `firstStageOf(m)`; `next_review_at` = now for new, else `startOfDay(addDays(now, intervalForStage(stage)))`.
@@ -277,14 +277,14 @@ export const EXAMPLE_PARAGRAPHS: ParagraphDraft[]                 // brief §23 
 - `pickReviewType`: style `upgrade_only` or `times_reviewed < 2` → first available. Else `available[(times_reviewed - 2) % available.length]`.
 - `buildReviewCard` labels: upgrade → promptLabel "Recall the better version", promptHint the mode's original label, answerLabel "Better English", context = example. phrase_to_sentence → promptLabel "Use it in a full sentence", prompt = upgraded, answerLabel "In context", answer = example (fallback: upgraded). fill_blank → promptLabel "Fill in the blank", prompt = before + "_____" + after, answerLabel "Answer", answer = blank answer, context = full sentence. pattern_recall → promptLabel "Pattern recall", prompt = `recall_prompt` or `"Use your pattern for: " + topic` (or "Use your pattern in a sentence." when topic is empty), answerLabel "Pattern", answer = pattern, context = example. Never put empty strings in optional fields; omit them.
 - `searchAll`: excludes archived notes and paragraphs. Each record's fields are normalized and tokenized; each token is stemmed. A query token matches a field when a stemmed field token starts with the stemmed query token, or the field's normalized text contains the normalized query token (for tokens of 3+ characters). Every query token must match at least one field. Score = sum over query tokens of the best matching field weight + 5 when the whole normalized query appears in one field. Weights: upgraded 10, original 8, reusable_pattern 7, example 6, error_pattern 6, fix_pattern 6, explanation 4, topic 3, tags 3, subtopic 2, model_paragraph 2, paragraph title 6, paragraph body 3. `snippet` = the best field's plain text; for long fields (> 160 chars) a window of about 140 chars around the first match with "…". Ties: newer `updated_at` first.
-- `stem`: lowercase; strip suffixes in this order, keeping a stem of at least 4 letters: `ility`, `ation`, `ness`, `ment`, `ingly`, `edly`, `ing`, `ied`→`y`, `ies`→`y`, `ed`, `ly`, `es`, `s`, `le`, `e`. So `stable`→`stab`, `stability`→`stab`, `stably`→`stab`.
+- `stem`: lowercase; strip suffixes in this order, keeping a stem of at least 4 letters: `ility`, `ation`, `ness`, `ment`, `ingly`, `edly`, `ing`, `ied`→`y`, `ies`→`y`, `ed`, `ly`, `es`, `s`, `le`, `e`. Then a final `i` becomes `y` when the stem has 4+ letters (`steadily`→`steady`). So `stable`→`stab`, `stability`→`stab`, `stably`→`stab`.
 - `parseSmartPaste` labels (case-insensitive, at line start, followed by `:` `-` `–` or whitespace after an emoji; may be wrapped in `**`):
   - original: `❌`, `✗`, `✘`, `wrong`, `incorrect`, `original`, `mistake`, `you said`, `what you said`, `what i said`, `my sentence`, `before`, `your sentence`
   - upgraded: `✅`, `✓`, `✔`, `better`, `better version`, `corrected`, `correction`, `correct`, `native`, `native upgrade`, `more natural`, `natural`, `improved`, `upgrade`, `band 7+`, `band 7+ upgrade`, `revised`, `after`, `suggested`
   - explanation: `why`, `explanation`, `reason`, `note`, `💡`
   - example: `example`, `in context`, `context`, `e.g.`, `model sentence`
   - pattern: `pattern`, `structure`, `template`, `formula`, `reusable pattern`
-  Text after the label up to the next label is the value (multi-line allowed). Values go through `cleanSentence` (sentence fields) or trim (explanation).
+  Text after the label up to the next label is the value (multi-line allowed). Sentence fields end at a blank line, so closing remarks are not added. Bold that wraps a whole value is removed. Values go through `cleanSentence` (sentence fields) or trim (explanation).
 - `htmlToMarkdown`: parse with `DOMParser`. `b`, `strong`, and spans with `font-weight` ≥ 600 → `**…**`. `i`, `em` → `*…*`. `p`, `div`, `h1`–`h6` → paragraphs (blank line between). `br` → newline. `ul > li` → `- `, `ol > li` → `1. ` numbered; nested lists flattened one level with the same markers. `code` → its text. `a` → its text. `&nbsp;` → space. Drop `script`, `style`, `meta`. Collapse 3+ newlines to 2. Trim. Never lose text content.
 - `toCSV`: RFC 4180. Header = every Note field in `types.ts` order. Tags joined with `; `. CRLF line ends. Quote values with comma, quote, CR or LF; double inner quotes. Prefix values starting with `=`, `+`, `-`, `@` with `'` (spreadsheet formula safety). Starts with a UTF-8 BOM so Excel shows Vietnamese characters correctly.
 - `toMarkdown`: grouped Speaking then Writing, then by topic. Each note: `### Topic`, `**What I Said** — …`, `**Native Upgrade** — …`, Why, In context, Pattern, metadata line. Paragraphs at the end under `## Model paragraphs`.
@@ -393,12 +393,12 @@ export const EXAMPLE_PARAGRAPHS: ParagraphDraft[]                 // brief §23 
 | P12 | repo | importBundle twice with the same bundle | second run: 0 added, 0 updated |
 | P13 | repo | importBundle where incoming note is newer | updated; older → skipped |
 | P14 | repo | loadExampleData twice | second call adds 0; data covers due, all mastery levels, favorites, 4× "visitors of + place" |
-| P15 | repo | removeExampleData | only example-tagged notes and paragraphs removed |
+| P15 | repo | removeExampleData | only the rows listed in meta `example_ids` are removed; the owner's own `example`-tagged notes stay |
 | C1 | tokens | parse `src/styles/index.css`; for light and dark: ink, graphite, indigo, plum, crimson, upgrade on page and paper ≥ 4.5:1; ink on stone ≥ 4.5:1; on-accent on indigo ≥ 4.5:1 | all pass |
 
 - [ ] **Step 1:** Write the tests above (one file per module). Run `npx vitest run src/lib src/styles` and confirm they fail.
 - [ ] **Step 2:** Implement modules in dependency order: ids, dates, srs, session, diff, text, markdown, reviewTypes, search, filters, mistakes, exporters, db, repo, hooks, seed.
-- [ ] **Step 3:** Run `npx vitest run src/lib src/styles` until all pass. Run `TZ=America/New_York npx vitest run src/lib/dates.test.ts src/lib/srs.test.ts`.
+- [ ] **Step 3:** Run `npx vitest run src/lib src/styles` until all pass. Run in PowerShell: `$env:TZ='America/New_York'; npx vitest run src/lib/dates.test.ts src/lib/srs.test.ts` (Git Bash drops TZ before Node sees it).
 - [ ] **Step 4:** Run `npm run typecheck`. Fix errors in your files.
 
 ### Task B: Design system, app shell, overlays, keyboard, PWA assets
@@ -508,7 +508,7 @@ export function Dialog(props: { open: boolean; onClose: () => void; title: strin
 // Portal to body. bg-scrim backdrop, panel bg-paper rounded-lg shadow-float border-line. Focus trap, Esc closes, focus returns to the opener, body scroll locked. Under 640px: md and lg become full-screen sheets (footer sticks to the bottom, respects safe-area inset). Fade 180ms.
 
 // components/ui/Popover.tsx
-export function Popover(props: { open: boolean; onOpenChange: (v: boolean) => void; trigger: React.ReactElement; align?: 'start' | 'end'; children: React.ReactNode; className?: string }): React.JSX.Element
+export function Popover(props: { open: boolean; onOpenChange: (v: boolean) => void; trigger: React.ReactElement; align?: 'start' | 'end'; 'aria-label'?: string; children: React.ReactNode; className?: string }): React.JSX.Element
 export interface MenuItem { label: string; icon?: LucideIcon; onSelect: () => void; tone?: 'default' | 'danger'; shortcut?: string; disabled?: boolean }
 export function Menu(props: { trigger: React.ReactElement; items: (MenuItem | 'separator')[]; align?: 'start' | 'end'; 'aria-label': string }): React.JSX.Element
 // Menu: ARIA menu button pattern, ↑↓ Enter Esc, closes on outside click.
@@ -524,7 +524,7 @@ export function EmptyState(props: { title: string; body: string; action?: React.
 export function PageHeader(props: { title: string; eyebrow?: string; description?: string; actions?: React.ReactNode; children?: React.ReactNode }): React.JSX.Element
 // eyebrow = decorative italic serif label in plum or graphite (e.g. "Error Ledger"). title = font-serif text-title. children slot for tabs under the title.
 export function Section(props: { title?: string; action?: React.ReactNode; children: React.ReactNode; className?: string; id?: string }): React.JSX.Element
-export function MasteryMark(props: { status: MasteryStatus; showLabel?: boolean; className?: string }): React.JSX.Element
+export function MasteryMark(props: { status: MasteryStatus; showLabel?: boolean; size?: 'small' | 'meta'; className?: string }): React.JSX.Element
 // symbol + label; mastered symbol in gold, others graphite; when showLabel=false, aria-label holds the word.
 export function FavoriteStar(props: { active: boolean; onToggle?: () => void; className?: string }): React.JSX.Element
 // With onToggle: <button aria-pressed aria-label="Must remember">. ✦ outline (graphite) → filled gold, 180ms fade. Without onToggle: static, rendered only when active.
@@ -599,7 +599,7 @@ Each screen task follows the same steps:
 - [ ] **Step 2:** Write the component tests listed for your task. Run them and confirm they fail.
 - [ ] **Step 3:** Build the screen.
 - [ ] **Step 4:** Run your tests until they pass. Run `npm run typecheck`, fix errors in your files.
-- [ ] **Step 5:** Run the app (`npm run dev`), load example notes, and screenshot your screens with Playwright at 1440×900, 834×1112 and 390×844, light and dark. View the screenshots. Apply brief §43–44. Fix and repeat until the screens look right.
+- [ ] **Step 5:** Run the app (`npx vite --port <your port> --strictPort`) and screenshot your screens with `MSYS_NO_PATHCONV=1 node scripts/screenshots.mjs --base http://localhost:<port> --seed --slices --viewports desktop,tablet,mobile --themes light,dark /your-route` (`--seed` loads example notes in the fresh browser profile; `--out` sets the folder). That covers 1440×900, 834×1112 and 390×844, light and dark. View the screenshots. Apply brief §43–44. Fix and repeat until the screens look right.
 
 ### Task C1: Quick Add (brief §19–20, §2 Principle 5, §45 priority 1)
 
@@ -767,6 +767,8 @@ Settings (`/settings`, max 760px, sections separated by hairlines, `id`s for anc
 - [ ] `npm run typecheck`, `npm test`, `npm run build` all pass.
 - [ ] Promote any feature-local primitives that other screens also need into `src/components`.
 - [ ] Remove the temporary example-data button from `/design`.
+- [ ] Lazy-load each route screen with `React.lazy` + `Suspense` so the main chunk drops below 500 kB (build warning at 508 kB after Workflow 1).
+- [ ] NoteRow shows two identical gold ✦ marks when a note is both Mastered and Must Remember. Make them distinct by position and label: keep `✦ Mastered` (with the word) in the meta area; show the Must Remember ✦ as a small margin mark immediately before the upgrade text, with `aria-label="Must remember"`.
 - [ ] Playwright smoke: visit every route with example data, no console errors, no horizontal scroll at 390px.
 
 ---

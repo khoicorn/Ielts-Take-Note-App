@@ -29,7 +29,11 @@ export function NoteRow(props: {
           to={to}
           state={linkState}
           className={cn(
-            'flex min-w-0 flex-1 items-start gap-6 rounded-xs outline-none focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-indigo',
+            // No outline-none here: in Tailwind 4 it sets --tw-outline-style to none, which also hides the focus ring.
+            'flex min-w-0 flex-1 items-start gap-6 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-indigo',
+            // The link reaches into the row's 12px side padding, so the focus ring frames the hover surface, not the text edge.
+            '-ml-3 pl-3',
+            trailing ? null : '-mr-3 pr-3',
             reading ? 'py-5' : 'py-3.5',
           )}
         >
@@ -45,7 +49,7 @@ export function NoteRow(props: {
             <p className="mt-1.5 flex items-center gap-2 text-meta text-graphite sm:hidden">
               {topic ? <span className="truncate">{topic}</span> : null}
               {topic ? <span aria-hidden="true">·</span> : null}
-              <MasteryMark status={note.mastery_status} className="text-meta" />
+              <MasteryMark status={note.mastery_status} size="meta" />
             </p>
           </div>
           <div
