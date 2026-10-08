@@ -806,6 +806,26 @@ Settings (`/settings`, max 760px, sections separated by hairlines, `id`s for anc
 
 ---
 
+## Design v1.2 "Candlelit Library" (owner choice, 2026-10-08)
+
+The owner asked for "a little more witchy, a little bolder" and chose Concept A from `docs/mockups/concepts/` (compare page: `index.html`). Spec: `docs/mockups/concepts/a/README.md`; reference renders: `docs/mockups/concepts/png/a-*.png`. Layouts stay; colors, type and small details change. It replaces v1.1 rules 2 and 6:
+- Must Remember is a **garnet silk ribbon** (dark: wine fill with a gilt edge), not gold. ✦ still means Mastered only.
+- The dark primary button is **deep indigo (`indigo-fill`) with a gilt hairline** 3px inside the edge and cream text; lavender is retired.
+
+Tokens (in `src/styles/index.css`, done by the lead): warmer palette; new `indigo-fill brass garnet rubric focus glow vignette`; `text-title` 36px, `text-section` 22px, new `text-answer` 40px and `text-numeral` 44px; `font-smallcaps` (EB Garamond italic, self-hosted); `animate-draw`, `animate-ribbon`; `animate-ink` no longer rises.
+
+Rules:
+1. Candle glow + vignette: one fixed, pointer-events-none layer in AppShell (and Review) behind content; never over dialogs; nothing animates.
+2. Title initial: the first letter of the page title in `garnet` (light) / `brass` (dark), about 1.22× size, via `::first-letter`.
+3. Small-caps eyebrows (`font-smallcaps italic [font-variant-caps:small-caps] text-rubric`, 16px): sidebar group labels with a brass hairline after them, Today's continue-studying kicker, the "Mistake → Upgrade" key line, Quick Add's description.
+4. Brass: hairlines under section titles (`gold` at 55% light / 38% dark), double rule above Today's due counts, the rating-row rule, 2px `brass` active-nav bar, 2px `brass` tab underline with `animate-draw`, 2px `brass` review progress line.
+5. Primary buttons and other filled controls: `bg-indigo-fill text-on-accent` with an inset gilt hairline (gold 70% light / 75% dark) 3px inside. No glow, no outer shadow.
+6. Dialogs: a brass "bookplate" hairline frame 6px inside the edge; title 21–24px.
+7. Review: the answer in `font-serif text-answer` (32px on phones) in `text-upgrade` when it is under about 90 characters, otherwise Inter at `text-recall`; "How well did you recall it?" in italic serif 18px; a 16px garnet bookmark hangs from the top bar when the note is Must Remember (always with the words in the meta line).
+8. Today: due counts in `font-serif text-numeral text-brass` with "due" in italic serif 18px.
+9. Ornament constellation dots and the ✦ are brass. MasteryMark ✦ in brass.
+10. Focus ring: `focus` token (indigo by day, amber by night).
+
 ## Workflow 3: QA (done 2026-10-08)
 
 Result: 55 findings (4 high, 21 medium, 30 low), 54 fixed after reproduction; example-ids-in-backup fixed by the lead. Typecheck clean, 376/376 unit tests, 89/89 E2E (e2e/*.spec.ts), build OK, 230 final screenshots.

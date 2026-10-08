@@ -11,42 +11,59 @@
 
 :root {
   color-scheme: light;
-  --page: #f5f1e8; /* Parchment: page background */
-  --paper: #fbf9f4; /* Paper: writing areas, important content */
-  --stone: #ece7de; /* Stone: grouped sections, hover. Graphite and crimson text fail AA on it */
-  --ink: #211f24; /* Primary text */
-  --graphite: #6d6870; /* Secondary text, metadata */
-  --indigo: #38334f; /* Brand accent: active nav, primary buttons, selected */
-  --plum: #665466; /* Speaking accent */
-  --gold: #aa8d50; /* Ornaments, favorites, mastery mark. Never text */
-  --sage: #747b69; /* Writing accent, mastered state. Icons and large text only */
-  --crimson: #9a565c; /* The learner's mistake */
-  --upgrade: #596d59; /* Deep Sage: improved language */
-  --lavender: #a39cc0; /* Muted lavender: decorative only (celestial dividers, constellation strokes, selection tint). Never text, never fills */
-  --line: rgba(33, 31, 36, 0.1); /* Borders and separators */
-  --line-strong: rgba(33, 31, 36, 0.18);
-  --on-accent: #fbf9f4; /* Text on indigo fills */
-  --scrim: rgba(20, 19, 25, 0.32); /* Behind dialogs */
+  /* v1.2 "Candlelit Library" (owner choice 2026-10-08, spec: docs/mockups/concepts/a/README.md).
+     A late-night study desk lit by one candle: warm parchment, oxblood ink, brass fittings. */
+  --page: #ebe1cc; /* Parchment edge tone. The candle glow lightens the reading column above it */
+  --paper: #f9f3e7; /* Inputs, dialogs, rating buttons */
+  --stone: #e2d6bf; /* Hover, grouped areas */
+  --ink: #231b1a; /* Primary text */
+  --graphite: #5e544c; /* Secondary text, metadata */
+  --indigo: #2e2a4b; /* Accent for links, active icons, bars, focus. Use indigo-fill for filled controls */
+  --indigo-fill: #2e2a4b; /* Primary button and other filled controls (text on it: on-accent) */
+  --plum: #664a62; /* Speaking accent */
+  --gold: #a27e3c; /* Brass: rules, ornaments, ✦, gilt hairlines. Never text */
+  --brass: #7f5f27; /* Brass you can read: numerals 24px+, progress line, active nav bar */
+  --garnet: #782a31; /* Rubric: title initial, small-caps eyebrows, Must Remember ribbon */
+  --rubric: #782a31; /* Small-caps eyebrow text */
+  --sage: #69755c; /* Writing accent. Icons and large text only */
+  --crimson: #913d49; /* The learner's mistake */
+  --upgrade: #3f5d45; /* The upgrade (green sage) */
+  --lavender: #a27e3c; /* Deprecated in v1.2: constellation dots are brass now. Kept so old classes still render */
+  --focus: #2e2a4b; /* Focus ring */
+  --glow: rgba(255, 248, 230, 0.78); /* Candle light behind the reading column */
+  --vignette: rgba(74, 46, 18, 0.06); /* Far corners only */
+  --line: rgba(60, 40, 20, 0.13); /* Hairlines */
+  --line-strong: rgba(60, 40, 20, 0.22); /* Field and button borders */
+  --on-accent: #f9f3e7; /* Cream text on indigo-fill */
+  --scrim: rgba(40, 26, 12, 0.28); /* Behind dialogs (warm) */
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --page: #141319;
-  --paper: #1c1a21;
-  --stone: #242129;
-  --ink: #eae5db;
-  --graphite: #aaa4ac;
-  --indigo: #918ab2; /* Brief #8A82AA lightened slightly to pass AA on Stone */
-  --plum: #a08aa0;
-  --gold: #b69d66;
-  --sage: #89927e;
-  --crimson: #c07a82; /* Brief #B66B73 lightened slightly to pass AA on Paper */
-  --upgrade: #93a390;
-  --lavender: #6f6891;
-  --line: rgba(255, 255, 255, 0.1);
-  --line-strong: rgba(255, 255, 255, 0.18);
-  --on-accent: #141319;
-  --scrim: rgba(0, 0, 0, 0.5);
+  /* A library at night by candlelight: warm charcoal and amber, never cold black. */
+  --page: #191511;
+  --paper: #221d18;
+  --stone: #2b251f;
+  --ink: #efe5d3;
+  --graphite: #b4a795;
+  --indigo: #b3abd8; /* Links and active icons. Never a fill behind text */
+  --indigo-fill: #353057; /* Deep indigo button with a gilt hairline; cream text */
+  --plum: #bf9db6;
+  --gold: #c9a35e;
+  --brass: #d6b26e;
+  --garnet: #7d3039; /* Ribbon fill only, always with a gilt edge. Never text in dark */
+  --rubric: #d2b48a; /* Small-caps eyebrows in dark are brass-cream, not garnet */
+  --sage: #95a487;
+  --crimson: #df9396;
+  --upgrade: #a3be97;
+  --lavender: #c9a35e;
+  --focus: #d9b877; /* Amber focus ring at night */
+  --glow: rgba(255, 176, 85, 0.085);
+  --vignette: rgba(0, 0, 0, 0.3);
+  --line: rgba(255, 230, 190, 0.1);
+  --line-strong: rgba(255, 230, 190, 0.18);
+  --on-accent: #efe5d3;
+  --scrim: rgba(6, 4, 2, 0.6);
 }
 
 @theme inline {
@@ -57,12 +74,19 @@
   --color-ink: var(--ink);
   --color-graphite: var(--graphite);
   --color-indigo: var(--indigo);
+  --color-indigo-fill: var(--indigo-fill);
   --color-plum: var(--plum);
   --color-gold: var(--gold);
+  --color-brass: var(--brass);
+  --color-garnet: var(--garnet);
+  --color-rubric: var(--rubric);
   --color-sage: var(--sage);
   --color-crimson: var(--crimson);
   --color-upgrade: var(--upgrade);
   --color-lavender: var(--lavender);
+  --color-focus: var(--focus);
+  --color-glow: var(--glow);
+  --color-vignette: var(--vignette);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-on-accent: var(--on-accent);
@@ -75,6 +99,8 @@
   --font-*: initial;
   --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Instrument Serif", "Libre Baskerville", Georgia, ui-serif, serif;
+  /* Italic small caps for eyebrows only (EB Garamond, self-hosted via @fontsource-variable/eb-garamond). */
+  --font-smallcaps: "EB Garamond Variable", "EB Garamond", "Instrument Serif", Georgia, serif;
   --font-mono: ui-monospace, "Cascadia Mono", "SFMono-Regular", Menlo, monospace;
 
   /* Type scale (brief §10). Use these names only. */
@@ -89,12 +115,16 @@
   --text-body-lg--line-height: 1.65;
   --text-note: 1.125rem; /* 18px primary note text (the upgrade) */
   --text-note--line-height: 1.55;
-  --text-section: 1.3125rem; /* 21px section titles */
+  --text-section: 1.375rem; /* 22px section titles */
   --text-section--line-height: 1.35;
   --text-recall: 1.75rem; /* 28px review prompt sentence */
   --text-recall--line-height: 1.35;
-  --text-title: 2rem; /* 32px page titles, serif regular */
-  --text-title--line-height: 1.15;
+  --text-title: 2.25rem; /* 36px page titles, serif regular */
+  --text-title--line-height: 1.12;
+  --text-answer: 2.5rem; /* 40px serif review answer (32px on phones) */
+  --text-answer--line-height: 1.2;
+  --text-numeral: 2.75rem; /* 44px serif brass numerals on Today */
+  --text-numeral--line-height: 1;
 
   /* Radii (brief §12). Tags may use rounded-full. */
   --radius-*: initial;
@@ -106,7 +136,7 @@
 
   /* Shadows (brief §13). One soft token for floating menus and dialogs only. */
   --shadow-*: initial;
-  --shadow-float: 0 12px 32px -16px rgb(20 19 25 / 0.28), 0 1px 3px rgb(20 19 25 / 0.08);
+  --shadow-float: 0 14px 36px -18px rgb(48 30 12 / 0.34), 0 1px 3px rgb(48 30 12 / 0.1);
   --inset-shadow-*: initial;
   --drop-shadow-*: initial;
   --blur-*: initial;
@@ -119,17 +149,37 @@
      Reduced motion is handled by the global rule below. */
   --animate-ink: ink-settle 220ms var(--ease-quiet) both;
   --animate-fade: fade-in 180ms var(--ease-quiet) both;
+  /* Brass underline that draws in from the left under an active tab (scaleX 0 → 1). */
+  --animate-draw: draw-in 200ms var(--ease-quiet) both;
+  /* Must Remember ribbon drops 2px when marked. */
+  --animate-ribbon: ribbon-drop 180ms var(--ease-quiet) both;
+
+  @keyframes draw-in {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes ribbon-drop {
+    from {
+      transform: translateY(-2px);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
 
   @keyframes ink-settle {
     from {
       opacity: 0;
       filter: blur(2px);
-      transform: translateY(4px);
     }
     to {
       opacity: 1;
       filter: none;
-      transform: none;
     }
   }
 
@@ -162,11 +212,11 @@
   }
 
   ::selection {
-    background-color: color-mix(in srgb, var(--lavender) 35%, transparent);
+    background-color: color-mix(in srgb, var(--gold) 30%, transparent);
   }
 
   :focus-visible {
-    outline: 2px solid var(--indigo);
+    outline: 2px solid var(--focus);
     outline-offset: 2px;
   }
 

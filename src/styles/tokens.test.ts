@@ -27,7 +27,7 @@ function contrast(a: string, b: string): number {
 }
 
 const THEMES = { light: block(':root'), dark: block('[data-theme="dark"]') }
-const TEXT = ['ink', 'graphite', 'indigo', 'plum', 'crimson', 'upgrade'] as const
+const TEXT = ['ink', 'graphite', 'indigo', 'plum', 'crimson', 'upgrade', 'rubric', 'brass'] as const
 
 describe('design tokens', () => {
   it('C1 text tokens meet WCAG AA in light and dark', () => {
@@ -44,7 +44,8 @@ describe('design tokens', () => {
         check(fg, 'paper')
       }
       check('ink', 'stone')
-      check('on-accent', 'indigo')
+      check('on-accent', 'indigo-fill')
+      check('focus', 'page')
     }
     expect(failures).toEqual([])
   })

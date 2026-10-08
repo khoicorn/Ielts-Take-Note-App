@@ -19,14 +19,16 @@ Private, browser-only notebook for IELTS corrections with spaced review. React 1
 - Shared contract: `src/lib/types.ts` and `src/lib/taxonomy.ts`. Do not change them without a request to the lead.
 - Import with the `@/` alias (`@/lib/repo`, `@/components/ui/Button`).
 - The Tailwind theme is locked in `src/styles/index.css`. Only these exist:
-  - Colors: `page paper stone ink graphite indigo plum gold sage crimson upgrade lavender line line-strong on-accent scrim` (lavender is decorative only: dividers, constellation strokes; never text or fills)
-  - Motion: `animate-ink` (review answer reveal), `animate-fade`; transitions 150–220ms
-  - Text sizes: `text-meta text-small text-body text-body-lg text-note text-section text-recall text-title`
+  - Colors: `page paper stone ink graphite indigo indigo-fill plum gold brass garnet rubric sage crimson upgrade focus glow vignette line line-strong on-accent scrim` (`lavender` is deprecated: it now equals brass)
+  - Filled controls with text use `bg-indigo-fill text-on-accent` (never `bg-indigo`: in dark it is a light link color). `indigo` is for links, icons and thin bars
+  - Motion: `animate-ink` (review answer reveal), `animate-fade`, `animate-draw` (tab underline), `animate-ribbon` (ribbon drop); transitions 150–220ms. Nothing loops
+  - Text sizes: `text-meta text-small text-body text-body-lg text-note text-section text-recall text-answer text-numeral text-title`
   - Radii: `rounded-xs rounded-sm rounded-md rounded-lg rounded-full` (full only for small tags)
   - Shadow: `shadow-float` (menus and dialogs only)
-  - Fonts: `font-sans` (default UI), `font-serif` (page titles, notebook titles, quotes, model paragraphs)
+  - Fonts: `font-sans` (default UI), `font-serif` (page titles, notebook titles, quotes, model paragraphs, review answer, numerals), `font-smallcaps` (italic small-caps eyebrows only, with `[font-variant-caps:small-caps]`)
+- Visual language is v1.2 "Candlelit Library": `docs/mockups/concepts/a/README.md` + plan section "Design v1.2"
   - Default Tailwind names like `text-sm`, `bg-white`, `rounded-xl`, `shadow-md` produce no CSS. Do not use them.
-- Gold and sage are never used for small text. Graphite and crimson text never sit on `bg-stone`.
+- Gold and sage are never used for small text (use `brass` for readable brass). Garnet is never text in dark mode (use `rubric`). Graphite and crimson text never sit on `bg-stone`.
 - Never use `dangerouslySetInnerHTML`. Render note text with `<Markdown>` from `@/lib/markdown`.
 - Pass `now: Date` into date logic so it can be tested.
 - Copy is calm and plain (brief §36). No exclamation marks. No emoji except the mastery symbols ○ ◔ ◑ ✦.

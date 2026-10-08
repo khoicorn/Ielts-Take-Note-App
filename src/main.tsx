@@ -1,6 +1,7 @@
 import '@fontsource-variable/inter'
 import '@fontsource/instrument-serif/400.css'
 import '@fontsource/instrument-serif/400-italic.css'
+import '@fontsource-variable/eb-garamond/wght-italic.css'
 import './styles/index.css'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'

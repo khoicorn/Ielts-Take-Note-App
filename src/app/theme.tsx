@@ -6,8 +6,8 @@ export const THEME_STORAGE_KEY = 'ielts-theme'
 
 /** Browser UI color per theme (matches --page). */
 export const THEME_COLORS: Record<'light' | 'dark', string> = {
-  light: '#F5F1E8',
-  dark: '#141319',
+  light: '#EBE1CC',
+  dark: '#191511',
 }
 
 interface ThemeApi {
