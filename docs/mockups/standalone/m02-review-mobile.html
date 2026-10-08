@@ -1,3 +1,13 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Review · Mobile reveal (mockup)</title>
+<meta name="description" content="Review state 2 on a phone: the better English under the learner's sentence, and four 48px rating buttons in the thumb zone above the safe area.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* mockup.css, inlined so this file is self-contained */
 /*
  * IELTS Upgrade Notebook: shared stylesheet for the static concept mockups.
  *
@@ -1605,3 +1615,137 @@ mark,
 
 /* Motion: the real app uses 150-220ms fades and underline moves (brief §37). These static
    mockups have no transitions, so a theme switch before a screenshot is never caught mid-fade. */
+
+</style>
+<style>
+  /* ---------- Review on a phone (390 x 844). Full screen: no top bar menu, no bottom nav. ---------- */
+  .rv { display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* Quiet top bar: close, position, review type. The bottom hairline is the progress track. */
+  .rv-bar {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    height: 56px;
+    padding: 0 16px 0 6px;
+    border-bottom: 1px solid var(--line);
+  }
+  .rv-bar .btn-icon { justify-self: start; width: 44px; height: 44px; }
+  .rv-progress { position: absolute; left: 0; bottom: -1px; height: 1px; background: var(--indigo); }
+  .rv-count { font-size: 13px; line-height: 1.5; color: var(--graphite); font-variant-numeric: tabular-nums; }
+  .rv-type { justify-self: end; font-size: 12px; line-height: 1.45; color: var(--graphite); }
+
+  /* 28px side gutter so the rules can hang in the margin, like on desktop */
+  .rv-stage { display: flex; flex: 1; flex-direction: column; padding: 32px 28px 0; }
+  .rv-block { margin-top: 32px; }
+  .rv-block .label-caps { margin-bottom: 8px; }
+  .rv-block-tight { margin-top: 28px; }
+  .rv-block-tight .label-caps { margin-bottom: 6px; }
+
+  .rv-ruled { position: relative; overflow-wrap: anywhere; text-indent: -0.36em; }
+  .rv-ruled::before {
+    content: "";
+    position: absolute;
+    top: 0.22em;
+    bottom: 0.22em;
+    left: -18px;
+    width: 2px;
+    border-radius: var(--r-full);
+    background: var(--crimson);
+  }
+  .rv-said-small { font-size: 16px; line-height: 1.65; color: var(--crimson); }
+  .rv-better { font-size: 28px; line-height: 1.3; color: var(--upgrade); }
+  .rv-better::before { background: var(--upgrade); }
+  .rv-context { font-size: 16px; line-height: 1.65; color: var(--ink); }
+  .rv-context strong { font-weight: 600; }
+
+  .rv-why {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 44px;
+    margin-top: 12px;
+    margin-left: -10px;
+    padding: 0 10px;
+    border-radius: var(--r-sm);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--graphite);
+  }
+  .rv-why .icon { width: 14px; height: 14px; }
+
+  /* Ratings sit in the thumb zone, above the home indicator (safe area) */
+  .rv-spacer { flex: 1; min-height: 32px; }
+  .rv-rate {
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--line);
+  }
+  .rv-hint { margin-bottom: 12px; font-size: 13px; line-height: 1.5; color: var(--graphite); text-align: center; }
+  .rate-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .rate {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    height: 48px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--paper);
+  }
+  .rate:active { background: color-mix(in srgb, var(--stone) 60%, var(--paper)); }
+  .rate-name { font-size: 15px; font-weight: 500; line-height: 1.2; color: var(--ink); }
+  .rate-gap { font-size: 12px; line-height: 1.2; color: var(--graphite); }
+
+  /* Mockup only: the iPhone home indicator area (34px), to show the safe area. Not app UI. */
+  .safe-area { display: flex; align-items: flex-end; justify-content: center; height: 34px; padding-bottom: 8px; }
+  .safe-area::after { content: ""; width: 134px; height: 5px; border-radius: var(--r-full); background: color-mix(in srgb, var(--ink) 28%, transparent); }
+</style>
+</head>
+<body>
+<div class="rv">
+  <header class="rv-bar">
+    <button class="btn btn-icon" type="button" aria-label="End review"><svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    <p class="rv-count"><span class="sr-only">Note </span>3 of 12</p>
+    <p class="rv-type">Mistake → Upgrade</p>
+    <div class="rv-progress" style="width: 25%" role="progressbar" aria-label="Session progress" aria-valuemin="0" aria-valuemax="12" aria-valuenow="3"></div>
+  </header>
+
+  <main class="rv-stage" id="main">
+    <p class="meta-line"><span class="mode mode-speaking"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg>Speaking</span><span class="sep" aria-hidden="true">·</span><span>Travel</span><span class="sep" aria-hidden="true">·</span><span class="must"><span class="star" aria-hidden="true"></span>Must Remember</span></p>
+    <h1 class="sr-only">Recall the better version</h1>
+
+    <div class="rv-block">
+      <p class="label-caps">What I said</p>
+      <p class="rv-ruled rv-said-small"><span class="quote">We enjoyed the scenario.</span></p>
+    </div>
+
+    <section class="rv-block" aria-label="Answer">
+      <p class="label-caps">Better English</p>
+      <p class="rv-ruled rv-better"><span class="quote">The scenery was beautiful.</span></p>
+    </section>
+
+    <div class="rv-block-tight">
+      <p class="label-caps">In context</p>
+      <p class="rv-context">The <strong>scenery</strong> along the coast was beautiful.</p>
+    </div>
+
+    <div><button class="rv-why" type="button" aria-expanded="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>Why</button></div>
+
+    <div class="rv-spacer"></div>
+  </main>
+
+  <div class="rv-rate">
+    <p class="rv-hint" id="rate-q">How well did you recall it?</p>
+    <div class="rate-grid" role="group" aria-labelledby="rate-q">
+      <button class="rate" type="button"><span class="rate-name">Again</span><span class="rate-gap">Tomorrow</span></button>
+      <button class="rate" type="button"><span class="rate-name">Hard</span><span class="rate-gap">2 days</span></button>
+      <button class="rate" type="button"><span class="rate-name">Good</span><span class="rate-gap">1 week</span></button>
+      <button class="rate" type="button"><span class="rate-name">Easy</span><span class="rate-gap">2 weeks</span></button>
+    </div>
+  </div>
+  <div class="safe-area" aria-hidden="true"></div>
+</div>
+</body>
+</html>

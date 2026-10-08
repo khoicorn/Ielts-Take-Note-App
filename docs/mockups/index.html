@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup Gallery (mockup)</title>
+<meta name="description" content="Every concept mockup of the IELTS Upgrade Notebook in brief §45 priority order, with light and dark PNGs, the HTML page and a self-contained copy.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mockup.css">
+<style>
+  /* Gallery: one 1040px column, screens in brief §45 priority order. No cards: a hairline frame on each picture only. */
+  .gallery { padding: 64px 56px 80px; }
+  .gallery .page-desc { max-width: 68ch; }
+  .key { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 16px; font-size: 13px; line-height: 1.5; color: var(--graphite); }
+  .key strong { font-weight: 500; color: var(--ink); }
+
+  .group { margin-top: 64px; }
+  .group-num { display: inline-block; min-width: 28px; color: var(--graphite); font-variant-numeric: tabular-nums; }
+  .group-intro { margin-top: 12px; font-size: 15px; line-height: 1.6; color: var(--graphite); }
+
+  .shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 40px 32px; margin-top: 24px; }
+  .thumb {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-md);
+    background: var(--stone);
+  }
+  .thumb img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+  /* Phone screens: the phone stands in the frame and is cut off at the bottom */
+  .shot-mobile .thumb img { width: 46%; height: auto; margin: 16px auto 0; border: 1px solid var(--line); border-radius: var(--r-sm); }
+  .thumb:hover { border-color: color-mix(in srgb, var(--ink) 30%, transparent); }
+
+  .shot-text { margin-top: 14px; }
+  .shot-meta { display: flex; align-items: center; gap: 8px; font-size: 12px; line-height: 1.45; color: var(--graphite); font-variant-numeric: tabular-nums; }
+  .shot-id { font-weight: 500; letter-spacing: 0.04em; color: var(--ink); }
+  .shot-title { margin-top: 4px; font-family: var(--font-serif); font-size: 21px; font-weight: 400; line-height: 1.35; color: var(--ink); }
+  .shot-desc { margin-top: 4px; font-size: 13px; line-height: 1.5; color: var(--graphite); }
+  .shot-links { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 10px; font-size: 13px; line-height: 1.5; }
+  .gallery-end { margin-top: 72px; }
+  .gallery-foot { margin-top: 20px; font-size: 13px; line-height: 1.5; text-align: center; color: var(--graphite); }
+
+  @media (max-width: 639px) {
+    .gallery { padding: 40px 16px 56px; }
+    .shots { grid-template-columns: minmax(0, 1fr); }
+    .shot-links .link { min-height: 44px; }
+  }
+</style>
+</head>
+<body>
+<main class="gallery" id="main">
+  <div class="page-wide">
+    <header class="page-header">
+      <p class="eyebrow">Concept mockups</p>
+      <h1 class="page-title">IELTS Upgrade Notebook</h1>
+      <p class="page-desc">21 static screens of the intended product, in the brief’s priority order (§45). Desktop screens are 1440 wide. Phone screens are 390 × 844. Every screen has a light and a dark PNG.</p>
+      <p class="key"><span><strong>HTML</strong> uses mockup.css next to it.</span><span><strong>Standalone</strong> has mockup.css inlined, for pasting into another tool.</span><span>Today is Wednesday, 7 October 2026.</span></p>
+    </header>
+
+      <section class="group" aria-labelledby="g-01-quick-add-choose">
+        <div class="section-head">
+          <h2 class="section-title" id="g-01-quick-add-choose"><span class="group-num">1</span>Quick Add</h2>
+          <span class="section-action">4 screens</span>
+        </div>
+        <p class="group-intro">Save a correction in 10 to 20 seconds, right after a ChatGPT session.</p>
+        <ul class="shots">
+          <li class="shot">
+            <a class="thumb" href="png/01-quick-add-choose-light.png" aria-label="Quick Add · Choose, light PNG"><img src="png/01-quick-add-choose-light.png" alt="" width="1440" height="900"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">01</span><span class="sep" aria-hidden="true">·</span><span>1440 wide</span></p>
+              <h3 class="shot-title">Quick Add · Choose</h3>
+              <p class="shot-desc">Step 1 asks Speaking or Writing. One key picks, and the last choice is focused.</p>
+              <p class="shot-links"><a class="link" href="png/01-quick-add-choose-light.png">Light PNG</a><a class="link" href="png/01-quick-add-choose-dark.png">Dark PNG</a><a class="link" href="01-quick-add-choose.html">HTML</a><a class="link" href="standalone/01-quick-add-choose.html">Standalone</a></p>
+            </div>
+          </li>
+          <li class="shot">
+            <a class="thumb" href="png/02-quick-add-speaking-light.png" aria-label="Quick Add · Speaking, light PNG"><img src="png/02-quick-add-speaking-light.png" alt="" width="1440" height="900"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">02</span><span class="sep" aria-hidden="true">·</span><span>1440 wide</span></p>
+              <h3 class="shot-title">Quick Add · Speaking</h3>
+              <p class="shot-desc">The four essential fields, with the Native Upgrade being typed.</p>
+              <p class="shot-links"><a class="link" href="png/02-quick-add-speaking-light.png">Light PNG</a><a class="link" href="png/02-quick-add-speaking-dark.png">Dark PNG</a><a class="link" href="02-quick-add-speaking.html">HTML</a><a class="link" href="standalone/02-quick-add-speaking.html">Standalone</a></p>
+            </div>
+          </li>
+          <li class="shot">
+            <a class="thumb" href="png/03-quick-add-writing-details-light.png" aria-label="Quick Add · Writing details, light PNG"><img src="png/03-quick-add-writing-details-light.png" alt="" width="1440" height="900"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">03</span><span class="sep" aria-hidden="true">·</span><span>1440 wide</span></p>
+              <h3 class="shot-title">Quick Add · Writing details</h3>
+              <p class="shot-desc">The Writing form with More details open: why, mistake pattern, filing, tags and first review.</p>
+              <p class="shot-links"><a class="link" href="png/03-quick-add-writing-details-light.png">Light PNG</a><a class="link" href="png/03-quick-add-writing-details-dark.png">Dark PNG</a><a class="link" href="03-quick-add-writing-details.html">HTML</a><a class="link" href="standalone/03-quick-add-writing-details.html">Standalone</a></p>
+            </div>
+          </li>
+          <li class="shot shot-mobile">
+            <a class="thumb" href="png/m01-quick-add-mobile-light.png" aria-label="Quick Add · Mobile, light PNG"><img src="png/m01-quick-add-mobile-light.png" alt="" width="390" height="844"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">m01</span><span class="sep" aria-hidden="true">·</span><span>390 × 844</span></p>
+              <h3 class="shot-title">Quick Add · Mobile</h3>
+              <p class="shot-desc">The phone sheet just after a ChatGPT paste. The smart-paste bar offers to fill 4 fields.</p>
+              <p class="shot-links"><a class="link" href="png/m01-quick-add-mobile-light.png">Light PNG</a><a class="link" href="png/m01-quick-add-mobile-dark.png">Dark PNG</a><a class="link" href="m01-quick-add-mobile.html">HTML</a><a class="link" href="standalone/m01-quick-add-mobile.html">Standalone</a></p>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="group" aria-labelledby="g-04-review-recall">
+        <div class="section-head">
+          <h2 class="section-title" id="g-04-review-recall"><span class="group-num">2</span>Review</h2>
+          <span class="section-action">5 screens</span>
+        </div>
+        <p class="group-intro">One item at a time, no navigation. Recall, reveal, rate.</p>
+        <ul class="shots">
+          <li class="shot">
+            <a class="thumb" href="png/04-review-recall-light.png" aria-label="Review · Recall, light PNG"><img src="png/04-review-recall-light.png" alt="" width="1440" height="900"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">04</span><span class="sep" aria-hidden="true">·</span><span>1440 wide</span></p>
+              <h3 class="shot-title">Review · Recall</h3>
+              <p class="shot-desc">State 1: my sentence, large empty space and one Reveal button.</p>
+              <p class="shot-links"><a class="link" href="png/04-review-recall-light.png">Light PNG</a><a class="link" href="png/04-review-recall-dark.png">Dark PNG</a><a class="link" href="04-review-recall.html">HTML</a><a class="link" href="standalone/04-review-recall.html">Standalone</a></p>
+            </div>
+          </li>
+          <li class="shot">
+            <a class="thumb" href="png/05-review-revealed-light.png" aria-label="Review · Reveal, light PNG"><img src="png/05-review-revealed-light.png" alt="" width="1440" height="900"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">05</span><span class="sep" aria-hidden="true">·</span><span>1440 wide</span></p>
+              <h3 class="shot-title">Review · Reveal</h3>
+              <p class="shot-desc">State 2: the better English in deep sage, the context and four compact ratings.</p>
+              <p class="shot-links"><a class="link" href="png/05-review-revealed-light.png">Light PNG</a><a class="link" href="png/05-review-revealed-dark.png">Dark PNG</a><a class="link" href="05-review-revealed.html">HTML</a><a class="link" href="standalone/05-review-revealed.html">Standalone</a></p>
+            </div>
+          </li>
+          <li class="shot">
+            <a class="thumb" href="png/07-review-fill-blank-light.png" aria-label="Review · Fill in the blank, light PNG"><img src="png/07-review-fill-blank-light.png" alt="" width="1440" height="900"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">07</span><span class="sep" aria-hidden="true">·</span><span>1440 wide</span></p>
+              <h3 class="shot-title">Review · Fill in the blank</h3>
+              <p class="shot-desc">Another review type: the missing word, the typed answer and the pattern.</p>
+              <p class="shot-links"><a class="link" href="png/07-review-fill-blank-light.png">Light PNG</a><a class="link" href="png/07-review-fill-blank-dark.png">Dark PNG</a><a class="link" href="07-review-fill-blank.html">HTML</a><a class="link" href="standalone/07-review-fill-blank.html">Standalone</a></p>
+            </div>
+          </li>
+          <li class="shot">
+            <a class="thumb" href="png/06-review-complete-light.png" aria-label="Review · Session complete, light PNG"><img src="png/06-review-complete-light.png" alt="" width="1440" height="900"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">06</span><span class="sep" aria-hidden="true">·</span><span>1440 wide</span></p>
+              <h3 class="shot-title">Review · Session complete</h3>
+              <p class="shot-desc">The session in three calm lines, and the notes that come back tomorrow.</p>
+              <p class="shot-links"><a class="link" href="png/06-review-complete-light.png">Light PNG</a><a class="link" href="png/06-review-complete-dark.png">Dark PNG</a><a class="link" href="06-review-complete.html">HTML</a><a class="link" href="standalone/06-review-complete.html">Standalone</a></p>
+            </div>
+          </li>
+          <li class="shot shot-mobile">
+            <a class="thumb" href="png/m02-review-mobile-light.png" aria-label="Review · Mobile reveal, light PNG"><img src="png/m02-review-mobile-light.png" alt="" width="390" height="844"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">m02</span><span class="sep" aria-hidden="true">·</span><span>390 × 844</span></p>
+              <h3 class="shot-title">Review · Mobile reveal</h3>
+              <p class="shot-desc">State 2 on a phone, with 48px ratings in the thumb zone.</p>
+              <p class="shot-links"><a class="link" href="png/m02-review-mobile-light.png">Light PNG</a><a class="link" href="png/m02-review-mobile-dark.png">Dark PNG</a><a class="link" href="m02-review-mobile.html">HTML</a><a class="link" href="standalone/m02-review-mobile.html">Standalone</a></p>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="group" aria-labelledby="g-08-note-detail">
+        <div class="section-head">
+          <h2 class="section-title" id="g-08-note-detail"><span class="group-num">3</span>Note Detail</h2>
+          <span class="section-action">1 screen</span>
+        </div>
+        <p class="group-intro">One correction in an editorial layout.</p>
+        <ul class="shots">
+          <li class="shot">
+            <a class="thumb" href="png/08-note-detail-light.png" aria-label="Note Detail · Writing, light PNG"><img src="png/08-note-detail-light.png" alt="" width="1440" height="900"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">08</span><span class="sep" aria-hidden="true">·</span><span>1440 wide</span></p>
+              <h3 class="shot-title">Note Detail · Writing</h3>
+              <p class="shot-desc">The mistake, the upgrade, why, example and pattern, with a quiet metadata column and review history.</p>
+              <p class="shot-links"><a class="link" href="png/08-note-detail-light.png">Light PNG</a><a class="link" href="png/08-note-detail-dark.png">Dark PNG</a><a class="link" href="08-note-detail.html">HTML</a><a class="link" href="standalone/08-note-detail.html">Standalone</a></p>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="group" aria-labelledby="g-11-today">
+        <div class="section-head">
+          <h2 class="section-title" id="g-11-today"><span class="group-num">4</span>Today</h2>
+          <span class="section-action">3 screens</span>
+        </div>
+        <p class="group-intro">Answers one question: what should I study today?</p>
+        <ul class="shots">
+          <li class="shot">
+            <a class="thumb" href="png/11-today-light.png" aria-label="Today, light PNG"><img src="png/11-today-light.png" alt="" width="1440" height="900"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">11</span><span class="sep" aria-hidden="true">·</span><span>1440 wide</span></p>
+              <h3 class="shot-title">Today</h3>
+              <p class="shot-desc">Begin Review, due counts per mode, the notebook to continue, recent notes and the most repeated issue.</p>
+              <p class="shot-links"><a class="link" href="png/11-today-light.png">Light PNG</a><a class="link" href="png/11-today-dark.png">Dark PNG</a><a class="link" href="11-today.html">HTML</a><a class="link" href="standalone/11-today.html">Standalone</a></p>
+            </div>
+          </li>
+          <li class="shot">
+            <a class="thumb" href="png/12-today-first-run-light.png" aria-label="Today · First run, light PNG"><img src="png/12-today-first-run-light.png" alt="" width="1440" height="900"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">12</span><span class="sep" aria-hidden="true">·</span><span>1440 wide</span></p>
+              <h3 class="shot-title">Today · First run</h3>
+              <p class="shot-desc">Three numbered lines explain the loop before the first note exists.</p>
+              <p class="shot-links"><a class="link" href="png/12-today-first-run-light.png">Light PNG</a><a class="link" href="png/12-today-first-run-dark.png">Dark PNG</a><a class="link" href="12-today-first-run.html">HTML</a><a class="link" href="standalone/12-today-first-run.html">Standalone</a></p>
+            </div>
+          </li>
+          <li class="shot shot-mobile">
+            <a class="thumb" href="png/m03-today-mobile-light.png" aria-label="Today · Mobile, light PNG"><img src="png/m03-today-mobile-light.png" alt="" width="390" height="844"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">m03</span><span class="sep" aria-hidden="true">·</span><span>390 × 844</span></p>
+              <h3 class="shot-title">Today · Mobile</h3>
+              <p class="shot-desc">Today on a phone, with the bottom bar and the centered Add.</p>
+              <p class="shot-links"><a class="link" href="png/m03-today-mobile-light.png">Light PNG</a><a class="link" href="png/m03-today-mobile-dark.png">Dark PNG</a><a class="link" href="m03-today-mobile.html">HTML</a><a class="link" href="standalone/m03-today-mobile.html">Standalone</a></p>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="group" aria-labelledby="g-14-all-notes">
+        <div class="section-head">
+          <h2 class="section-title" id="g-14-all-notes"><span class="group-num">5</span>All Notes</h2>
+          <span class="section-action">2 screens</span>
+        </div>
+        <p class="group-intro">A list and table hybrid with a compact filter.</p>
+        <ul class="shots">
+          <li class="shot">
+            <a class="thumb" href="png/14-all-notes-light.png" aria-label="All Notes, light PNG"><img src="png/14-all-notes-light.png" alt="" width="1440" height="900"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">14</span><span class="sep" aria-hidden="true">·</span><span>1440 wide</span></p>
+              <h3 class="shot-title">All Notes</h3>
+              <p class="shot-desc">Filtered to Writing and Prepositions, sorted by next review. All 6 columns show.</p>
+              <p class="shot-links"><a class="link" href="png/14-all-notes-light.png">Light PNG</a><a class="link" href="png/14-all-notes-dark.png">Dark PNG</a><a class="link" href="14-all-notes.html">HTML</a><a class="link" href="standalone/14-all-notes.html">Standalone</a></p>
+            </div>
+          </li>
+          <li class="shot">
+            <a class="thumb" href="png/14b-all-notes-filter-light.png" aria-label="All Notes · Filter open, light PNG"><img src="png/14b-all-notes-filter-light.png" alt="" width="1440" height="900"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">14b</span><span class="sep" aria-hidden="true">·</span><span>1440 wide</span></p>
+              <h3 class="shot-title">All Notes · Filter open</h3>
+              <p class="shot-desc">The filter popover: every filter in one small panel, with a live match count.</p>
+              <p class="shot-links"><a class="link" href="png/14b-all-notes-filter-light.png">Light PNG</a><a class="link" href="png/14b-all-notes-filter-dark.png">Dark PNG</a><a class="link" href="14b-all-notes-filter.html">HTML</a><a class="link" href="standalone/14b-all-notes-filter.html">Standalone</a></p>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="group" aria-labelledby="g-15-my-mistakes">
+        <div class="section-head">
+          <h2 class="section-title" id="g-15-my-mistakes"><span class="group-num">6</span>My Mistakes</h2>
+          <span class="section-action">1 screen</span>
+        </div>
+        <p class="group-intro">My repeated language habits, not generic vocabulary.</p>
+        <ul class="shots">
+          <li class="shot">
+            <a class="thumb" href="png/15-my-mistakes-light.png" aria-label="My Mistakes · Error Ledger, light PNG"><img src="png/15-my-mistakes-light.png" alt="" width="1440" height="900"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">15</span><span class="sep" aria-hidden="true">·</span><span>1440 wide</span></p>
+              <h3 class="shot-title">My Mistakes · Error Ledger</h3>
+              <p class="shot-desc">Habits grouped by error type, with how often each was seen and the notes behind it.</p>
+              <p class="shot-links"><a class="link" href="png/15-my-mistakes-light.png">Light PNG</a><a class="link" href="png/15-my-mistakes-dark.png">Dark PNG</a><a class="link" href="15-my-mistakes.html">HTML</a><a class="link" href="standalone/15-my-mistakes.html">Standalone</a></p>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="group" aria-labelledby="g-09-model-paragraph">
+        <div class="section-head">
+          <h2 class="section-title" id="g-09-model-paragraph"><span class="group-num">7</span>Model Paragraph</h2>
+          <span class="section-action">2 screens</span>
+        </div>
+        <p class="group-intro">Saved model paragraphs, and notes made from phrases in them.</p>
+        <ul class="shots">
+          <li class="shot">
+            <a class="thumb" href="png/09-model-paragraph-light.png" aria-label="Model Paragraph · Selection, light PNG"><img src="png/09-model-paragraph-light.png" alt="" width="1440" height="900"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">09</span><span class="sep" aria-hidden="true">·</span><span>1440 wide</span></p>
+              <h3 class="shot-title">Model Paragraph · Selection</h3>
+              <p class="shot-desc">A selected phrase opens Create note from selection. Saved phrases have a dotted gold underline.</p>
+              <p class="shot-links"><a class="link" href="png/09-model-paragraph-light.png">Light PNG</a><a class="link" href="png/09-model-paragraph-dark.png">Dark PNG</a><a class="link" href="09-model-paragraph.html">HTML</a><a class="link" href="standalone/09-model-paragraph.html">Standalone</a></p>
+            </div>
+          </li>
+          <li class="shot">
+            <a class="thumb" href="png/10-paragraph-focus-editor-light.png" aria-label="Model Paragraph · Focus editor, light PNG"><img src="png/10-paragraph-focus-editor-light.png" alt="" width="1440" height="900"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">10</span><span class="sep" aria-hidden="true">·</span><span>1440 wide</span></p>
+              <h3 class="shot-title">Model Paragraph · Focus editor</h3>
+              <p class="shot-desc">The distraction-free editor for writing or pasting a model paragraph.</p>
+              <p class="shot-links"><a class="link" href="png/10-paragraph-focus-editor-light.png">Light PNG</a><a class="link" href="png/10-paragraph-focus-editor-dark.png">Dark PNG</a><a class="link" href="10-paragraph-focus-editor.html">HTML</a><a class="link" href="standalone/10-paragraph-focus-editor.html">Standalone</a></p>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="group" aria-labelledby="g-13-search">
+        <div class="section-head">
+          <h2 class="section-title" id="g-13-search"><span class="group-num">8</span>Search</h2>
+          <span class="section-action">1 screen</span>
+        </div>
+        <p class="group-intro">Global search that tolerates partial words.</p>
+        <ul class="shots">
+          <li class="shot">
+            <a class="thumb" href="png/13-search-light.png" aria-label="Search, light PNG"><img src="png/13-search-light.png" alt="" width="1440" height="900"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">13</span><span class="sep" aria-hidden="true">·</span><span>1440 wide</span></p>
+              <h3 class="shot-title">Search</h3>
+              <p class="shot-desc">Results for “stable” across mistakes, upgrades, topics and model paragraphs.</p>
+              <p class="shot-links"><a class="link" href="png/13-search-light.png">Light PNG</a><a class="link" href="png/13-search-dark.png">Dark PNG</a><a class="link" href="13-search.html">HTML</a><a class="link" href="standalone/13-search.html">Standalone</a></p>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="group" aria-labelledby="g-16-speaking-notebook">
+        <div class="section-head">
+          <h2 class="section-title" id="g-16-speaking-notebook">Also included</h2>
+          <span class="section-action">2 screens</span>
+        </div>
+        <p class="group-intro">Two notebook pages that use the same parts.</p>
+        <ul class="shots">
+          <li class="shot">
+            <a class="thumb" href="png/16-speaking-notebook-light.png" aria-label="Speaking · Notebook, light PNG"><img src="png/16-speaking-notebook-light.png" alt="" width="1440" height="900"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">16</span><span class="sep" aria-hidden="true">·</span><span>1440 wide</span></p>
+              <h3 class="shot-title">Speaking · Notebook</h3>
+              <p class="shot-desc">Every Speaking note, grouped by topic, with a topic index.</p>
+              <p class="shot-links"><a class="link" href="png/16-speaking-notebook-light.png">Light PNG</a><a class="link" href="png/16-speaking-notebook-dark.png">Dark PNG</a><a class="link" href="16-speaking-notebook.html">HTML</a><a class="link" href="standalone/16-speaking-notebook.html">Standalone</a></p>
+            </div>
+          </li>
+          <li class="shot">
+            <a class="thumb" href="png/17-must-remember-light.png" aria-label="Must Remember · Essential Notes, light PNG"><img src="png/17-must-remember-light.png" alt="" width="1440" height="900"></a>
+            <div class="shot-text">
+              <p class="shot-meta"><span class="shot-id">17</span><span class="sep" aria-hidden="true">·</span><span>1440 wide</span></p>
+              <h3 class="shot-title">Must Remember · Essential Notes</h3>
+              <p class="shot-desc">The starred phrases and patterns, and one starred model paragraph.</p>
+              <p class="shot-links"><a class="link" href="png/17-must-remember-light.png">Light PNG</a><a class="link" href="png/17-must-remember-dark.png">Dark PNG</a><a class="link" href="17-must-remember.html">HTML</a><a class="link" href="standalone/17-must-remember.html">Standalone</a></p>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+    <div class="ornament gallery-end" aria-hidden="true"><span></span></div>
+    <p class="gallery-foot">Static HTML and CSS only. Colors, type and spacing come from the app’s tokens.</p>
+  </div>
+</main>
+</body>
+</html>

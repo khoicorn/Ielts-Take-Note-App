@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review · Reveal (mockup)</title>
+<meta name="description" content="Review state 2 on desktop: the better English is revealed under the learner's sentence, with context, a collapsed Why, and four compact ratings.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mockup.css">
+<style>
+  /* ---------- Review screen (shared by 04, 05, 06, 07). Full screen: no sidebar. ---------- */
+  .rv { display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* Quiet top bar. Its bottom hairline is the progress track; the indigo part is the progress. */
+  .rv-bar {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    height: 56px;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--line);
+  }
+  .rv-progress { position: absolute; left: 0; bottom: -1px; height: 1px; background: var(--indigo); }
+  .rv-end { justify-self: start; margin-left: -8px; padding: 0 10px 0 8px; }
+  .rv-end .kbd { margin-left: 4px; }
+  .rv-count { font-size: 13px; line-height: 1.5; color: var(--graphite); font-variant-numeric: tabular-nums; }
+  .rv-type { justify-self: end; font-size: 13px; line-height: 1.5; color: var(--graphite); }
+
+  /* One item at a time, in a 720px column. The action row stays at the same height in both states. */
+  .rv-stage {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 88px 0 72px;
+  }
+  .rv-card { display: flex; flex-direction: column; min-height: 560px; }
+  .rv-heading {
+    margin-top: 16px;
+    font-family: var(--font-serif);
+    font-size: 21px;
+    font-weight: 400;
+    line-height: 1.35;
+    color: var(--ink);
+  }
+  .rv-block { margin-top: 40px; }
+  .rv-block .label-caps { margin-bottom: 12px; }
+  .rv-block-tight { margin-top: 32px; }
+
+  /* A thin rule on the left marks each sentence: crimson for what I said, deep sage for the upgrade. */
+  /* The rule and the opening quote hang in the left margin, so every line starts on one edge. */
+  .rv-ruled { position: relative; overflow-wrap: anywhere; text-indent: -0.36em; }
+  .rv-ruled::before {
+    content: "";
+    position: absolute;
+    top: 0.22em;
+    bottom: 0.22em;
+    left: -24px;
+    width: 2px;
+    border-radius: var(--r-full);
+    background: var(--crimson);
+  }
+  /* State 2: the prompt steps back to a smaller size but stays crimson. The answer takes the large size. */
+  .rv-said-small { font-size: 16px; line-height: 1.65; color: var(--crimson); }
+  .rv-better { font-size: 28px; line-height: 1.35; color: var(--upgrade); }
+  .rv-better::before { background: var(--upgrade); }
+  .rv-context { font-size: 16px; line-height: 1.65; color: var(--ink); }
+  .rv-context strong { font-weight: 600; }
+
+  .rv-why {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    margin-top: 20px;
+    margin-left: -8px;
+    padding: 0 8px;
+    border-radius: var(--r-sm);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--graphite);
+  }
+  .rv-why .icon { width: 14px; height: 14px; }
+  .rv-why:hover { background: var(--hover); color: var(--ink); }
+
+  .rv-spacer { flex: 1; min-height: 48px; }
+  .rv-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    height: 85px; /* 24px gap + 60px row + hairline: the same in both states, so nothing moves on reveal */
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+  .rv-hint { font-size: 13px; line-height: 1.5; color: var(--graphite); }
+
+  /* Ratings: compact, all the same weight. Key and next gap in small text. Good has the default focus. */
+  .rate-row { display: flex; gap: 8px; }
+  .rate {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    width: 120px;
+    height: 60px;
+    padding: 0 12px 0 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--paper);
+    text-align: left;
+  }
+  .rate:hover { background: color-mix(in srgb, var(--stone) 60%, var(--paper)); }
+  .rate-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .rate-name { font-size: 15px; font-weight: 500; line-height: 1.4; color: var(--ink); }
+  .rate-gap { font-size: 12px; line-height: 1.45; color: var(--graphite); }
+</style>
+</head>
+<body>
+<div class="rv">
+  <header class="rv-bar">
+    <button class="btn btn-ghost btn-sm rv-end" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>End review<kbd class="kbd" aria-hidden="true">Esc</kbd></button>
+    <p class="rv-count"><span class="sr-only">Note </span>3 of 12</p>
+    <p class="rv-type">Mistake → Upgrade</p>
+    <div class="rv-progress" style="width: 25%" role="progressbar" aria-label="Session progress" aria-valuemin="0" aria-valuemax="12" aria-valuenow="3"></div>
+  </header>
+
+  <main class="rv-stage" id="main">
+    <div class="rv-card">
+      <p class="meta-line"><span class="mode mode-speaking"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg>Speaking</span><span class="sep" aria-hidden="true">·</span><span>Travel</span><span class="sep" aria-hidden="true">·</span><span class="must"><span class="star" aria-hidden="true"></span>Must Remember</span></p>
+      <h1 class="rv-heading">Recall the better version</h1>
+
+      <div class="rv-block">
+        <p class="label-caps">What I said</p>
+        <p class="rv-ruled rv-said-small"><span class="quote">We enjoyed the scenario.</span></p>
+      </div>
+
+      <section class="rv-block" aria-label="Answer">
+        <p class="label-caps">Better English</p>
+        <p class="rv-ruled rv-better"><span class="quote">The scenery was beautiful.</span></p>
+      </section>
+
+      <div class="rv-block-tight">
+        <p class="label-caps" style="margin-bottom: 8px;">In context</p>
+        <p class="rv-context">The <strong>scenery</strong> along the coast was beautiful.</p>
+      </div>
+
+      <div><button class="rv-why" type="button" aria-expanded="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>Why</button></div>
+
+      <div class="rv-spacer"></div>
+
+      <div class="rv-actions">
+        <p class="rv-hint" id="rate-q">How well did you recall it?</p>
+        <div class="rate-row" role="group" aria-labelledby="rate-q">
+          <button class="rate" type="button"><span class="rate-top"><span class="rate-name">Again</span><kbd class="kbd" aria-hidden="true">1</kbd></span><span class="rate-gap">Tomorrow</span></button>
+          <button class="rate" type="button"><span class="rate-top"><span class="rate-name">Hard</span><kbd class="kbd" aria-hidden="true">2</kbd></span><span class="rate-gap">2 days</span></button>
+          <button class="rate is-focus" type="button"><span class="rate-top"><span class="rate-name">Good</span><kbd class="kbd" aria-hidden="true">3</kbd></span><span class="rate-gap">1 week</span></button>
+          <button class="rate" type="button"><span class="rate-top"><span class="rate-name">Easy</span><kbd class="kbd" aria-hidden="true">4</kbd></span><span class="rate-gap">2 weeks</span></button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,3 +1,13 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Must Remember · Essential Notes (mockup)</title>
+<meta name="description" content="Must Remember: five starred notes in a calm reading layout, each marked with a small gold star, followed by one starred model paragraph.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* mockup.css, inlined so this file is self-contained */
 /*
  * IELTS Upgrade Notebook: shared stylesheet for the static concept mockups.
  *
@@ -1605,3 +1615,209 @@ mark,
 
 /* Motion: the real app uses 150-220ms fades and underline moves (brief §37). These static
    mockups have no transitions, so a theme switch before a screenshot is never caught mid-fade. */
+
+</style>
+<style>
+  /* One starred note. Every item on this page is starred, so the star is not repeated:
+     the unstar button hangs in the left margin and shows on hover or keyboard focus only. */
+  .essentials { margin-top: 8px; }
+  .essential { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 152px; column-gap: 32px; padding: 32px 0; border-bottom: 1px solid var(--line); }
+  .essential .star-btn { position: absolute; top: 25px; left: -48px; opacity: 0; }
+  .essential:hover .star-btn,
+  .paragraph:hover .star-btn,
+  .star-btn:focus-visible { opacity: 1; }
+  .essential .star-btn::before { width: 14px; height: 14px; }
+  .essential .meta-line { margin-bottom: 12px; }
+  .e-mistake { font-size: 15px; line-height: 1.6; color: var(--crimson); }
+  .e-mistake .pair-label { margin-right: 10px; vertical-align: 0.08em; }
+  /* The upgrade leads (deep sage, 21px). Context and pattern sit back in graphite; the key words return to ink. */
+  .e-upgrade { margin-top: 6px; font-size: 21px; line-height: 1.35; color: var(--upgrade); text-indent: -0.36em; }
+  .e-block { margin-top: 16px; }
+  .e-block .label-caps { margin-bottom: 4px; }
+  .e-text { font-size: 15px; line-height: 1.6; color: var(--graphite); }
+  .e-text strong { font-weight: 500; color: var(--ink); }
+  .e-text .slot { color: var(--ink); }
+  .e-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; padding-top: 34px; text-align: right; }
+  .e-next { font-size: 12px; line-height: 1.45; color: var(--graphite); }
+  .e-next.due { color: var(--indigo); }
+
+  /* Model paragraphs */
+  .paragraphs { margin-top: 64px; }
+  .paragraph { position: relative; padding: 28px 0 32px; border-bottom: 1px solid var(--line); }
+  .paragraph .star-btn { position: absolute; top: 28px; left: -48px; opacity: 0; }
+  .paragraph .star-btn::before { width: 14px; height: 14px; }
+  .para-title { font-family: var(--font-serif); font-size: 26px; font-weight: 400; line-height: 1.25; color: var(--ink); }
+  .paragraph .meta-line { margin-top: 6px; }
+  .para-body { margin-top: 20px; font-family: var(--font-serif); font-size: 20px; line-height: 1.6; color: var(--ink); }
+  .para-body .saved { text-decoration-line: underline; text-decoration-style: dotted; text-decoration-color: var(--gold); text-decoration-thickness: 2px; text-underline-offset: 6px; text-decoration-skip-ink: none; }
+  .para-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px; margin-top: 20px; font-size: 13px; line-height: 1.5; color: var(--graphite); }
+  .para-key { display: inline-flex; align-items: center; gap: 8px; }
+  .para-key-sample { display: inline-block; width: 22px; height: 0; border-bottom: 2px dotted var(--gold); }
+  .mr-end { margin-top: 56px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" aria-label="Sidebar">
+    <div class="sidebar-head">
+      <a class="brand" href="#" aria-label="Upgrade Notebook, Today"><svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.2 4.1A8.4 8.4 0 1 0 19.9 15.4A6.8 6.8 0 0 1 13.2 4.1Z"/><path class="gold-fill" d="M18.6 1.4C18.86 4.3 20.3 5.74 23.2 6C20.3 6.26 18.86 7.7 18.6 10.6C18.34 7.7 16.9 6.26 14 6C16.9 5.74 18.34 4.3 18.6 1.4Z"/></svg><span class="brand-name">Upgrade Notebook</span></a>
+    </div>
+    <div class="sidebar-actions">
+      <button class="side-btn side-btn-new" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span class="side-btn-text">New note</span><kbd class="kbd">N</kbd></button>
+      <button class="side-btn" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg><span class="side-btn-text">Search</span><span class="keys" aria-hidden="true"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">K</kbd></span></button>
+    </div>
+    <nav class="sidebar-nav" aria-label="Main">
+      <div class="nav-group">
+        <ul class="nav-list">
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v16"/><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/></svg><span class="nav-text">Today</span></a></li>
+          <li><a class="nav-item" href="#" aria-label="Review, 12 due"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span class="nav-text">Review</span><span class="nav-count" aria-hidden="true">12</span></a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label" aria-hidden="true">Notebooks</p>
+        <ul class="nav-list">
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg><span class="nav-text">Speaking</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span class="nav-text">Writing</span></a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label" aria-hidden="true">Library</p>
+        <ul class="nav-list">
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg><span class="nav-text">Mistakes</span></a></li>
+          <li><a class="nav-item is-active" aria-current="page" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.75C12.45 8.1 15.9 11.55 21.25 12C15.9 12.45 12.45 15.9 12 21.25C11.55 15.9 8.1 12.45 2.75 12C8.1 11.55 11.55 8.1 12 2.75Z"/></svg><span class="nav-text">Must Remember</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg><span class="nav-text">All Notes</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M8 13h.01"/><path d="M12 13h.01"/><path d="M16 13h.01"/><path d="M8 17h.01"/><path d="M12 17h.01"/><path d="M16 17h.01"/></svg><span class="nav-text">Calendar</span></a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="sidebar-foot">
+      <a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg><span class="nav-text">Settings</span></a>
+      <p class="streak">4 days of consistent study.</p>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="page">
+
+      <header class="page-header">
+        <p class="eyebrow">Essential Notes</p>
+        <h1 class="page-title">Must Remember</h1>
+        <p class="page-desc">The phrases and patterns worth keeping close. 5 notes and 1 model paragraph.</p>
+        <nav class="tabs" aria-label="Mode">
+          <a class="tab is-active" aria-current="page" href="#"><span class="tab-label">All</span><span class="count">6</span></a>
+          <a class="tab" href="#"><span class="tab-label">Speaking</span><span class="count">2</span></a>
+          <a class="tab" href="#"><span class="tab-label">Writing</span><span class="count">4</span></a>
+        </nav>
+      </header>
+
+      <div class="essentials">
+
+        <article class="essential">
+          <button class="star-btn is-on" type="button" aria-pressed="true" aria-label="Remove from Must Remember"></button>
+          <div>
+            <p class="meta-line"><span class="mode mode-speaking"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg>Speaking</span><span class="sep" aria-hidden="true">·</span><span>Travel</span><span class="sep" aria-hidden="true">·</span><span>Nha Trang trip</span></p>
+            <p class="e-mistake"><span class="pair-label">What I Said</span><span class="quote">We enjoyed the scenario.</span></p>
+            <p class="e-upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">The scenery was beautiful.</span></p>
+            <div class="e-block">
+              <p class="label-caps">In context</p>
+              <p class="e-text">The <strong>scenery</strong> along the coast was beautiful.</p>
+            </div>
+          </div>
+          <div class="e-side">
+            <span class="mastery mastery-learning">Learning</span>
+            <span class="e-next due">Due today</span>
+          </div>
+        </article>
+
+        <article class="essential">
+          <button class="star-btn is-on" type="button" aria-pressed="true" aria-label="Remove from Must Remember"></button>
+          <div>
+            <p class="meta-line"><span class="mode mode-speaking"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg>Speaking</span><span class="sep" aria-hidden="true">·</span><span>Drinks</span><span class="sep" aria-hidden="true">·</span><span>Ordering bubble tea</span></p>
+            <p class="e-mistake"><span class="pair-label">What I Said</span><span class="quote">I don’t customize other factors.</span></p>
+            <p class="e-upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">I’m pretty flexible about the rest.</span></p>
+            <div class="e-block">
+              <p class="label-caps">In context</p>
+              <p class="e-text">I normally ask them to cut the sugar down to 30%, but <strong>I’m pretty flexible about the rest</strong>.</p>
+            </div>
+          </div>
+          <div class="e-side">
+            <span class="mastery mastery-familiar">Familiar</span>
+            <span class="e-next">Next review in 5 days</span>
+          </div>
+        </article>
+
+        <article class="essential">
+          <button class="star-btn is-on" type="button" aria-pressed="true" aria-label="Remove from Must Remember"></button>
+          <div>
+            <p class="meta-line"><span class="mode mode-writing"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Writing</span><span class="sep" aria-hidden="true">·</span><span>Academic Task 1</span><span class="sep" aria-hidden="true">·</span><span>Increase</span></p>
+            <p class="e-mistake"><span class="pair-label">My Sentence</span><span class="quote">The number of visitors of the City Zoo increased steadily.</span></p>
+            <p class="e-upgrade"><span class="sr-only">Band 7+ Upgrade: </span><span class="quote">The number of visitors to the City Zoo increased steadily.</span></p>
+            <div class="e-block">
+              <p class="label-caps">Reusable pattern</p>
+              <p class="e-text">The number of visitors to <span class="slot" role="img" aria-label="blank"></span> increased steadily from <span class="slot" role="img" aria-label="blank"></span> to <span class="slot" role="img" aria-label="blank"></span>.</p>
+            </div>
+          </div>
+          <div class="e-side">
+            <span class="mastery mastery-familiar">Familiar</span>
+            <span class="e-next">Next review in 6 days</span>
+          </div>
+        </article>
+
+        <article class="essential">
+          <button class="star-btn is-on" type="button" aria-pressed="true" aria-label="Remove from Must Remember"></button>
+          <div>
+            <p class="meta-line"><span class="mode mode-writing"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Writing</span><span class="sep" aria-hidden="true">·</span><span>Academic Task 1</span><span class="sep" aria-hidden="true">·</span><span>Stability</span><span class="sep" aria-hidden="true">·</span><span>Collocation</span></p>
+            <p class="e-upgrade"><span class="sr-only">Band 7+ Upgrade: </span><span class="quote">remained relatively stable</span></p>
+            <div class="e-block">
+              <p class="label-caps">Example</p>
+              <p class="e-text">Visitor numbers at the Botanical Garden <strong>remained relatively stable</strong> at around 30,000.</p>
+            </div>
+            <div class="e-block">
+              <p class="label-caps">Reusable pattern</p>
+              <p class="e-text"><span class="slot" role="img" aria-label="blank"></span> remained relatively stable at around <span class="slot" role="img" aria-label="blank"></span>.</p>
+            </div>
+          </div>
+          <div class="e-side">
+            <span class="mastery mastery-mastered">Mastered</span>
+            <span class="e-next">Next review in 24 days</span>
+          </div>
+        </article>
+
+        <article class="essential">
+          <button class="star-btn is-on" type="button" aria-pressed="true" aria-label="Remove from Must Remember"></button>
+          <div>
+            <p class="meta-line"><span class="mode mode-writing"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Writing</span><span class="sep" aria-hidden="true">·</span><span>Task 2</span><span class="sep" aria-hidden="true">·</span><span>Concession</span><span class="sep" aria-hidden="true">·</span><span>Sentence Pattern</span></p>
+            <p class="e-upgrade"><span class="sr-only">Band 7+ Upgrade: </span><span class="quote">Admittedly, online courses are flexible; however, they rarely replace classroom teaching.</span></p>
+            <div class="e-block">
+              <p class="label-caps">Reusable pattern</p>
+              <p class="e-text">Admittedly, <span class="slot" role="img" aria-label="blank"></span>; however, <span class="slot" role="img" aria-label="blank"></span>.</p>
+            </div>
+          </div>
+          <div class="e-side">
+            <span class="mastery mastery-new">New</span>
+            <span class="e-next due">Due today</span>
+          </div>
+        </article>
+      </div>
+
+      <!-- Model paragraphs -->
+      <section class="paragraphs" aria-labelledby="mp-title">
+        <div class="section-head"><h2 class="section-title" id="mp-title">Model paragraphs</h2><span class="section-action">1 starred</span></div>
+        <article class="paragraph">
+          <button class="star-btn is-on" type="button" aria-pressed="true" aria-label="Remove from Must Remember"></button>
+          <h3 class="para-title"><a href="#">Task 1 — Opposite Trends</a></h3>
+          <p class="meta-line"><span class="mode mode-writing"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Academic Task 1</span><span class="sep" aria-hidden="true">·</span><span>Line Graph</span><span class="sep" aria-hidden="true">·</span><span>Comparison</span><span class="sep" aria-hidden="true">·</span><span>83 words</span></p>
+          <p class="para-body">From 2012 to 2022, the three attractions showed markedly different trends. The National Gallery experienced a steady decline in attendance from 75,000 to 42,000, losing its position as the most popular of the three attractions. <a class="saved" href="#">In contrast,</a> <a class="saved" href="#">the number of visitors to the City Zoo increased steadily</a> from 35,000 to 68,000, making it the most visited attraction in 2022. Meanwhile, visitor numbers at the Botanical Garden <a class="saved" href="#">remained relatively stable</a>, rising slightly by 2,000 to 30,000 in 2017 before falling to 29,000 in 2022.</p>
+          <div class="para-foot">
+            <span class="para-key"><span class="para-key-sample" aria-hidden="true"></span>3 phrases saved as notes</span>
+            <a class="link t-small" href="#">Open paragraph<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+          </div>
+        </article>
+      </section>
+
+      <div class="ornament mr-end" aria-hidden="true"><span></span></div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

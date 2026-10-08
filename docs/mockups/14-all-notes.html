@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>All Notes (mockup)</title>
+<meta name="description" content="All Notes as a refined table filtered to Writing and Prepositions, sorted by next review, with two active filters shown as removable chips. The filter popover is shown open in 14b.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mockup.css">
+<style>
+  /* All Notes uses the full 1040px container for the table (brief §38: wide space for tables) */
+  .page-full { max-width: var(--page-w); margin: 0 auto; }
+
+  .title-line { display: flex; align-items: baseline; gap: 14px; }
+  .title-count { font-size: 15px; line-height: 1.6; color: var(--graphite); font-variant-numeric: tabular-nums; }
+
+  /* Toolbar: one line, small controls */
+  .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .toolbar-group { display: flex; align-items: center; gap: 8px; }
+
+  .input-sm,
+  .select-sm { height: 32px; font-size: 13px; line-height: 1.5; }
+  .select-sm { padding: 0 32px 0 10px; }
+  .toolbar .select-sm { width: auto; }
+  .select-sm::after { right: 8px; }
+  .input-sm { gap: 8px; padding: 0 10px; color: var(--graphite); }
+  .input-sm .icon { width: 14px; height: 14px; }
+  .list-filter { width: 280px; }
+  .list-filter .kbd { margin-left: auto; height: 18px; min-width: 18px; padding: 0 5px; }
+  .select-label { margin-right: 6px; color: var(--graphite); }
+
+  /* Filter button: active count */
+  .btn-count {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 18px; height: 18px; padding: 0 5px; margin-left: 2px;
+    border-radius: var(--r-full);
+    background: var(--indigo); color: var(--on-accent);
+    font-size: 12px; font-weight: 500; line-height: 1; font-variant-numeric: tabular-nums;
+  }
+
+
+  /* Active filters */
+  .active-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 16px; font-size: 13px; line-height: 1.5; color: var(--graphite); }
+  .active-filters .result { margin-right: 4px; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .active-filters .tag { color: var(--ink); }
+  .active-filters .tag .k { color: var(--graphite); }
+  .active-filters .link { margin-left: 4px; }
+
+  /* Table */
+  .notes-table { margin-top: 20px; table-layout: fixed; }
+  .col-topic { width: 124px; }
+  .col-mistake { width: 236px; } /* the upgrade column gets the rest: the upgrade is the hero */
+  .col-type { width: 136px; }
+  .col-due { width: 116px; }
+  .col-mastery { width: 108px; }
+  .col-star { width: 40px; }
+  .notes-table td { vertical-align: top; padding-top: 15px; padding-bottom: 15px; }
+  .notes-table th .sorted { display: inline-flex; align-items: center; gap: 4px; color: var(--ink); }
+  .notes-table th .sorted .icon { width: 12px; height: 12px; stroke-width: 2; }
+  .cell-topic .t { display: block; font-size: 13px; line-height: 1.5; color: var(--ink); }
+  .cell-topic .s { display: block; font-size: 12px; line-height: 1.45; color: var(--graphite); }
+  .clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+  .notes-table td.cell-mistake { padding-top: 17px; }
+  .cell-mistake { font-size: 13px; line-height: 1.5; color: var(--crimson); }
+  .cell-upgrade { font-size: 15px; line-height: 1.6; color: var(--ink); }
+  .notes-table .cell-meta { padding-top: 17px; }
+  .notes-table .cell-meta.today { color: var(--ink); }
+  .notes-table td.cell-mastery { padding-top: 17px; }
+  .notes-table td.cell-star { padding-top: 19px; text-align: right; }
+
+  .list-end { margin-top: 48px; }
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" aria-label="Sidebar">
+    <div class="sidebar-head">
+      <a class="brand" href="#" aria-label="Upgrade Notebook, Today"><svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.2 4.1A8.4 8.4 0 1 0 19.9 15.4A6.8 6.8 0 0 1 13.2 4.1Z"/><path class="gold-fill" d="M18.6 1.4C18.86 4.3 20.3 5.74 23.2 6C20.3 6.26 18.86 7.7 18.6 10.6C18.34 7.7 16.9 6.26 14 6C16.9 5.74 18.34 4.3 18.6 1.4Z"/></svg><span class="brand-name">Upgrade Notebook</span></a>
+    </div>
+    <div class="sidebar-actions">
+      <button class="side-btn side-btn-new" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span class="side-btn-text">New note</span><kbd class="kbd">N</kbd></button>
+      <button class="side-btn" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg><span class="side-btn-text">Search</span><span class="keys" aria-hidden="true"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">K</kbd></span></button>
+    </div>
+    <nav class="sidebar-nav" aria-label="Main">
+      <div class="nav-group">
+        <ul class="nav-list">
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v16"/><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/></svg><span class="nav-text">Today</span></a></li>
+          <li><a class="nav-item" href="#" aria-label="Review, 12 due"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span class="nav-text">Review</span><span class="nav-count" aria-hidden="true">12</span></a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label" aria-hidden="true">Notebooks</p>
+        <ul class="nav-list">
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg><span class="nav-text">Speaking</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span class="nav-text">Writing</span></a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label" aria-hidden="true">Library</p>
+        <ul class="nav-list">
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg><span class="nav-text">Mistakes</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.75C12.45 8.1 15.9 11.55 21.25 12C15.9 12.45 12.45 15.9 12 21.25C11.55 15.9 8.1 12.45 2.75 12C8.1 11.55 11.55 8.1 12 2.75Z"/></svg><span class="nav-text">Must Remember</span></a></li>
+          <li><a class="nav-item is-active" aria-current="page" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg><span class="nav-text">All Notes</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M8 13h.01"/><path d="M12 13h.01"/><path d="M16 13h.01"/><path d="M8 17h.01"/><path d="M12 17h.01"/><path d="M16 17h.01"/></svg><span class="nav-text">Calendar</span></a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="sidebar-foot">
+      <a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg><span class="nav-text">Settings</span></a>
+      <p class="streak">4 days of consistent study.</p>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="page-full">
+
+      <header class="page-header">
+        <div class="title-line">
+          <h1 class="page-title">All Notes</h1>
+          <span class="title-count">32 notes</span>
+        </div>
+      </header>
+
+      <!-- Toolbar: filter the list, sort, view, filter popover (archived notes are a filter) -->
+      <div class="toolbar">
+        <div class="toolbar-group">
+          <label class="input input-sm list-filter"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg><span class="placeholder">Filter this list</span><kbd class="kbd" aria-hidden="true">/</kbd></label>
+          <div class="select select-sm" role="button" aria-label="Sort by next review"><span class="select-label">Sort</span>Next review</div>
+        </div>
+        <div class="toolbar-group">
+          <div class="seg" role="radiogroup" aria-label="View">
+            <button class="seg-item is-active" type="button" role="radio" aria-checked="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h.01"/><path d="M3 12h.01"/><path d="M3 19h.01"/><path d="M8 5h13"/><path d="M8 12h13"/><path d="M8 19h13"/></svg>Compact</button>
+            <button class="seg-item" type="button" role="radio" aria-checked="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h18"/></svg>Reading</button>
+          </div>
+          <span class="filter-anchor">
+            <button class="btn btn-secondary btn-sm" type="button" aria-haspopup="dialog" aria-expanded="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"/></svg>Filter<span class="btn-count" aria-label="2 active">2</span></button>
+
+          </span>
+        </div>
+      </div>
+
+      <!-- Active filters -->
+      <div class="active-filters">
+        <span class="result">10 of 32</span>
+        <span class="tag"><span class="k">Mode:</span> Writing<button class="tag-remove" type="button" aria-label="Remove Writing filter"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
+        <span class="tag"><span class="k">Error:</span> Prepositions<button class="tag-remove" type="button" aria-label="Remove Prepositions filter"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
+        <a class="link link-quiet" href="#">Clear filters</a>
+      </div>
+
+      <!-- Notes table (click a row to open the note) -->
+      <table class="table notes-table">
+        <colgroup><col class="col-topic"><col class="col-mistake"><col><col class="col-type"><col class="col-due"><col class="col-mastery"><col class="col-star"></colgroup>
+        <thead>
+          <tr>
+            <th scope="col">Topic</th>
+            <th scope="col">Mistake</th>
+            <th scope="col">Upgrade</th>
+            <th scope="col">Type</th>
+            <th scope="col" aria-sort="ascending"><span class="sorted">Next review<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg></span></th>
+            <th scope="col">Mastery</th>
+            <th scope="col"><span class="sr-only">Must Remember</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="cell-topic"><span class="t">Introduction</span><span class="s">Task 1</span></td>
+            <td class="cell-mistake"><span class="clamp">The bar chart compares visitors of three museums in London.</span></td>
+            <td class="cell-upgrade"><span class="clamp">The bar chart compares the number of visitors to three museums in London.</span></td>
+            <td class="cell-meta">Correction</td>
+            <td class="cell-meta today">Today</td>
+            <td class="cell-mastery"><span class="mastery mastery-new">New</span></td>
+            <td class="cell-star"></td>
+          </tr>
+          <tr>
+            <td class="cell-topic"><span class="t">Increase</span><span class="s">Task 1</span></td>
+            <td class="cell-mistake"><span class="clamp">Unemployment rose at 15% in 2010.</span></td>
+            <td class="cell-upgrade"><span class="clamp">Unemployment rose to 15% in 2010.</span></td>
+            <td class="cell-meta">Correction</td>
+            <td class="cell-meta today">Today</td>
+            <td class="cell-mastery"><span class="mastery mastery-new">New</span></td>
+            <td class="cell-star"></td>
+          </tr>
+          <tr>
+            <td class="cell-topic"><span class="t">Explanation</span><span class="s">Task 2</span></td>
+            <td class="cell-mistake"><span class="clamp">Social media has a big impact to teenagers.</span></td>
+            <td class="cell-upgrade"><span class="clamp">Social media has a significant impact on teenagers.</span></td>
+            <td class="cell-meta">Collocation</td>
+            <td class="cell-meta">Tomorrow</td>
+            <td class="cell-mastery"><span class="mastery mastery-learning">Learning</span></td>
+            <td class="cell-star"></td>
+          </tr>
+          <tr>
+            <td class="cell-topic"><span class="t">Peak</span><span class="s">Task 1</span></td>
+            <td class="cell-mistake"><span class="clamp">The number of visitors of the Science Museum peaked at 50,000 in 2015.</span></td>
+            <td class="cell-upgrade"><span class="clamp">The number of visitors to the Science Museum peaked at 50,000 in 2015.</span></td>
+            <td class="cell-meta">Correction</td>
+            <td class="cell-meta">Tomorrow</td>
+            <td class="cell-mastery"><span class="mastery mastery-familiar">Familiar</span></td>
+            <td class="cell-star"></td>
+          </tr>
+          <tr>
+            <td class="cell-topic"><span class="t">Comparison</span><span class="s">Task 1</span></td>
+            <td class="cell-mistake"><span class="clamp">Cars accounted 45% of all journeys to work.</span></td>
+            <td class="cell-upgrade"><span class="clamp">Cars accounted for 45% of all journeys to work.</span></td>
+            <td class="cell-meta">Collocation</td>
+            <td class="cell-meta">In 3 days</td>
+            <td class="cell-mastery"><span class="mastery mastery-learning">Learning</span></td>
+            <td class="cell-star"></td>
+          </tr>
+          <tr>
+            <td class="cell-topic"><span class="t">Increase</span><span class="s">Task 1</span></td>
+            <td class="cell-mistake"><span class="clamp">The number of visitors of the City Zoo increased steadily.</span></td>
+            <td class="cell-upgrade"><span class="clamp">The number of visitors to the City Zoo increased steadily.</span></td>
+            <td class="cell-meta">Correction</td>
+            <td class="cell-meta">In 6 days</td>
+            <td class="cell-mastery"><span class="mastery mastery-familiar">Familiar</span></td>
+            <td class="cell-star"><span class="star" role="img" aria-label="Must remember"></span></td>
+          </tr>
+          <tr>
+            <td class="cell-topic"><span class="t">Increase</span><span class="s">Task 1</span></td>
+            <td class="cell-mistake"><span class="clamp">Online sales grew between 2010 to 2020.</span></td>
+            <td class="cell-upgrade"><span class="clamp">Online sales grew steadily between 2010 and 2020.</span></td>
+            <td class="cell-meta">Grammar Pattern</td>
+            <td class="cell-meta">In 6 days</td>
+            <td class="cell-mastery"><span class="mastery mastery-familiar">Familiar</span></td>
+            <td class="cell-star"></td>
+          </tr>
+          <tr class="is-hover">
+            <td class="cell-topic"><span class="t">Comparison</span><span class="s">Task 2</span></td>
+            <td class="cell-mistake"><span class="clamp">City life is different with country life.</span></td>
+            <td class="cell-upgrade"><span class="clamp">City life is very different from country life.</span></td>
+            <td class="cell-meta">Correction</td>
+            <td class="cell-meta">In 9 days</td>
+            <td class="cell-mastery"><span class="mastery mastery-familiar">Familiar</span></td>
+            <td class="cell-star"></td>
+          </tr>
+          <tr>
+            <td class="cell-topic"><span class="t">Topic Sentence</span><span class="s">Task 2</span></td>
+            <td class="cell-mistake"><span class="clamp">Governments should spend more money for public transport.</span></td>
+            <td class="cell-upgrade"><span class="clamp">Governments should spend more money on public transport.</span></td>
+            <td class="cell-meta">Correction</td>
+            <td class="cell-meta">In 12 days</td>
+            <td class="cell-mastery"><span class="mastery mastery-familiar">Familiar</span></td>
+            <td class="cell-star"></td>
+          </tr>
+          <tr>
+            <td class="cell-topic"><span class="t">Concession</span><span class="s">Task 2</span></td>
+            <td class="cell-mistake"><span class="clamp">In the other hand, online courses are cheaper.</span></td>
+            <td class="cell-upgrade"><span class="clamp">On the other hand, online courses are far cheaper.</span></td>
+            <td class="cell-meta">Linking Phrase</td>
+            <td class="cell-meta">In 24 days</td>
+            <td class="cell-mastery"><span class="mastery mastery-mastered">Mastered</span></td>
+            <td class="cell-star"></td>
+          </tr>
+        
+        </tbody>
+      </table>
+
+      <div class="ornament list-end" aria-hidden="true"><span></span></div>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>

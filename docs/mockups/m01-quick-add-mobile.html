@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quick Add · Mobile (mockup)</title>
+<meta name="description" content="Quick Add as a full-screen phone sheet at 390 x 844, just after pasting a ChatGPT correction: Speaking or Writing tabs, the smart-paste offer to fill 4 fields, the raw pasted text, empty upgrade and context fields, and Save fixed above the home indicator.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mockup.css">
+<style>
+  /* ---------- Full-screen sheet (no app shell). Designed at 390 x 844. ----------
+     The sheet fills the screen. The body scrolls; the header and the Save bar stay put.
+     Here the parts sit in the page flow so a full-page screenshot shows the whole sheet. */
+  body { background: var(--paper); background-image: none; }
+  .sheet { display: flex; flex-direction: column; min-height: 844px; background: var(--paper); }
+
+  .sheet-head {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 14px 4px 12px 16px;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper);
+  }
+  .sheet-title { font-family: var(--font-serif); font-size: 21px; font-weight: 400; line-height: 1.35; color: var(--ink); }
+  .sheet-desc { margin-top: 2px; font-size: 13px; line-height: 1.5; color: var(--graphite); }
+  .sheet-head .btn-icon { margin-top: -6px; }
+  .sheet-head { border-bottom: 0; padding-bottom: 4px; }
+
+  /* Speaking or Writing first (brief §19). Underline tabs, 44px tall, so a wrong pick is one tap to undo. */
+  .mode-tabs { padding: 0 16px; background: var(--paper); }
+  .mode-tabs .tabs { gap: 28px; }
+  .mode-tabs .tab { align-items: center; gap: 8px; }
+  .mode-tabs .tab .icon { width: 16px; height: 16px; }
+  .mode-tabs .tab.is-active .icon { color: var(--plum); }
+
+  /* The raw pasted text waits in What I Said until the learner fills the fields */
+  .textarea-pasted { min-height: 0; }
+  .textarea-pasted .k { color: var(--graphite); }
+
+  .sheet-body { flex: 1; padding: 16px 16px 8px; }
+  .qa-form { display: flex; flex-direction: column; gap: 18px; }
+
+  /* The upgrade is the field that matters most: ink label, 18px text, a little more room */
+  .field-upgrade .label { color: var(--ink); font-weight: 500; }
+  .textarea-upgrade { min-height: 80px; padding: 10px 14px; font-size: 18px; line-height: 1.55; }
+
+  /* Smart paste: a quiet offer, stacked on a phone */
+  .paste-bar {
+    padding: 12px 12px 8px 14px;
+    border: 1px solid color-mix(in srgb, var(--indigo) 20%, transparent);
+    border-radius: var(--r-md);
+    background: color-mix(in srgb, var(--indigo) 5%, var(--paper));
+  }
+  .paste-row { display: flex; align-items: flex-start; gap: 10px; }
+  .paste-icon { margin-top: 2px; color: var(--indigo); }
+  .paste-msg { font-size: 13px; line-height: 1.5; color: var(--ink); }
+  .paste-fields { margin-top: 2px; font-size: 12px; line-height: 1.45; color: var(--graphite); }
+  .paste-actions { display: flex; align-items: center; gap: 4px; margin-top: 6px; margin-left: 26px; } /* lines up with the message text */
+  .paste-actions .btn { padding: 0 12px; }
+
+  /* "More details" row: 44px tall touch target */
+  .more {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: calc(100% + 16px);
+    min-height: 44px;
+    margin: 0 -8px;
+    padding: 0 8px;
+    border-radius: var(--r-sm);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--graphite);
+  }
+  .more .icon { width: 16px; height: 16px; }
+  .more-label { color: var(--ink); }
+  /* On a phone the summary shows the review default instead of a list of fields */
+  .more-sum { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; font-size: 12px; line-height: 1.45; color: var(--graphite); }
+  .more-sum .icon { width: 14px; height: 14px; }
+
+  /* Save bar: fixed to the bottom in the app, above the home indicator (safe area) */
+  .sheet-foot {
+    position: static; /* sticky at the bottom in the app. In the flow here, so the full-page screenshot shows the whole sheet */
+    z-index: 2;
+    border-top: 1px solid var(--line);
+    background: var(--paper);
+  }
+  .sheet-actions { display: flex; gap: 8px; padding: 12px 16px 4px; }
+  .sheet-actions .btn-secondary { flex: 1 1 auto; padding: 0 14px; }
+  .sheet-actions .btn-primary { flex: 1 1 40%; }
+  /* env(safe-area-inset-bottom) on a real phone. The home indicator is device chrome, drawn to show the safe area. */
+  .safe-area { display: flex; align-items: flex-end; justify-content: center; height: max(34px, env(safe-area-inset-bottom)); padding-bottom: 8px; }
+  .home-indicator { width: 134px; height: 5px; border-radius: var(--r-full); background: var(--ink); opacity: 0.85; }
+</style>
+</head>
+<body>
+<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="qa-title" aria-describedby="qa-desc">
+
+  <header class="sheet-head">
+    <div>
+      <h1 class="sheet-title" id="qa-title">New note</h1>
+      <p class="sheet-desc" id="qa-desc">What I Said → Native Upgrade</p>
+    </div>
+    <button class="btn btn-icon" type="button" aria-label="Close"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+  </header>
+
+  <div class="mode-tabs">
+    <div class="tabs" role="tablist" aria-label="Mode">
+      <button class="tab is-active" type="button" role="tab" aria-selected="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg><span class="tab-label">Speaking</span></button>
+      <button class="tab" type="button" role="tab" aria-selected="false" tabindex="-1"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span class="tab-label">Writing</span></button>
+    </div>
+  </div>
+
+  <div class="sheet-body">
+    <form class="qa-form" id="qa-form" aria-labelledby="qa-title">
+
+      <!-- Smart paste: shown after pasting labelled ChatGPT text. Undo is in the toast after filling. -->
+      <div class="paste-bar" role="status">
+        <div class="paste-row">
+          <svg class="icon icon-sm paste-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 14h10"/><path d="M16 4h2a2 2 0 0 1 2 2v1.344"/><path d="m17 18 4-4-4-4"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 1.793-1.113"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+          <div>
+            <p class="paste-msg">This looks like a correction. Fill 4 fields from it?</p>
+            <p class="paste-fields">What I Said, Native Upgrade, Why, In context</p>
+          </div>
+        </div>
+        <div class="paste-actions">
+          <button class="btn btn-secondary btn-sm" type="button">Fill fields</button>
+          <button class="btn btn-ghost btn-sm" type="button">Keep as pasted</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="label" id="qa-topic-label">Topic</span>
+        <div class="select" id="qa-topic" aria-labelledby="qa-topic-label" role="combobox" aria-expanded="false" aria-haspopup="listbox">Travel</div>
+      </div>
+
+      <div class="field">
+        <span class="label" id="qa-original-label">What I Said</span>
+        <div class="textarea textarea-pasted" id="qa-original" aria-labelledby="qa-original-label" role="textbox" aria-multiline="true"><span class="k">You said:</span> We enjoyed the scenario.
+<span class="k">Better:</span> The scenery was beautiful.
+<span class="k">Why:</span> “Scenery” means the views or landscape. “Scenario” means a situation.
+<span class="k">Example:</span> The scenery along the coast was beautiful.</div>
+      </div>
+
+      <div class="field field-upgrade">
+        <span class="label" id="qa-upgrade-label">Native Upgrade</span>
+        <div class="textarea textarea-upgrade" id="qa-upgrade" aria-labelledby="qa-upgrade-label" role="textbox" aria-multiline="true" aria-required="true"><span class="placeholder">How a native speaker would say it</span></div>
+      </div>
+
+      <div class="field">
+        <span class="label" id="qa-example-label">In context</span>
+        <div class="textarea" id="qa-example" aria-labelledby="qa-example-label" role="textbox" aria-multiline="true" aria-describedby="qa-example-hint"><span class="placeholder">One full sentence</span></div>
+        <p class="hint" id="qa-example-hint">A full sentence that uses the upgrade.</p>
+      </div>
+
+      <button class="more" type="button" aria-expanded="false" aria-controls="qa-more">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+        <span class="more-label">More details</span>
+        <span class="more-sum"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>First review today</span>
+      </button>
+    </form>
+  </div>
+
+  <footer class="sheet-foot">
+    <div class="sheet-actions">
+      <button class="btn btn-secondary" type="button">Save and add another</button>
+      <button class="btn btn-primary" type="submit" form="qa-form">Save</button>
+    </div>
+    <div class="safe-area" aria-hidden="true"><span class="home-indicator"></span></div>
+  </footer>
+
+</div>
+</body>
+</html>

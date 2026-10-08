@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Mistakes · Error Ledger (mockup)</title>
+<meta name="description" content="My Mistakes: repeated language habits grouped by error type, most frequent first, with a sticky index and one pattern's related notes expanded.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mockup.css">
+<style>
+  /* Two columns: a sticky index of error types, then the ledger (reading width) */
+  .ledger-layout { display: grid; grid-template-columns: 184px minmax(0, 1fr); gap: 56px; align-items: start; }
+
+  /* Index (same language as the sidebar nav, one size smaller) */
+  .ledger-index { position: sticky; top: 32px; padding-top: 2px; }
+  .index-label { margin-bottom: 4px; padding-left: 12px; font-family: var(--font-serif); font-size: 16px; font-style: italic; line-height: 1.65; color: var(--graphite); }
+  .index-label + ul { margin-bottom: 20px; }
+  .idx-item {
+    position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    height: 32px; padding: 0 8px 0 12px; border-radius: var(--r-sm);
+    font-size: 13px; line-height: 1.5; color: var(--graphite);
+  }
+  .idx-item:hover { background: var(--hover); color: var(--ink); }
+  .idx-item .n { font-size: 12px; line-height: 1.45; color: var(--graphite); font-variant-numeric: tabular-nums; }
+  .idx-item.is-active { color: var(--ink); }
+  .idx-item.is-active::before { content: ""; position: absolute; top: 8px; bottom: 8px; left: 0; width: 2px; border-radius: var(--r-full); background: var(--indigo); }
+
+  /* Groups */
+  .ledger-group + .ledger-group { margin-top: 56px; }
+  .group-count { font-size: 13px; line-height: 1.5; color: var(--graphite); font-variant-numeric: tabular-nums; }
+
+  /* One habit: pattern, fix, why, links. Right column: the tally. */
+  .pattern { display: grid; grid-template-columns: minmax(0, 1fr) 88px; column-gap: 24px; padding: 24px 0; border-bottom: 1px solid var(--line); }
+  .pattern-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+  .pattern-wrong { font-size: 16px; line-height: 1.65; color: var(--crimson); }
+  .frequent { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; line-height: 1.45; color: var(--ink); }
+  .frequent .spark { width: 10px; height: 10px; }
+  .pattern .label-caps { margin-top: 12px; }
+  .pattern-fix { margin-top: 2px; font-size: 21px; line-height: 1.35; color: var(--upgrade); }
+  .pattern-why { max-width: 60ch; margin-top: 8px; font-size: 13px; line-height: 1.5; color: var(--graphite); }
+  .pattern-links { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin-top: 14px; font-size: 13px; line-height: 1.5; color: var(--graphite); }
+  .related-toggle { display: inline-flex; align-items: center; gap: 6px; border-radius: var(--r-xs); color: var(--indigo); }
+  .related-toggle .icon { width: 14px; height: 14px; }
+  .related-toggle .n { color: var(--graphite); }
+
+  /* The ledger column: a hairline rule, then the count */
+  .tally { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 2px; border-left: 1px solid var(--line); text-align: center; }
+  .tally-label { font-size: 12px; line-height: 1.45; color: var(--graphite); }
+  .tally-notes { margin-top: 4px; font-size: 12px; line-height: 1.45; color: var(--graphite); }
+  .tally-num { margin: 2px 0; font-size: 28px; font-weight: 400; line-height: 1.15; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  /* Related notes, expanded: compact rows hung from a hairline */
+  .related { grid-column: 1 / -1; margin-top: 12px; padding-left: 16px; border-left: 1px solid var(--line-strong); }
+  .related .row-inner { gap: 24px; padding: 12px 0; }
+  .related .row:last-child .row-inner { border-bottom: 0; }
+  .related .row-meta { gap: 12px; }
+  .related .row-meta .mode { width: 88px; }
+  .related .row-mastery { width: 80px; }
+
+  /* Patterns seen once inside a group, folded into one line */
+  .more-once {
+    display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 12px 0;
+    border-bottom: 1px solid var(--line); font-size: 13px; line-height: 1.5; color: var(--graphite);
+  }
+  .more-once .icon { width: 14px; height: 14px; flex-shrink: 0; }
+  .more-once .what { flex-shrink: 0; color: var(--ink); }
+  .more-once { align-items: flex-start; text-align: left; }
+  .more-once .icon { margin-top: 3px; }
+  .more-once .preview { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; min-width: 0; overflow: hidden; }
+  .more-once .preview .w { color: var(--crimson); }
+  .more-once .preview .a { margin: 0 4px; }
+
+  /* Not yet repeated: a quiet list */
+  .once-list { margin-top: 4px; }
+  .once-row { display: grid; grid-template-columns: 148px minmax(0, 1fr); gap: 24px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .once-type { font-size: 13px; line-height: 1.5; color: var(--graphite); }
+  .once-pair { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+  .once-pair .w { font-size: 13px; line-height: 1.5; color: var(--crimson); }
+  .once-pair .a { font-size: 13px; color: var(--graphite); }
+  .once-pair .f { font-size: 15px; line-height: 1.6; color: var(--ink); }
+  .ledger-end { margin-top: 56px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" aria-label="Sidebar">
+    <div class="sidebar-head">
+      <a class="brand" href="#" aria-label="Upgrade Notebook, Today"><svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.2 4.1A8.4 8.4 0 1 0 19.9 15.4A6.8 6.8 0 0 1 13.2 4.1Z"/><path class="gold-fill" d="M18.6 1.4C18.86 4.3 20.3 5.74 23.2 6C20.3 6.26 18.86 7.7 18.6 10.6C18.34 7.7 16.9 6.26 14 6C16.9 5.74 18.34 4.3 18.6 1.4Z"/></svg><span class="brand-name">Upgrade Notebook</span></a>
+    </div>
+    <div class="sidebar-actions">
+      <button class="side-btn side-btn-new" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span class="side-btn-text">New note</span><kbd class="kbd">N</kbd></button>
+      <button class="side-btn" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg><span class="side-btn-text">Search</span><span class="keys" aria-hidden="true"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">K</kbd></span></button>
+    </div>
+    <nav class="sidebar-nav" aria-label="Main">
+      <div class="nav-group">
+        <ul class="nav-list">
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v16"/><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/></svg><span class="nav-text">Today</span></a></li>
+          <li><a class="nav-item" href="#" aria-label="Review, 12 due"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span class="nav-text">Review</span><span class="nav-count" aria-hidden="true">12</span></a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label" aria-hidden="true">Notebooks</p>
+        <ul class="nav-list">
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg><span class="nav-text">Speaking</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span class="nav-text">Writing</span></a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label" aria-hidden="true">Library</p>
+        <ul class="nav-list">
+          <li><a class="nav-item is-active" aria-current="page" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg><span class="nav-text">Mistakes</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.75C12.45 8.1 15.9 11.55 21.25 12C15.9 12.45 12.45 15.9 12 21.25C11.55 15.9 8.1 12.45 2.75 12C8.1 11.55 11.55 8.1 12 2.75Z"/></svg><span class="nav-text">Must Remember</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg><span class="nav-text">All Notes</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M8 13h.01"/><path d="M12 13h.01"/><path d="M16 13h.01"/><path d="M8 17h.01"/><path d="M12 17h.01"/><path d="M16 17h.01"/></svg><span class="nav-text">Calendar</span></a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="sidebar-foot">
+      <a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg><span class="nav-text">Settings</span></a>
+      <p class="streak">4 days of consistent study.</p>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="page-wide">
+
+      <header class="page-header">
+        <p class="eyebrow">Error Ledger</p>
+        <h1 class="page-title">My Mistakes</h1>
+        <p class="page-desc">Your repeated habits, grouped. Fix the most frequent first.</p>
+        <nav class="tabs" aria-label="Mode">
+          <a class="tab is-active" aria-current="page" href="#">All</a>
+          <a class="tab" href="#">Speaking</a>
+          <a class="tab" href="#">Writing</a>
+        </nav>
+      </header>
+
+      <div class="ledger-layout">
+
+        <!-- Sticky index: error types, most frequent first -->
+        <nav class="ledger-index" aria-label="Error types">
+          <p class="index-label">Repeated</p>
+          <ul>
+            <li><a class="idx-item is-active" aria-current="location" href="#prepositions"><span>Prepositions</span><span class="n">14</span></a></li>
+            <li><a class="idx-item" href="#word-choice"><span>Word Choice</span><span class="n">4</span></a></li>
+            <li><a class="idx-item" href="#collocations"><span>Collocations</span><span class="n">4</span></a></li>
+            <li><a class="idx-item" href="#articles"><span>Articles</span><span class="n">2</span></a></li>
+          </ul>
+          <p class="index-label">Not yet repeated</p>
+          <ul>
+            <li><a class="idx-item" href="#once"><span>Word Forms</span><span class="n">3</span></a></li>
+            <li><a class="idx-item" href="#once"><span>Speaking Grammar</span><span class="n">2</span></a></li>
+            <li><a class="idx-item" href="#once"><span>Awkward Phrasing</span><span class="n">2</span></a></li>
+            <li><a class="idx-item" href="#once"><span>Tenses</span><span class="n">1</span></a></li>
+          </ul>
+        </nav>
+
+        <div class="ledger">
+
+          <!-- ============ Prepositions ============ -->
+          <section class="ledger-group" id="prepositions" aria-labelledby="prepositions-title">
+            <div class="section-head">
+              <h2 class="section-title" id="prepositions-title">Prepositions</h2>
+              <span class="group-count">14 times · 10 patterns</span>
+            </div>
+
+            <article class="pattern">
+              <div>
+                <div class="pattern-head">
+                  <p class="pattern-wrong"><span class="sr-only">Habit: </span>visitors of + place</p>
+                  <span class="frequent"><span class="spark" aria-hidden="true"></span>Frequent</span>
+                </div>
+                <p class="label-caps">Use instead</p>
+                <p class="pattern-fix">visitors to + place</p>
+                <p class="pattern-why">The visitors travel to the place. They do not belong to it.</p>
+                <div class="pattern-links">
+                  <button class="related-toggle" type="button" aria-expanded="true" aria-controls="rel-visitors">Related notes<span class="n">4</span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg></button>
+                  <span>Last seen 2 days ago</span>
+                </div>
+              </div>
+              <div class="tally" aria-label="Seen 4 times in 4 notes"><span class="tally-label" aria-hidden="true">Seen</span><span class="tally-num" aria-hidden="true">4</span><span class="tally-label" aria-hidden="true">times</span><span class="tally-notes" aria-hidden="true">in 4 notes</span></div>
+
+              <div class="related" id="rel-visitors">
+                <a class="row" href="#">
+                  <div class="row-inner">
+                    <div class="row-body">
+                      <div class="pair pair-compact">
+                        <p class="mistake"><span class="sr-only">My Sentence: </span>The number of visitors of the City Zoo increased steadily.</p>
+                        <p class="upgrade"><span class="sr-only">Band 7+ Upgrade: </span>The number of visitors to the City Zoo increased steadily.</p>
+                      </div>
+                    </div>
+                    <div class="row-meta">
+                      <span class="mode mode-writing"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Increase</span>
+                      <span class="row-mastery"><span class="mastery mastery-familiar">Familiar</span></span>
+                    </div>
+                  </div>
+                </a>
+                <a class="row" href="#">
+                  <div class="row-inner">
+                    <div class="row-body">
+                      <div class="pair pair-compact">
+                        <p class="mistake"><span class="sr-only">My Sentence: </span>The number of visitors of the Science Museum peaked at 50,000 in 2015.</p>
+                        <p class="upgrade"><span class="sr-only">Band 7+ Upgrade: </span>The number of visitors to the Science Museum peaked at 50,000 in 2015.</p>
+                      </div>
+                    </div>
+                    <div class="row-meta">
+                      <span class="mode mode-writing"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Peak</span>
+                      <span class="row-mastery"><span class="mastery mastery-familiar">Familiar</span></span>
+                    </div>
+                  </div>
+                </a>
+                <a class="row" href="#">
+                  <div class="row-inner">
+                    <div class="row-body">
+                      <div class="pair pair-compact">
+                        <p class="mistake"><span class="sr-only">My Sentence: </span>The bar chart compares visitors of three museums in London.</p>
+                        <p class="upgrade"><span class="sr-only">Band 7+ Upgrade: </span>The bar chart compares the number of visitors to three museums in London.</p>
+                      </div>
+                    </div>
+                    <div class="row-meta">
+                      <span class="mode mode-writing"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Introduction</span>
+                      <span class="row-mastery"><span class="mastery mastery-new">New</span></span>
+                    </div>
+                  </div>
+                </a>
+                <a class="row" href="#">
+                  <div class="row-inner">
+                    <div class="row-body">
+                      <div class="pair pair-compact">
+                        <p class="mistake"><span class="sr-only">What I Said: </span>Many visitors of Ha Long Bay come in summer.</p>
+                        <p class="upgrade"><span class="sr-only">Native Upgrade: </span>Many visitors to Ha Long Bay come in the summer.</p>
+                      </div>
+                    </div>
+                    <div class="row-meta">
+                      <span class="mode mode-speaking"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg>Travel</span>
+                      <span class="row-mastery"><span class="mastery mastery-learning">Learning</span></span>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </article>
+
+            <article class="pattern">
+              <div>
+                <div class="pattern-head">
+                  <p class="pattern-wrong"><span class="sr-only">Habit: </span>interested about</p>
+                </div>
+                <p class="label-caps">Use instead</p>
+                <p class="pattern-fix">interested in</p>
+                <p class="pattern-why">“Interested” always takes “in”: <em>I’m really interested in history.</em></p>
+                <div class="pattern-links">
+                  <button class="related-toggle" type="button" aria-expanded="false">Related notes<span class="n">2</span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+                  <span>Last seen 5 days ago</span>
+                </div>
+              </div>
+              <div class="tally" aria-label="Seen 2 times in 2 notes"><span class="tally-label" aria-hidden="true">Seen</span><span class="tally-num" aria-hidden="true">2</span><span class="tally-label" aria-hidden="true">times</span><span class="tally-notes" aria-hidden="true">in 2 notes</span></div>
+            </article>
+
+            <button class="more-once" type="button" aria-expanded="false">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+              <span class="what">8 more patterns, seen once each</span>
+              <span class="preview" aria-hidden="true"><span class="w">rose at</span><span class="a">→</span>rose to · <span class="w">impact to</span><span class="a">→</span>impact on · <span class="w">accounted 45%</span><span class="a">→</span>accounted for 45% · <span class="w">different with</span><span class="a">→</span>different from</span>
+            </button>
+          </section>
+
+          <!-- ============ Word Choice ============ -->
+          <section class="ledger-group" id="word-choice" aria-labelledby="word-choice-title">
+            <div class="section-head">
+              <h2 class="section-title" id="word-choice-title">Word Choice</h2>
+              <span class="group-count">4 times · 3 patterns</span>
+            </div>
+            <article class="pattern">
+              <div>
+                <div class="pattern-head">
+                  <p class="pattern-wrong"><span class="sr-only">Habit: </span>scenario (for views)</p>
+                </div>
+                <p class="label-caps">Use instead</p>
+                <p class="pattern-fix">scenery</p>
+                <p class="pattern-why">“Scenery” is the landscape or the views. “Scenario” is a situation.</p>
+                <div class="pattern-links">
+                  <button class="related-toggle" type="button" aria-expanded="false">Related notes<span class="n">2</span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+                  <span>Last seen 6 days ago</span>
+                </div>
+              </div>
+              <div class="tally" aria-label="Seen 2 times in 2 notes"><span class="tally-label" aria-hidden="true">Seen</span><span class="tally-num" aria-hidden="true">2</span><span class="tally-label" aria-hidden="true">times</span><span class="tally-notes" aria-hidden="true">in 2 notes</span></div>
+            </article>
+            <button class="more-once" type="button" aria-expanded="false">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+              <span class="what">2 more patterns, seen once each</span>
+              <span class="preview" aria-hidden="true"><span class="w">about less than</span><span class="a">→</span>just under · <span class="w">very delicious</span><span class="a">→</span>absolutely delicious</span>
+            </button>
+          </section>
+
+          <!-- ============ Collocations ============ -->
+          <section class="ledger-group" id="collocations" aria-labelledby="collocations-title">
+            <div class="section-head">
+              <h2 class="section-title" id="collocations-title">Collocations</h2>
+              <span class="group-count">4 times · 2 patterns</span>
+            </div>
+            <article class="pattern">
+              <div>
+                <div class="pattern-head">
+                  <p class="pattern-wrong"><span class="sr-only">Habit: </span>keep stable</p>
+                  <span class="frequent"><span class="spark" aria-hidden="true"></span>Frequent</span>
+                </div>
+                <p class="label-caps">Use instead</p>
+                <p class="pattern-fix">remain stable / maintain a stable level</p>
+                <p class="pattern-why">“Keep stable” is not natural in a report. Put “at” or “of” before the figure.</p>
+                <div class="pattern-links">
+                  <button class="related-toggle" type="button" aria-expanded="false">Related notes<span class="n">3</span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+                  <span>Last seen yesterday</span>
+                </div>
+              </div>
+              <div class="tally" aria-label="Seen 3 times in 3 notes"><span class="tally-label" aria-hidden="true">Seen</span><span class="tally-num" aria-hidden="true">3</span><span class="tally-label" aria-hidden="true">times</span><span class="tally-notes" aria-hidden="true">in 3 notes</span></div>
+            </article>
+            <button class="more-once" type="button" aria-expanded="false">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+              <span class="what">1 more pattern, seen once</span>
+              <span class="preview" aria-hidden="true"><span class="w">totally agree with this opinion</span><span class="a">→</span>strongly agree with this view</span>
+            </button>
+          </section>
+
+          <!-- ============ Articles ============ -->
+          <section class="ledger-group" id="articles" aria-labelledby="articles-title">
+            <div class="section-head">
+              <h2 class="section-title" id="articles-title">Articles</h2>
+              <span class="group-count">2 times · 1 pattern</span>
+            </div>
+            <article class="pattern">
+              <div>
+                <div class="pattern-head">
+                  <p class="pattern-wrong"><span class="sr-only">Habit: </span>price of + noun</p>
+                </div>
+                <p class="label-caps">Use instead</p>
+                <p class="pattern-fix">the price of + noun</p>
+                <p class="pattern-why">Use “the” before “price of”, “number of” and “amount of”.</p>
+                <div class="pattern-links">
+                  <button class="related-toggle" type="button" aria-expanded="false">Related notes<span class="n">2</span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+                  <span>Last seen 11 days ago</span>
+                </div>
+              </div>
+              <div class="tally" aria-label="Seen 2 times in 2 notes"><span class="tally-label" aria-hidden="true">Seen</span><span class="tally-num" aria-hidden="true">2</span><span class="tally-label" aria-hidden="true">times</span><span class="tally-notes" aria-hidden="true">in 2 notes</span></div>
+            </article>
+          </section>
+
+          <!-- ============ Not yet repeated ============ -->
+          <section class="ledger-group" id="once" aria-labelledby="once-title">
+            <div class="section-head">
+              <h2 class="section-title" id="once-title">Not yet repeated</h2>
+              <span class="group-count">Seen once. Review them before they become habits.</span>
+            </div>
+            <ul class="once-list">
+              <li class="once-row"><span class="once-type">Word Forms</span><span class="once-pair"><span class="w"><span class="sr-only">Habit: </span>stress (as an adjective)</span><span class="a" aria-hidden="true">→</span><span class="f"><span class="sr-only">Use instead: </span>stressful</span></span></li>
+              <li class="once-row"><span class="once-type"><span class="sr-only">Word Forms</span></span><span class="once-pair"><span class="w"><span class="sr-only">Habit: </span>everyday (as an adverb)</span><span class="a" aria-hidden="true">→</span><span class="f"><span class="sr-only">Use instead: </span>every day</span></span></li>
+              <li class="once-row"><span class="once-type"><span class="sr-only">Word Forms</span></span><span class="once-pair"><span class="w"><span class="sr-only">Habit: </span>like + travel</span><span class="a" aria-hidden="true">→</span><span class="f"><span class="sr-only">Use instead: </span>love + travelling</span></span></li>
+              <li class="once-row"><span class="once-type">Speaking Grammar</span><span class="once-pair"><span class="w"><span class="sr-only">Habit: </span>for + verb (purpose)</span><span class="a" aria-hidden="true">→</span><span class="f"><span class="sr-only">Use instead: </span>to + verb</span></span></li>
+              <li class="once-row"><span class="once-type"><span class="sr-only">Speaking Grammar</span></span><span class="once-pair"><span class="w"><span class="sr-only">Habit: </span>many + singular noun</span><span class="a" aria-hidden="true">→</span><span class="f"><span class="sr-only">Use instead: </span>many + plural noun</span></span></li>
+              <li class="once-row"><span class="once-type">Awkward Phrasing</span><span class="once-pair"><span class="w"><span class="sr-only">Habit: </span>customize (for preferences)</span><span class="a" aria-hidden="true">→</span><span class="f"><span class="sr-only">Use instead: </span>be flexible about</span></span></li>
+              <li class="once-row"><span class="once-type"><span class="sr-only">Awkward Phrasing</span></span><span class="once-pair"><span class="w"><span class="sr-only">Habit: </span>my family has + number + people</span><span class="a" aria-hidden="true">→</span><span class="f"><span class="sr-only">Use instead: </span>there are + number + of us</span></span></li>
+              <li class="once-row"><span class="once-type">Tenses</span><span class="once-pair"><span class="w"><span class="sr-only">Habit: </span>am working + since</span><span class="a" aria-hidden="true">→</span><span class="f"><span class="sr-only">Use instead: </span>have been working + since</span></span></li>
+            </ul>
+          </section>
+
+          <div class="ornament ledger-end" aria-hidden="true"><span></span></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>

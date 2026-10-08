@@ -1,6 +1,6 @@
 # Prompt for an AI design reviewer
 
-Copy everything below the line into the other AI. Attach the PNG files from `docs/mockups/png/` (start with the light versions of screens 01, 02, 04, 05, 08, 11). If the tool accepts files, also attach the matching HTML from `docs/mockups/standalone/`.
+Copy everything below the line into the other AI. Attach the PNG files from `docs/mockups/png/` (start with the light versions of screens 01, 02, 04, 05, 08, 11). If the tool accepts files, also attach the matching HTML from `docs/mockups/standalone/` (each file has the stylesheet inlined). `docs/mockups/index.html` lists every screen with its PNGs.
 
 ---
 
@@ -41,7 +41,7 @@ Do not suggest: AI chat, AI scoring, XP, coins, levels, streak pressure, confett
 2. **Review** (04, 05, 06, 07, m02): one card at a time, no navigation. State 1 shows my sentence; I try to recall the better version, then press Reveal. State 2 shows the answer and four ratings: Again, Hard, Good, Easy.
 3. **Note Detail** (08): one correction in an editorial layout, with a metadata column.
 4. **Today** (11, 12, m03): answers only "what should I study today?". 12 is the first-run screen.
-5. **All Notes** (14): a list/table hybrid with a compact filter popover.
+5. **All Notes** (14, 14b): a list/table hybrid. 14b shows the compact filter popover open.
 6. **My Mistakes** (15): my repeated error habits, grouped by error type, with counts.
 7. **Model Paragraph** (09, 10): a saved model paragraph. I highlight a phrase and save it as a new note. 10 is the distraction-free editor.
 8. **Search** (13): global search that tolerates partial words.
@@ -59,6 +59,7 @@ Answer these, with specific changes (sizes in px, positions, wording, colors fro
 5. **Theme.** Is the arcane-academy feeling present but subtle? Name 3 small details that would add character without decoration (typography, ornament, layout, motion). Name anything that feels like a fantasy game or a SaaS dashboard.
 6. **Mobile.** Is the bottom bar with the centered Add right? Are touch targets at least 44px?
 7. **Accessibility.** Any contrast, focus or "color-only" problems you can see?
+8. **Dark mode primary button.** In dark mode, the primary button ("Begin Review", "Save", "Reveal") is a light lavender fill (`#918AB2`) with dark text. It is the brightest block on every dark screen. Keep it, or switch to a muted fill (for example indigo mixed 30% into `#1C1A21`, light text, 1px indigo border)? It must still be the strongest action on the screen.
 
 ## Output format
 

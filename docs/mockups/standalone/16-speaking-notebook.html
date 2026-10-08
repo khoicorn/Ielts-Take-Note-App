@@ -1,3 +1,13 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Speaking · Notebook (mockup)</title>
+<meta name="description" content="The Speaking notebook: a topic index on the left and notes grouped by topic in reading view, each showing what I said, the native upgrade and a context sentence.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* mockup.css, inlined so this file is self-contained */
 /*
  * IELTS Upgrade Notebook: shared stylesheet for the static concept mockups.
  *
@@ -1605,3 +1615,468 @@ mark,
 
 /* Motion: the real app uses 150-220ms fades and underline moves (brief §37). These static
    mockups have no transitions, so a theme switch before a screenshot is never caught mid-fade. */
+
+</style>
+<style>
+  /* Topic index + notes (reading width) */
+  .nb-layout { display: grid; grid-template-columns: 184px minmax(0, 1fr); gap: 56px; align-items: start; margin-top: 40px; }
+
+  .header-actions .btn .n { margin-left: 2px; color: var(--graphite); font-variant-numeric: tabular-nums; }
+
+  /* Topic index: same language as the sidebar nav, one size smaller */
+  .topic-index { position: sticky; top: 32px; }
+  .index-label { margin-bottom: 4px; padding-left: 12px; font-family: var(--font-serif); font-size: 16px; font-style: italic; line-height: 1.65; color: var(--graphite); }
+  .idx-item {
+    position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    height: 32px; padding: 0 8px 0 12px; border-radius: var(--r-sm);
+    font-size: 13px; line-height: 1.5; color: var(--ink);
+  }
+  .idx-item:hover { background: var(--hover); }
+  .idx-item .n { font-size: 12px; line-height: 1.45; color: var(--graphite); font-variant-numeric: tabular-nums; }
+  .idx-item.is-active::before { content: ""; position: absolute; top: 8px; bottom: 8px; left: 0; width: 2px; border-radius: var(--r-full); background: var(--indigo); }
+  .idx-all { margin-bottom: 4px; }
+  .idx-unused { margin-top: 20px; }
+  .idx-quiet { height: 28px; color: var(--graphite); }
+  .idx-quiet:hover { color: var(--ink); }
+  .idx-empty { width: 100%; margin-top: 12px; padding-left: 8px; }
+  .idx-empty-label { display: inline-flex; align-items: center; gap: 4px; }
+  .idx-empty .icon { width: 14px; height: 14px; }
+  .add-topic { display: inline-flex; align-items: center; gap: 8px; height: 32px; margin-top: 4px; padding: 0 12px; border-radius: var(--r-sm); font-size: 13px; line-height: 1.5; color: var(--indigo); }
+  .add-topic .icon { width: 14px; height: 14px; }
+
+  /* Notes */
+  .nb-main .list-head { padding-bottom: 12px; }
+  .list-head .due { color: var(--ink); }
+  .topic-group { margin-top: 40px; }
+  .topic-group .section-head { margin-bottom: 0; }
+  .topic-group .section-action { font-variant-numeric: tabular-nums; }
+  .row-reading .row-meta { min-width: 128px; }
+  .row-due { font-size: 12px; line-height: 1.45; color: var(--indigo); }
+  .nb-end { margin-top: 56px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" aria-label="Sidebar">
+    <div class="sidebar-head">
+      <a class="brand" href="#" aria-label="Upgrade Notebook, Today"><svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.2 4.1A8.4 8.4 0 1 0 19.9 15.4A6.8 6.8 0 0 1 13.2 4.1Z"/><path class="gold-fill" d="M18.6 1.4C18.86 4.3 20.3 5.74 23.2 6C20.3 6.26 18.86 7.7 18.6 10.6C18.34 7.7 16.9 6.26 14 6C16.9 5.74 18.34 4.3 18.6 1.4Z"/></svg><span class="brand-name">Upgrade Notebook</span></a>
+    </div>
+    <div class="sidebar-actions">
+      <button class="side-btn side-btn-new" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span class="side-btn-text">New note</span><kbd class="kbd">N</kbd></button>
+      <button class="side-btn" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg><span class="side-btn-text">Search</span><span class="keys" aria-hidden="true"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">K</kbd></span></button>
+    </div>
+    <nav class="sidebar-nav" aria-label="Main">
+      <div class="nav-group">
+        <ul class="nav-list">
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v16"/><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/></svg><span class="nav-text">Today</span></a></li>
+          <li><a class="nav-item" href="#" aria-label="Review, 12 due"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span class="nav-text">Review</span><span class="nav-count" aria-hidden="true">12</span></a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label" aria-hidden="true">Notebooks</p>
+        <ul class="nav-list">
+          <li><a class="nav-item is-active" aria-current="page" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg><span class="nav-text">Speaking</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span class="nav-text">Writing</span></a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label" aria-hidden="true">Library</p>
+        <ul class="nav-list">
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg><span class="nav-text">Mistakes</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.75C12.45 8.1 15.9 11.55 21.25 12C15.9 12.45 12.45 15.9 12 21.25C11.55 15.9 8.1 12.45 2.75 12C8.1 11.55 11.55 8.1 12 2.75Z"/></svg><span class="nav-text">Must Remember</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg><span class="nav-text">All Notes</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M8 13h.01"/><path d="M12 13h.01"/><path d="M16 13h.01"/><path d="M8 17h.01"/><path d="M12 17h.01"/><path d="M16 17h.01"/></svg><span class="nav-text">Calendar</span></a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="sidebar-foot">
+      <a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg><span class="nav-text">Settings</span></a>
+      <p class="streak">4 days of consistent study.</p>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="page-wide">
+
+      <header class="page-header">
+        <div class="page-header-row">
+          <div>
+            <p class="eyebrow">What I Said → Native Upgrade</p>
+            <h1 class="page-title">Speaking</h1>
+            <p class="page-desc">17 notes in 9 topics. 8 are due for review today.</p>
+          </div>
+          <div class="page-actions header-actions">
+            <button class="btn btn-secondary btn-sm" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Review Speaking<span class="n">8</span></button>
+          </div>
+        </div>
+        <nav class="tabs tabs-lg" aria-label="Notebook">
+          <a class="tab is-active" aria-current="page" href="#">Speaking</a>
+          <a class="tab" href="#">Writing</a>
+        </nav>
+      </header>
+
+      <div class="nb-layout">
+
+        <!-- Topic index (sticky). Used topics first, by count. Unused topics stay quiet below. -->
+        <nav class="topic-index" aria-label="Speaking topics">
+          <a class="idx-item idx-all is-active" aria-current="location" href="#"><span>All topics</span><span class="n">17</span></a>
+          <ul>
+            <li><a class="idx-item" href="#travel"><span>Travel</span><span class="n">5</span></a></li>
+            <li><a class="idx-item" href="#work"><span>Work</span><span class="n">3</span></a></li>
+            <li><a class="idx-item" href="#food"><span>Food</span><span class="n">2</span></a></li>
+            <li><a class="idx-item" href="#hometown"><span>Hometown</span><span class="n">2</span></a></li>
+            <li><a class="idx-item" href="#daily-routine"><span>Daily Routine</span><span class="n">1</span></a></li>
+            <li><a class="idx-item" href="#drinks"><span>Drinks</span><span class="n">1</span></a></li>
+            <li><a class="idx-item" href="#family"><span>Family</span><span class="n">1</span></a></li>
+            <li><a class="idx-item" href="#shopping"><span>Shopping</span><span class="n">1</span></a></li>
+            <li><a class="idx-item" href="#study"><span>Study</span><span class="n">1</span></a></li>
+          </ul>
+          <button class="idx-item idx-quiet idx-empty" type="button" aria-expanded="false"><span class="idx-empty-label"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>16 empty topics</span></button>
+          <a class="add-topic" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add a topic</a>
+        </nav>
+
+        <div class="nb-main">
+          <div class="list-head">
+            <span>17 notes · <span class="due">8 due today</span></span>
+            <div class="seg" role="radiogroup" aria-label="View">
+              <button class="seg-item" type="button" role="radio" aria-checked="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h.01"/><path d="M3 12h.01"/><path d="M3 19h.01"/><path d="M8 5h13"/><path d="M8 12h13"/><path d="M8 19h13"/></svg>Compact</button>
+              <button class="seg-item is-active" type="button" role="radio" aria-checked="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h18"/></svg>Reading</button>
+            </div>
+          </div>
+
+          <!-- ============ Travel ============ -->
+          <section class="topic-group" id="travel" aria-labelledby="travel-title">
+            <div class="section-head"><h2 class="section-title" id="travel-title">Travel</h2><span class="section-action">5 notes · 3 due</span></div>
+
+            <a class="row row-reading" href="#">
+              <div class="row-inner">
+                <div class="row-body">
+                  <div class="pair">
+                    <p class="mistake"><span class="pair-label">What I Said</span><span class="quote">We enjoyed the scenario.</span></p>
+                    <p class="upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">The scenery was beautiful.</span></p>
+                    <p class="example"><span class="sr-only">In context: </span>The <strong>scenery</strong> along the coast was beautiful.</p>
+                  </div>
+                </div>
+                <div class="row-meta">
+                  <span><span class="row-topic">Nha Trang trip</span></span>
+                  <span class="must"><span class="star" aria-hidden="true"></span>Must Remember</span>
+                  <span class="mastery mastery-learning">Learning</span>
+                  <span class="row-due">Due today</span>
+                </div>
+              </div>
+            </a>
+
+            <a class="row row-reading" href="#">
+              <div class="row-inner">
+                <div class="row-body">
+                  <div class="pair">
+                    <p class="mistake"><span class="pair-label">What I Said</span><span class="quote">I like travel to new places.</span></p>
+                    <p class="upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">I love travelling to new places.</span></p>
+                    <p class="example"><span class="sr-only">In context: </span>I <strong>love travelling</strong> to new places, especially small towns in the mountains.</p>
+                  </div>
+                </div>
+                <div class="row-meta">
+                  <span><span class="row-topic">Why I travel</span></span>
+                  <span class="mastery mastery-learning">Learning</span>
+                  <span class="row-due">Due today</span>
+                </div>
+              </div>
+            </a>
+
+            <a class="row row-reading" href="#">
+              <div class="row-inner">
+                <div class="row-body">
+                  <div class="pair">
+                    <p class="upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">off the beaten track</span></p>
+                    <p class="example"><span class="sr-only">In context: </span>I prefer places that are a bit <strong>off the beaten track</strong>, like the villages near Sa Pa.</p>
+                  </div>
+                </div>
+                <div class="row-meta">
+                  <span><span class="row-topic">Favourite places</span></span>
+                  <span class="mastery mastery-new">New</span>
+                  <span class="row-due">Due today</span>
+                </div>
+              </div>
+            </a>
+
+            <a class="row row-reading" href="#">
+              <div class="row-inner">
+                <div class="row-body">
+                  <div class="pair">
+                    <p class="mistake"><span class="pair-label">What I Said</span><span class="quote">I went to Da Lat for relax.</span></p>
+                    <p class="upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">I went to Da Lat to unwind for a few days.</span></p>
+                    <p class="example"><span class="sr-only">In context: </span>After my exams, I went to Da Lat <strong>to unwind</strong> for a few days.</p>
+                  </div>
+                </div>
+                <div class="row-meta">
+                  <span><span class="row-topic">Da Lat</span></span>
+                  <span class="mastery mastery-familiar">Familiar</span>
+                </div>
+              </div>
+            </a>
+
+            <a class="row row-reading" href="#">
+              <div class="row-inner">
+                <div class="row-body">
+                  <div class="pair">
+                    <p class="mistake"><span class="pair-label">What I Said</span><span class="quote">Many visitors of Ha Long Bay come in summer.</span></p>
+                    <p class="upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">Many visitors to Ha Long Bay come in the summer.</span></p>
+                    <p class="example"><span class="sr-only">In context: </span>Many <strong>visitors to</strong> Ha Long Bay take an overnight boat trip.</p>
+                  </div>
+                </div>
+                <div class="row-meta">
+                  <span><span class="row-topic">Ha Long Bay</span></span>
+                  <span class="mastery mastery-learning">Learning</span>
+                </div>
+              </div>
+            </a>
+          </section>
+
+          <!-- ============ Work ============ -->
+          <section class="topic-group" id="work" aria-labelledby="work-title">
+            <div class="section-head"><h2 class="section-title" id="work-title">Work</h2><span class="section-action">3 notes · 2 due</span></div>
+
+            <a class="row row-reading" href="#">
+              <div class="row-inner">
+                <div class="row-body">
+                  <div class="pair">
+                    <p class="mistake"><span class="pair-label">What I Said</span><span class="quote">My job is quite stress.</span></p>
+                    <p class="upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">My job can be quite stressful.</span></p>
+                    <p class="example"><span class="sr-only">In context: </span>My job <strong>can be quite stressful</strong> at the end of the financial year.</p>
+                  </div>
+                </div>
+                <div class="row-meta">
+                  <span><span class="row-topic">My job</span></span>
+                  <span class="mastery mastery-learning">Learning</span>
+                  <span class="row-due">Due today</span>
+                </div>
+              </div>
+            </a>
+
+            <a class="row row-reading" href="#">
+              <div class="row-inner">
+                <div class="row-body">
+                  <div class="pair">
+                    <p class="upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">I’m snowed under with work</span></p>
+                    <p class="example"><span class="sr-only">In context: </span>Every March <strong>I’m snowed under with</strong> tax reports, so I rarely leave the office before eight.</p>
+                  </div>
+                </div>
+                <div class="row-meta">
+                  <span><span class="row-topic">Busy seasons</span></span>
+                  <span class="mastery mastery-new">New</span>
+                  <span class="row-due">Due today</span>
+                </div>
+              </div>
+            </a>
+
+            <a class="row row-reading" href="#">
+              <div class="row-inner">
+                <div class="row-body">
+                  <div class="pair">
+                    <p class="mistake"><span class="pair-label">What I Said</span><span class="quote">I am working as an accountant since 2021.</span></p>
+                    <p class="upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">I’ve been working as an accountant since 2021.</span></p>
+                    <p class="example"><span class="sr-only">In context: </span><strong>I’ve been working</strong> as an accountant since 2021, mostly with small businesses.</p>
+                  </div>
+                </div>
+                <div class="row-meta">
+                  <span><span class="row-topic">My job</span></span>
+                  <span class="mastery mastery-familiar">Familiar</span>
+                </div>
+              </div>
+            </a>
+          </section>
+
+          <!-- ============ Food ============ -->
+          <section class="topic-group" id="food" aria-labelledby="food-title">
+            <div class="section-head"><h2 class="section-title" id="food-title">Food</h2><span class="section-action">2 notes · 1 due</span></div>
+
+            <a class="row row-reading" href="#">
+              <div class="row-inner">
+                <div class="row-body">
+                  <div class="pair">
+                    <p class="mistake"><span class="pair-label">What I Said</span><span class="quote">The food is very delicious.</span></p>
+                    <p class="upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">The food was absolutely delicious.</span></p>
+                    <p class="example"><span class="sr-only">In context: </span>We had grilled squid by the beach, and it was <strong>absolutely delicious</strong>.</p>
+                  </div>
+                </div>
+                <div class="row-meta">
+                  <span><span class="row-topic">Street food</span></span>
+                  <span class="mastery mastery-learning">Learning</span>
+                  <span class="row-due">Due today</span>
+                </div>
+              </div>
+            </a>
+
+
+            <a class="row row-reading" href="#">
+              <div class="row-inner">
+                <div class="row-body">
+                  <div class="pair">
+                    <p class="mistake"><span class="pair-label">What I Said</span><span class="quote">I eat rice everyday.</span></p>
+                    <p class="upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">I have rice almost every day.</span></p>
+                    <p class="example"><span class="sr-only">In context: </span>Like most people in Vietnam, I <strong>have rice almost every day</strong>, usually with fish sauce.</p>
+                  </div>
+                </div>
+                <div class="row-meta">
+                  <span><span class="row-topic">Eating habits</span></span>
+                  <span class="mastery mastery-mastered">Mastered</span>
+                </div>
+              </div>
+            </a>
+          </section>
+
+
+          <!-- ============ Hometown ============ -->
+          <section class="topic-group" id="hometown" aria-labelledby="hometown-title">
+            <div class="section-head"><h2 class="section-title" id="hometown-title">Hometown</h2><span class="section-action">2 notes · 1 due</span></div>
+
+            <a class="row row-reading" href="#">
+              <div class="row-inner">
+                <div class="row-body">
+                  <div class="pair">
+                    <p class="mistake"><span class="pair-label">What I Said</span><span class="quote">It is a crowded and noisy city but I love it.</span></p>
+                    <p class="upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">It’s a bit hectic, but it has a real buzz to it.</span></p>
+                    <p class="example"><span class="sr-only">In context: </span>Ho Chi Minh City is a bit hectic, but <strong>it has a real buzz to it</strong> at night.</p>
+                  </div>
+                </div>
+                <div class="row-meta">
+                  <span><span class="row-topic">Ho Chi Minh City</span></span>
+                  <span class="mastery mastery-learning">Learning</span>
+                  <span class="row-due">Due today</span>
+                </div>
+              </div>
+            </a>
+
+            <a class="row row-reading" href="#">
+              <div class="row-inner">
+                <div class="row-body">
+                  <div class="pair">
+                    <p class="mistake"><span class="pair-label">What I Said</span><span class="quote">My hometown has many traffic jam.</span></p>
+                    <p class="upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">There are a lot of traffic jams in my hometown, especially at rush hour.</span></p>
+                    <p class="example"><span class="sr-only">In context: </span><strong>There are a lot of traffic jams</strong> near my office, so I leave home before seven.</p>
+                  </div>
+                </div>
+                <div class="row-meta">
+                  <span><span class="row-topic">Ho Chi Minh City</span></span>
+                  <span class="mastery mastery-familiar">Familiar</span>
+                </div>
+              </div>
+            </a>
+          </section>
+
+          <!-- ============ Daily Routine ============ -->
+          <section class="topic-group" id="daily-routine" aria-labelledby="daily-routine-title">
+            <div class="section-head"><h2 class="section-title" id="daily-routine-title">Daily Routine</h2><span class="section-action">1 note · 1 due</span></div>
+
+            <a class="row row-reading" href="#">
+              <div class="row-inner">
+                <div class="row-body">
+                  <div class="pair">
+                    <p class="mistake"><span class="pair-label">What I Said</span><span class="quote">I usually go to bed lately.</span></p>
+                    <p class="upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">I usually go to bed late.</span></p>
+                    <p class="example"><span class="sr-only">In context: </span>I usually <strong>go to bed late</strong> on weekdays because I study after work.</p>
+                  </div>
+                </div>
+                <div class="row-meta">
+                  <span><span class="row-topic">Sleep</span></span>
+                  <span class="mastery mastery-new">New</span>
+                  <span class="row-due">Due today</span>
+                </div>
+              </div>
+            </a>
+          </section>
+
+          <!-- ============ Drinks ============ -->
+          <section class="topic-group" id="drinks" aria-labelledby="drinks-title">
+            <div class="section-head"><h2 class="section-title" id="drinks-title">Drinks</h2><span class="section-action">1 note</span></div>
+
+            <a class="row row-reading" href="#">
+              <div class="row-inner">
+                <div class="row-body">
+                  <div class="pair">
+                    <p class="mistake"><span class="pair-label">What I Said</span><span class="quote">I don’t customize other factors.</span></p>
+                    <p class="upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">I’m pretty flexible about the rest.</span></p>
+                    <p class="example"><span class="sr-only">In context: </span>I normally ask them to cut the sugar down to 30%, but <strong>I’m pretty flexible about the rest</strong>.</p>
+                  </div>
+                </div>
+                <div class="row-meta">
+                  <span><span class="row-topic">Ordering bubble tea</span></span>
+                  <span class="must"><span class="star" aria-hidden="true"></span>Must Remember</span>
+                  <span class="mastery mastery-familiar">Familiar</span>
+                </div>
+              </div>
+            </a>
+          </section>
+
+          <!-- ============ Family ============ -->
+          <section class="topic-group" id="family" aria-labelledby="family-title">
+            <div class="section-head"><h2 class="section-title" id="family-title">Family</h2><span class="section-action">1 note</span></div>
+
+            <a class="row row-reading" href="#">
+              <div class="row-inner">
+                <div class="row-body">
+                  <div class="pair">
+                    <p class="mistake"><span class="pair-label">What I Said</span><span class="quote">My family has 4 people.</span></p>
+                    <p class="upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">There are four of us in my family.</span></p>
+                    <p class="example"><span class="sr-only">In context: </span><strong>There are four of us</strong> in my family: my parents, my younger brother and me.</p>
+                  </div>
+                </div>
+                <div class="row-meta">
+                  <span><span class="row-topic">My family</span></span>
+                  <span class="mastery mastery-mastered">Mastered</span>
+                </div>
+              </div>
+            </a>
+          </section>
+
+          <!-- ============ Shopping ============ -->
+          <section class="topic-group" id="shopping" aria-labelledby="shopping-title">
+            <div class="section-head"><h2 class="section-title" id="shopping-title">Shopping</h2><span class="section-action">1 note</span></div>
+
+            <a class="row row-reading" href="#">
+              <div class="row-inner">
+                <div class="row-body">
+                  <div class="pair">
+                    <p class="mistake"><span class="pair-label">What I Said</span><span class="quote">I usually buy clothes in online.</span></p>
+                    <p class="upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">I usually buy clothes online.</span></p>
+                    <p class="example"><span class="sr-only">In context: </span>I usually <strong>buy clothes online</strong> because it saves time.</p>
+                  </div>
+                </div>
+                <div class="row-meta">
+                  <span><span class="row-topic">Clothes</span></span>
+                  <span class="mastery mastery-learning">Learning</span>
+                </div>
+              </div>
+            </a>
+          </section>
+
+          <!-- ============ Study ============ -->
+          <section class="topic-group" id="study" aria-labelledby="study-title">
+            <div class="section-head"><h2 class="section-title" id="study-title">Study</h2><span class="section-action">1 note</span></div>
+
+            <a class="row row-reading" href="#">
+              <div class="row-inner">
+                <div class="row-body">
+                  <div class="pair">
+                    <p class="mistake"><span class="pair-label">What I Said</span><span class="quote">I’m very interested about history.</span></p>
+                    <p class="upgrade"><span class="sr-only">Native Upgrade: </span><span class="quote">I’m really interested in history.</span></p>
+                    <p class="example"><span class="sr-only">In context: </span>I’ve always been <strong>really interested in</strong> history, especially the Nguyen dynasty.</p>
+                  </div>
+                </div>
+                <div class="row-meta">
+                  <span><span class="row-topic">Subjects I like</span></span>
+                  <span class="mastery mastery-learning">Learning</span>
+                </div>
+              </div>
+            </a>
+          </section>
+
+          <div class="ornament nb-end" aria-hidden="true"><span></span></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>

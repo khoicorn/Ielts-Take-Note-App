@@ -1,3 +1,13 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search (mockup)</title>
+<meta name="description" content="The global search palette (Ctrl K) open over the dimmed Today screen: the query &quot;stable&quot; finds three notes, one only by its topic Stability, and one model paragraph, with matches highlighted and the first result ready to open.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* mockup.css, inlined so this file is self-contained */
 /*
  * IELTS Upgrade Notebook: shared stylesheet for the static concept mockups.
  *
@@ -1605,3 +1615,393 @@ mark,
 
 /* Motion: the real app uses 150-220ms fades and underline moves (brief §37). These static
    mockups have no transitions, so a theme switch before a screenshot is never caught mid-fade. */
+
+</style>
+<style>
+  /* ---------- The Today screen behind the palette (same as 11-today.html) ---------- */
+  .today .page-header { margin-bottom: 32px; }
+  .today .page-desc { font-size: 16px; line-height: 1.65; }
+
+  /* Primary action: the strongest element on the page */
+  .begin-btn { min-width: 200px; justify-content: space-between; }
+  .begin-btn .icon { width: 18px; height: 18px; }
+
+  /* Due today: two quiet columns between hairlines. Each column opens a review of that mode. */
+  .due-split {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 40px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .due-col {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 18px 48px 18px 0;
+  }
+  .due-col + .due-col { padding-left: 24px; border-left: 1px solid var(--line); }
+  .due-count { font-size: 21px; line-height: 1.35; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .due-count .unit { margin-left: 2px; font-size: 15px; color: var(--graphite); }
+  .due-go { position: absolute; top: 50%; right: 16px; width: 16px; height: 16px; transform: translateY(-50%); color: var(--graphite); }
+
+  /* Small heading above a block ("Continue studying", "Most repeated issue this week") */
+  .block { margin-top: 64px; }
+  .block-label { font-size: 13px; line-height: 1.5; color: var(--graphite); }
+
+  /* Continue studying: the last notebook page, like a ribbon bookmark */
+  .continue {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 0 -12px;
+    padding: 16px 12px;
+    border-radius: var(--r-sm);
+  }
+  .continue-body { flex: 1; min-width: 0; }
+  .continue-kicker { font-size: 13px; line-height: 1.5; color: var(--graphite); }
+  .serif-value { font-family: var(--font-serif); font-size: 28px; font-weight: 400; line-height: 1.2; color: var(--ink); }
+  .continue-meta { margin-top: 2px; font-size: 12px; line-height: 1.45; color: var(--graphite); }
+
+  /* Recent notes: the real NoteRow, plus a small mode mark beside the topic (Today mixes both modes) */
+  .recent { margin-top: 64px; }
+  /* One quiet key line, so a first-time reader knows what the two lines are (brief §44) */
+  .recent-key { padding-top: 12px; font-size: 12px; font-weight: 500; line-height: 1.45; letter-spacing: 0.08em; text-transform: uppercase; color: var(--graphite); }
+  /* The upgrade is the hero: it may wrap to 2 lines. The mistake stays on 1 line. */
+  .recent .pair-compact .upgrade { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; white-space: normal; }
+  .row-topic { display: inline-flex; align-items: baseline; gap: 6px; max-width: 168px; }
+  .row-topic .icon { align-self: center; }
+  .row-topic .icon { width: 14px; height: 14px; }
+  .row-topic .speaking { color: var(--plum); }
+  .row-topic .writing { color: var(--sage); }
+
+  /* Most repeated issue */
+  .pattern { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; padding-top: 16px; }
+
+  /* Backup reminder: quiet, last */
+  .end-mark { margin-top: 72px; }
+  .backup {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--graphite);
+  }
+  .backup .icon { width: 16px; height: 16px; }
+  .backup .link { text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--indigo) 35%, transparent); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+
+  /* ---------- Search palette (brief §30): top-aligned dialog over the dimmed screen ---------- */
+  /* The screen behind is a fixed 1440 x 900 frame so the scrim covers all of it. */
+  body { height: 100vh; overflow: hidden; }
+  .backdrop { position: relative; height: 100vh; overflow: hidden; }
+
+  .palette { max-width: 640px; }
+
+  .pal-search {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 64px;
+    padding: 0 12px 0 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .pal-search-icon { width: 20px; height: 20px; color: var(--graphite); }
+  .pal-input {
+    flex: 1;
+    min-width: 0;
+    font-size: 18px;
+    line-height: 1.55;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .pal-input .caret { height: 1.2em; }
+
+  .pal-body { padding: 8px 8px 12px; }
+  .pal-group + .pal-group { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+  .pal-group-head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 8px 12px 6px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.45;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--graphite);
+  }
+  .pal-group-count { font-weight: 400; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+
+  /* One result. Active = the row Enter opens (hover surface + Enter mark). */
+  .pal-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 12px 11px;
+    border-radius: var(--r-sm);
+    cursor: pointer;
+  }
+  .pal-item.is-active { background: var(--hover); }
+  .pal-text { flex: 1; min-width: 0; }
+  .pal-mistake { margin-bottom: 2px; font-size: 13px; line-height: 1.5; color: var(--crimson); }
+  .pal-main { font-size: 16px; line-height: 1.55; color: var(--ink); }
+  .pal-meta { margin-top: 4px; font-size: 12px; line-height: 1.45; }
+  .pal-meta .mode,
+  .pal-meta .mastery { font-size: 12px; line-height: 1.45; }
+  .pal-meta mark { padding: 0 2px; }
+  .pal-enter { display: flex; align-self: center; color: var(--graphite); }
+  .pal-enter .icon { width: 16px; height: 16px; }
+
+  .pal-doc { width: 16px; height: 16px; margin-top: 4px; color: var(--graphite); }
+  .pal-title { font-family: var(--font-serif); font-size: 18px; line-height: 1.35; color: var(--ink); }
+  .pal-snippet { margin-top: 2px; font-size: 13px; line-height: 1.5; color: var(--graphite); }
+
+  mark { padding: 0 1px; }
+
+  .pal-foot {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 12px 20px;
+    border-top: 1px solid var(--line);
+  }
+  .pal-total { margin-left: auto; font-size: 12px; line-height: 1.45; color: var(--graphite); }
+
+  /* Matches keep ink text on the gold mark, so crimson and graphite lines still pass AA where they are highlighted */
+  .palette mark { color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="backdrop" aria-hidden="true" inert>
+<div class="app">
+  <aside class="sidebar" aria-label="Sidebar">
+    <div class="sidebar-head">
+      <a class="brand" href="#" aria-label="Upgrade Notebook, Today"><svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.2 4.1A8.4 8.4 0 1 0 19.9 15.4A6.8 6.8 0 0 1 13.2 4.1Z"/><path class="gold-fill" d="M18.6 1.4C18.86 4.3 20.3 5.74 23.2 6C20.3 6.26 18.86 7.7 18.6 10.6C18.34 7.7 16.9 6.26 14 6C16.9 5.74 18.34 4.3 18.6 1.4Z"/></svg><span class="brand-name">Upgrade Notebook</span></a>
+    </div>
+
+    <div class="sidebar-actions">
+      <button class="side-btn side-btn-new" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span class="side-btn-text">New note</span><kbd class="kbd">N</kbd></button>
+      <button class="side-btn" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg><span class="side-btn-text">Search</span><span class="keys" aria-hidden="true"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">K</kbd></span></button>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Main">
+      <div class="nav-group">
+        <ul class="nav-list">
+          <li><a class="nav-item is-active" aria-current="page" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v16"/><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/></svg><span class="nav-text">Today</span></a></li>
+          <li><a class="nav-item" href="#" aria-label="Review, 12 due"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span class="nav-text">Review</span><span class="nav-count" aria-hidden="true">12</span></a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label" aria-hidden="true">Notebooks</p>
+        <ul class="nav-list">
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg><span class="nav-text">Speaking</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span class="nav-text">Writing</span></a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label" aria-hidden="true">Library</p>
+        <ul class="nav-list">
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg><span class="nav-text">Mistakes</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.75C12.45 8.1 15.9 11.55 21.25 12C15.9 12.45 12.45 15.9 12 21.25C11.55 15.9 8.1 12.45 2.75 12C8.1 11.55 11.55 8.1 12 2.75Z"/></svg><span class="nav-text">Must Remember</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg><span class="nav-text">All Notes</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M8 13h.01"/><path d="M12 13h.01"/><path d="M16 13h.01"/><path d="M8 17h.01"/><path d="M12 17h.01"/><path d="M16 17h.01"/></svg><span class="nav-text">Calendar</span></a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="sidebar-foot">
+      <a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg><span class="nav-text">Settings</span></a>
+      <p class="streak">4 days of consistent study.</p>
+    </div>
+  </aside>
+
+  <main class="main today" id="main">
+    <div class="page">
+
+      <header class="page-header">
+        <h1 class="page-title">Wednesday, 7 October</h1>
+        <p class="page-desc">Your notebook has 12 items waiting for review.</p>
+      </header>
+
+      <a class="btn btn-primary btn-lg begin-btn" href="#">Begin Review<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+
+      <div class="due-split" role="group" aria-label="Due today by mode">
+        <a class="due-col" href="#" aria-label="Review Speaking only, 8 due">
+          <span class="mode mode-speaking"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg>Speaking</span>
+          <span class="due-count">8<span class="unit">due</span></span>
+          <svg class="icon due-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+        <a class="due-col" href="#" aria-label="Review Writing only, 4 due">
+          <span class="mode mode-writing"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Writing</span>
+          <span class="due-count">4<span class="unit">due</span></span>
+          <svg class="icon due-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+      </div>
+
+      <section class="block" aria-labelledby="continue-h">
+        <div class="section-head"><h2 class="section-title" id="continue-h">Continue studying</h2></div>
+        <a class="continue" href="#">
+          <div class="continue-body">
+            <p class="continue-kicker">Academic Task 1</p>
+            <p class="serif-value">Trend Language</p>
+            <p class="continue-meta">Last studied yesterday</p>
+          </div>
+          <span class="link t-small">Continue<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+        </a>
+      </section>
+
+      <section class="recent" aria-labelledby="recent-h">
+        <div class="section-head">
+          <h2 class="section-title" id="recent-h">Recent notes</h2>
+          <a class="link link-quiet section-action" href="#">All notes<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+        </div>
+        <p class="recent-key">Mistake <span aria-hidden="true">→</span><span class="sr-only">then</span> Upgrade</p>
+        <div class="rows">
+          <a class="row" href="#">
+            <div class="row-inner">
+              <div class="row-body">
+                <div class="pair pair-compact">
+                  <p class="mistake"><span class="sr-only">My Sentence: </span>The bar chart compares visitors of three museums in London.</p>
+                  <p class="upgrade"><span class="sr-only">Band 7+ Upgrade: </span>The bar chart compares the number of visitors to three museums in London.</p>
+                </div>
+              </div>
+              <div class="row-meta"><span class="row-topic"><svg class="icon writing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-label="Writing" role="img"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Introduction</span><span class="row-mastery"><span class="mastery mastery-new">New</span></span></div>
+              <span class="row-star"></span>
+            </div>
+          </a>
+          <a class="row" href="#">
+            <div class="row-inner">
+              <div class="row-body">
+                <div class="pair pair-compact">
+                  <p class="mistake"><span class="sr-only">What I Said: </span>I usually go to bed lately.</p>
+                  <p class="upgrade"><span class="sr-only">Native Upgrade: </span>I usually go to bed late.</p>
+                </div>
+              </div>
+              <div class="row-meta"><span class="row-topic"><svg class="icon speaking" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-label="Speaking" role="img"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg>Daily Routine</span><span class="row-mastery"><span class="mastery mastery-new">New</span></span></div>
+              <span class="row-star"></span>
+            </div>
+          </a>
+          <a class="row" href="#">
+            <div class="row-inner">
+              <div class="row-body">
+                <div class="pair pair-compact">
+                  <p class="mistake"><span class="sr-only">My Sentence: </span>In conclusion, I think the government should have more policies to solve it.</p>
+                  <p class="upgrade"><span class="sr-only">Band 7+ Upgrade: </span>In conclusion, governments should introduce stricter policies to tackle this issue.</p>
+                </div>
+              </div>
+              <div class="row-meta"><span class="row-topic"><svg class="icon writing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-label="Writing" role="img"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Conclusion</span><span class="row-mastery"><span class="mastery mastery-learning">Learning</span></span></div>
+              <span class="row-star"></span>
+            </div>
+          </a>
+          <a class="row" href="#">
+            <div class="row-inner">
+              <div class="row-body">
+                <div class="pair pair-compact">
+                  <p class="mistake"><span class="sr-only">What I Said: </span>I usually buy clothes in online.</p>
+                  <p class="upgrade"><span class="sr-only">Native Upgrade: </span>I usually buy clothes online.</p>
+                </div>
+              </div>
+              <div class="row-meta"><span class="row-topic"><svg class="icon speaking" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-label="Speaking" role="img"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg>Shopping</span><span class="row-mastery"><span class="mastery mastery-learning">Learning</span></span></div>
+              <span class="row-star"></span>
+            </div>
+          </a>
+          <a class="row" href="#">
+            <div class="row-inner">
+              <div class="row-body">
+                <div class="pair pair-compact">
+                  <p class="mistake"><span class="sr-only">My Sentence: </span>The figure was about less than 30%.</p>
+                  <p class="upgrade"><span class="sr-only">Band 7+ Upgrade: </span>The figure was just under 30%.</p>
+                </div>
+              </div>
+              <div class="row-meta"><span class="row-topic"><svg class="icon writing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-label="Writing" role="img"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Approximation</span><span class="row-mastery"><span class="mastery mastery-familiar">Familiar</span></span></div>
+              <span class="row-star"></span>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <section class="block" aria-labelledby="issue-h">
+        <div class="section-head"><h2 class="section-title" id="issue-h">Most repeated issue this week</h2></div>
+        <div class="pattern">
+          <p class="serif-value">Prepositions</p>
+          <a class="link t-small" href="#">4 notes<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+        </div>
+      </section>
+
+      <div class="ornament end-mark" aria-hidden="true"><span></span></div>
+      <p class="backup"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg><span>Last backup 21 days ago.</span><a class="link" href="#">Export a copy.</a></p>
+
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- ==================== Search palette (Ctrl K) over the dimmed Today screen ==================== -->
+<div class="scrim">
+  <div class="dialog palette" role="dialog" aria-modal="true" aria-label="Search notes">
+
+    <div class="pal-search">
+      <svg class="icon pal-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+      <div class="pal-input" role="combobox" aria-expanded="true" aria-controls="pal-list" aria-activedescendant="hit-1" aria-label="Search mistakes, upgrades, patterns, topics">stable<span class="caret" aria-hidden="true"></span></div>
+      <button class="btn btn-icon btn-sm" type="button" aria-label="Clear search"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    </div>
+
+    <div class="pal-body" id="pal-list" role="listbox" aria-label="Results">
+
+      <div class="pal-group" role="group" aria-labelledby="g-notes">
+        <p class="pal-group-head" id="g-notes">Notes<span class="pal-group-count">3</span></p>
+
+        <div class="pal-item is-active" id="hit-1" role="option" aria-selected="true">
+          <div class="pal-text">
+            <p class="pal-main"><span class="sr-only">Band 7+ Upgrade: </span>remained relatively <mark>stable</mark></p>
+            <p class="meta-line pal-meta"><span class="mode mode-writing"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Writing</span><span class="sep" aria-hidden="true">·</span><span>Stability</span><span class="sep" aria-hidden="true">·</span><span class="mastery mastery-mastered">Mastered</span></p>
+          </div>
+          <span class="pal-enter" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4v7a4 4 0 0 1-4 4H4"/><path d="m9 10-5 5 5 5"/></svg></span>
+        </div>
+
+        <div class="pal-item" id="hit-2" role="option" aria-selected="false">
+          <div class="pal-text">
+            <p class="pal-main"><span class="sr-only">Band 7+ Upgrade: </span>remained broadly unchanged</p>
+            <p class="meta-line pal-meta"><span class="mode mode-writing"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Writing</span><span class="sep" aria-hidden="true">·</span><span><span class="sr-only">Topic: </span><mark>Stability</mark></span><span class="sep" aria-hidden="true">·</span><span class="mastery mastery-familiar">Familiar</span></p>
+          </div>
+        </div>
+
+        <div class="pal-item" id="hit-3" role="option" aria-selected="false">
+          <div class="pal-text">
+            <p class="pal-mistake"><span class="sr-only">My Sentence: </span>The sales of e-books kept <mark>stable</mark> in 2 million.</p>
+            <p class="pal-main"><span class="sr-only">Band 7+ Upgrade: </span>Sales of e-books maintained a <mark>stable</mark> level of around 2 million copies.</p>
+            <p class="meta-line pal-meta"><span class="mode mode-writing"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Writing</span><span class="sep" aria-hidden="true">·</span><span>Stability</span><span class="sep" aria-hidden="true">·</span><span class="mastery mastery-learning">Learning</span></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pal-group" role="group" aria-labelledby="g-paragraphs">
+        <p class="pal-group-head" id="g-paragraphs">Model paragraphs<span class="pal-group-count">1</span></p>
+
+        <div class="pal-item" id="hit-4" role="option" aria-selected="false">
+          <svg class="icon pal-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+          <div class="pal-text">
+            <p class="pal-title">Task 1 — Opposite Trends</p>
+            <p class="pal-snippet">…Meanwhile, visitor numbers at the Botanical Garden remained relatively <mark>stable</mark>, rising slightly by 2,000 to 30,000 in 2017 before falling to 29,000 in 2022.</p>
+            <p class="meta-line pal-meta"><span>Academic Task 1</span><span class="sep" aria-hidden="true">·</span><span>Line Graph</span><span class="sep" aria-hidden="true">·</span><span>Comparison</span></p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="pal-foot">
+      <span class="key-hint"><span class="keys"><kbd class="kbd">↑</kbd><kbd class="kbd">↓</kbd></span>to move</span>
+      <span class="key-hint"><kbd class="kbd">Enter</kbd>to open</span>
+      <span class="key-hint"><kbd class="kbd">Esc</kbd>to close</span>
+      <span class="pal-total">4 results</span>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Model Paragraph · Focus editor (mockup)</title>
+<meta name="description" content="The distraction-free editor for a model paragraph: a full-screen paper surface with a bare serif title, one quiet row of selects, the paragraph in serif, a small Saved status and a Done button.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mockup.css">
+<style>
+  /* Focus editor (brief §20, §23; spec §7): full-viewport paper, no sidebar, no side UI. */
+  body { background-color: var(--paper); }
+
+  .editor { min-height: 100vh; }
+
+  /* Top bar: context on the left, save status and Done on the right. No border. */
+  .ed-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    height: 64px;
+    padding: 0 32px;
+  }
+  .ed-context {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--graphite);
+  }
+  .ed-context .icon { width: 16px; height: 16px; }
+  .ed-actions { display: flex; align-items: center; gap: 16px; }
+  .save-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--graphite);
+  }
+  .save-status .icon { width: 14px; height: 14px; }
+
+  /* Writing column */
+  .ed-page {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 112px 0 160px;
+  }
+
+  /* Bare title input: no border, serif 32 */
+  .ed-title {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-family: var(--font-serif);
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.005em;
+    color: var(--ink);
+  }
+  .ed-title:focus-visible { outline: none; }
+
+  /* One quiet row of small selects: text + chevron, no box until hover */
+  .ed-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin: 14px 0 0 -8px;
+  }
+  .meta-select {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 28px;
+    padding: 0 6px 0 8px;
+    border: 1px solid transparent;
+    border-radius: var(--r-sm);
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: nowrap;
+    color: var(--graphite);
+  }
+  .meta-select .icon { width: 14px; height: 14px; }
+  .meta-select:hover,
+  .meta-select.is-hover { background: var(--stone); color: var(--ink); }
+  .meta-select .mode-icon { width: 14px; height: 14px; margin-right: 2px; color: var(--sage); }
+  .ed-meta .sep { margin: 0 2px; }
+
+  /* Body: the paragraph in serif, same size as the reader */
+  .ed-body {
+    margin-top: 40px;
+    font-family: var(--font-serif);
+    font-size: 23px; /* Instrument Serif runs small: 23px reads like a 19px book serif */
+    line-height: 1.7;
+    color: var(--ink);
+    white-space: pre-wrap;
+    outline: none;
+  }
+  .ed-body .caret { height: 1.1em; vertical-align: -0.18em; }
+
+  /* Bottom line: word count and paste note. Fixed to the bottom of the screen in the app. */
+  .ed-foot {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    height: 48px;
+    padding: 0 32px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--graphite);
+  }
+  .ed-foot .key-hint .kbd { height: 18px; min-width: 18px; padding: 0 4px; }
+
+  @media (max-width: 760px) {
+    .ed-bar, .ed-foot { padding: 0 16px; }
+    .ed-page { padding: 48px 16px 120px; }
+    .ed-body { font-size: 21px; }
+  }
+</style>
+</head>
+<body>
+<div class="editor">
+  <header class="ed-bar">
+    <p class="ed-context"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>Model paragraph</p>
+    <div class="ed-actions">
+      <span class="save-status" role="status"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Saved</span>
+      <a class="btn btn-secondary btn-sm" href="09-model-paragraph.html">Done<kbd class="kbd">Esc</kbd></a>
+    </div>
+  </header>
+
+  <main class="ed-page" id="main">
+    <label class="sr-only" for="ed-title">Title</label>
+    <input class="ed-title" id="ed-title" type="text" value="Task 1 — Opposite Trends" placeholder="Title" autocomplete="off">
+
+    <div class="ed-meta" role="group" aria-label="Paragraph details">
+      <button class="meta-select" type="button" aria-label="Task type: Academic Task 1" aria-haspopup="listbox"><svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>Academic Task 1<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <button class="meta-select" type="button" aria-label="Chart type: Line Graph" aria-haspopup="listbox">Line Graph<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <button class="meta-select" type="button" aria-label="Topic: Comparison" aria-haspopup="listbox">Comparison<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+    </div>
+
+    <div class="ed-body" role="textbox" aria-multiline="true" aria-label="Paragraph" tabindex="0">From 2012 to 2022, the three attractions showed markedly different trends. The National Gallery experienced a steady decline in attendance from 75,000 to 42,000, losing its position as the most popular of the three attractions. In contrast, the number of visitors to the City Zoo increased steadily from 35,000 to 68,000, making it the most visited attraction in 2022. Meanwhile, visitor numbers at the Botanical Garden remained relatively stable, rising slightly by 2,000 to 30,000 in 2017 before falling to 29,000 in 2022.<span class="caret" aria-hidden="true"></span></div>
+  </main>
+
+  <footer class="ed-foot">
+    <span class="tnum">83 words</span>
+    <span class="key-hint">Paste keeps paragraphs, bold and lists<span aria-hidden="true">·</span><span class="keys"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">B</kbd></span>bold</span>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,3 +1,13 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review · Recall (mockup)</title>
+<meta name="description" content="Review state 1 on desktop: one Speaking mistake shown large, with empty space to recall the better version before pressing Reveal.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* mockup.css, inlined so this file is self-contained */
 /*
  * IELTS Upgrade Notebook: shared stylesheet for the static concept mockups.
  *
@@ -1605,3 +1615,136 @@ mark,
 
 /* Motion: the real app uses 150-220ms fades and underline moves (brief §37). These static
    mockups have no transitions, so a theme switch before a screenshot is never caught mid-fade. */
+
+</style>
+<style>
+  /* ---------- Review screen (shared by 04, 05, 06, 07). Full screen: no sidebar. ---------- */
+  .rv { display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* Quiet top bar. Its bottom hairline is the progress track; the indigo part is the progress. */
+  .rv-bar {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    height: 56px;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--line);
+  }
+  .rv-progress {
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    height: 1px;
+    background: var(--indigo);
+  }
+  .rv-end { justify-self: start; margin-left: -8px; padding: 0 10px 0 8px; }
+  .rv-end .kbd { margin-left: 4px; }
+  .rv-count { font-size: 13px; line-height: 1.5; color: var(--graphite); font-variant-numeric: tabular-nums; }
+  .rv-type { justify-self: end; font-size: 13px; line-height: 1.5; color: var(--graphite); }
+
+  /* One item at a time, in a 720px column. The action row stays at the same height in both states. */
+  .rv-stage {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 88px 0 72px;
+  }
+  .rv-card { display: flex; flex-direction: column; min-height: 560px; }
+  .rv-heading {
+    margin-top: 16px;
+    font-family: var(--font-serif);
+    font-size: 21px;
+    font-weight: 400;
+    line-height: 1.35;
+    color: var(--ink);
+  }
+  .rv-block { margin-top: 40px; }
+  .rv-block .label-caps { margin-bottom: 12px; }
+
+  /* The learner's sentence. A thin crimson rule is the only mistake signal. */
+  /* The rule and the opening quote hang in the left margin, so every line starts on one edge. */
+  .rv-said {
+    position: relative;
+    font-size: 28px;
+    line-height: 1.35;
+    color: var(--ink);
+    text-indent: -0.36em;
+    overflow-wrap: anywhere;
+  }
+  .rv-said::before {
+    content: "";
+    position: absolute;
+    top: 0.18em;
+    bottom: 0.18em;
+    left: -24px;
+    width: 2px;
+    border-radius: var(--r-full);
+    background: var(--crimson);
+  }
+
+  /* Where the answer will appear. Empty on purpose. */
+  .rv-answer-zone { flex: 1; padding-top: 48px; }
+  .rv-type-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    margin-left: -8px;
+    padding: 0 8px;
+    border-radius: var(--r-sm);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--graphite);
+  }
+  .rv-type-link .icon { width: 16px; height: 16px; }
+  .rv-type-link:hover { background: var(--hover); color: var(--ink); }
+
+  .rv-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    height: 85px; /* 24px gap + 60px row + hairline: the same in both states, so nothing moves on reveal */
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+  .rv-hint { font-size: 13px; line-height: 1.5; color: var(--graphite); }
+  .rv-reveal { min-width: 168px; }
+</style>
+</head>
+<body>
+<div class="rv">
+  <header class="rv-bar">
+    <button class="btn btn-ghost btn-sm rv-end" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>End review<kbd class="kbd" aria-hidden="true">Esc</kbd></button>
+    <p class="rv-count"><span class="sr-only">Note </span>3 of 12</p>
+    <p class="rv-type">Mistake → Upgrade</p>
+    <div class="rv-progress" style="width: 25%" role="progressbar" aria-label="Session progress" aria-valuemin="0" aria-valuemax="12" aria-valuenow="3"></div>
+  </header>
+
+  <main class="rv-stage" id="main">
+    <div class="rv-card">
+      <p class="meta-line"><span class="mode mode-speaking"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg>Speaking</span><span class="sep" aria-hidden="true">·</span><span>Travel</span><span class="sep" aria-hidden="true">·</span><span class="must"><span class="star" aria-hidden="true"></span>Must Remember</span></p>
+      <h1 class="rv-heading">Recall the better version</h1>
+
+      <div class="rv-block">
+        <p class="label-caps">What I said</p>
+        <p class="rv-said"><span class="quote">We enjoyed the scenario.</span></p>
+      </div>
+
+      <div class="rv-answer-zone">
+        <button class="rv-type-link" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 8h.01"/><path d="M12 12h.01"/><path d="M14 8h.01"/><path d="M16 12h.01"/><path d="M18 8h.01"/><path d="M6 8h.01"/><path d="M7 16h10"/><path d="M8 12h.01"/><rect width="20" height="16" x="2" y="4" rx="2"/></svg>Type your answer (optional)</button>
+      </div>
+
+      <div class="rv-actions">
+        <p class="rv-hint">Say it aloud first, then reveal.</p>
+        <button class="btn btn-primary btn-lg rv-reveal" type="button">Reveal<kbd class="kbd" aria-hidden="true">Space</kbd></button>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

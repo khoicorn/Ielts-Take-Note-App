@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Note Detail · Writing (mockup)</title>
+<meta name="description" content="One Writing correction in an editorial layout: the mistake, the Band 7+ upgrade, why, an example and the reusable pattern in the main column, with a quiet metadata column on the right.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mockup.css">
+<style>
+  /* Note Detail (brief §18, §33). Editorial layout in the shared 1040px container:
+     760px reading column, 240px meta column with a hairline rule. */
+  .detail { max-width: var(--page-w); margin: 0 auto; }
+  .must-toggle { color: var(--ink); }
+
+  .detail-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .back { gap: 6px; font-size: 13px; line-height: 1.5; }
+  .back .icon { width: 16px; height: 16px; }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, var(--reading-w)) 240px;
+    justify-content: space-between;
+    column-gap: 40px;
+  }
+
+  /* 1. Topic / category (brief §18) */
+  .detail-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 36px;
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-style: italic;
+    line-height: 1.55;
+    color: var(--graphite);
+  }
+  .detail-eyebrow .icon { width: 16px; height: 16px; color: var(--sage); }
+  .detail-eyebrow .sep { margin: 0 -2px; }
+  .detail-pair .upgrade strong { font-weight: 600; }
+
+  /* 2–3. Mistake and upgrade: .pair-detail from mockup.css (16px crimson, 21px deep sage) */
+  .detail-pair .pair-part + .pair-part { margin-top: 32px; }
+
+  .detail-ornament { margin: 44px 0; }
+
+  /* 4–6. Why, example, reusable pattern */
+  .block + .block { margin-top: 32px; }
+  .block-text { max-width: 66ch; margin-top: 8px; font-size: 16px; line-height: 1.65; color: var(--ink); overflow-wrap: anywhere; }
+  .hang { text-indent: -0.36em; }
+  .block-text .slot { min-width: 56px; }
+
+  /* Link back to the model paragraph this note came from */
+  .source {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 40px;
+    margin-left: -12px;
+    margin-right: -12px;
+    padding: 12px;
+    border-radius: var(--r-sm);
+  }
+  .source:hover { background: var(--hover); }
+  .source-wrap { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-top: 44px; }
+  .source-wrap .source { margin-top: 0; }
+  .source .icon { width: 18px; height: 18px; color: var(--graphite); }
+  .source-label { font-size: 13px; line-height: 1.5; color: var(--graphite); }
+  .source-title { flex: 1; min-width: 0; font-family: var(--font-serif); font-size: 18px; line-height: 1.55; color: var(--ink); }
+  .source .arrow { width: 16px; height: 16px; }
+
+  /* Review history: date · rating · type */
+  .history { margin-top: 56px; }
+  .history-list { margin-top: 4px; }
+  .history-row {
+    display: grid;
+    grid-template-columns: 120px 96px minmax(0, 1fr);
+    align-items: baseline;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .h-date { font-size: 13px; line-height: 1.5; color: var(--graphite); font-variant-numeric: tabular-nums; }
+  .h-rating { font-size: 15px; line-height: 1.6; color: var(--ink); }
+  .h-type { font-size: 13px; line-height: 1.5; color: var(--graphite); }
+  .history-note { margin-top: 12px; font-size: 12px; line-height: 1.45; color: var(--graphite); }
+
+  /* 7. Metadata column */
+  .meta-col { padding-left: 32px; border-left: 1px solid var(--line); }
+  .meta-group + .meta-group { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--line); }
+  .meta-item + .meta-item { margin-top: 16px; }
+  .meta-item dt { font-size: 12px; line-height: 1.45; color: var(--graphite); }
+  .meta-item dd { margin: 2px 0 0; font-size: 13px; line-height: 1.5; color: var(--ink); overflow-wrap: anywhere; }
+  .meta-item dd .sub { display: block; color: var(--graphite); }
+  .meta-pattern .from { display: block; color: var(--crimson); }
+  .meta-pattern .to { display: flex; align-items: center; gap: 6px; color: var(--upgrade); }
+  .meta-pattern .to .icon { width: 14px; height: 14px; color: var(--graphite); }
+  .meta-item .link { display: flex; width: fit-content; margin-top: 2px; font-size: 13px; line-height: 1.5; }
+  .meta-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .meta-must { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 1.5; color: var(--ink); }
+  .meta-must .star { width: 13px; height: 13px; }
+
+  @media (max-width: 1023px) {
+    .detail-grid { grid-template-columns: minmax(0, 1fr); row-gap: 48px; }
+    .meta-col { padding: 24px 0 0; border-left: 0; border-top: 1px solid var(--line); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" aria-label="Sidebar">
+    <div class="sidebar-head">
+      <a class="brand" href="#" aria-label="Upgrade Notebook, Today"><svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.2 4.1A8.4 8.4 0 1 0 19.9 15.4A6.8 6.8 0 0 1 13.2 4.1Z"/><path class="gold-fill" d="M18.6 1.4C18.86 4.3 20.3 5.74 23.2 6C20.3 6.26 18.86 7.7 18.6 10.6C18.34 7.7 16.9 6.26 14 6C16.9 5.74 18.34 4.3 18.6 1.4Z"/></svg><span class="brand-name">Upgrade Notebook</span></a>
+    </div>
+
+    <div class="sidebar-actions">
+      <button class="side-btn side-btn-new" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span class="side-btn-text">New note</span><kbd class="kbd">N</kbd></button>
+      <button class="side-btn" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg><span class="side-btn-text">Search</span><span class="keys" aria-hidden="true"><kbd class="kbd">Ctrl</kbd><kbd class="kbd">K</kbd></span></button>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Main">
+      <div class="nav-group">
+        <ul class="nav-list">
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v16"/><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/></svg><span class="nav-text">Today</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span class="nav-text">Review</span><span class="nav-count" aria-label="12 due">12</span></a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label" aria-hidden="true">Notebooks</p>
+        <ul class="nav-list">
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg><span class="nav-text">Speaking</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span class="nav-text">Writing</span></a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label" aria-hidden="true">Library</p>
+        <ul class="nav-list">
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg><span class="nav-text">Mistakes</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.75C12.45 8.1 15.9 11.55 21.25 12C15.9 12.45 12.45 15.9 12 21.25C11.55 15.9 8.1 12.45 2.75 12C8.1 11.55 11.55 8.1 12 2.75Z"/></svg><span class="nav-text">Must Remember</span></a></li>
+          <li><a class="nav-item is-active" aria-current="page" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg><span class="nav-text">All Notes</span></a></li>
+          <li><a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M8 13h.01"/><path d="M12 13h.01"/><path d="M16 13h.01"/><path d="M8 17h.01"/><path d="M12 17h.01"/><path d="M16 17h.01"/></svg><span class="nav-text">Calendar</span></a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="sidebar-foot">
+      <a class="nav-item" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg><span class="nav-text">Settings</span></a>
+      <p class="streak">4 days of consistent study.</p>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <article class="detail" aria-labelledby="note-title">
+      <h1 class="sr-only" id="note-title">Note: The number of visitors to the City Zoo increased steadily.</h1>
+
+      <div class="detail-top">
+        <a class="link link-quiet back" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>All notes</a>
+        <div class="page-actions">
+          <button class="btn btn-ghost btn-sm must-toggle" type="button" aria-pressed="true" title="Remove from Must Remember"><span class="star" aria-hidden="true"></span>Must Remember</button>
+          <button class="btn btn-secondary btn-sm" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>Edit<kbd class="kbd">E</kbd></button>
+          <button class="btn btn-icon btn-sm" type="button" aria-label="More actions: duplicate, archive, export, delete" aria-haspopup="menu" aria-expanded="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+        </div>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-main">
+
+          <p class="detail-eyebrow"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span>Writing</span><span class="sep" aria-hidden="true">·</span><span>Academic Task 1</span><span class="sep" aria-hidden="true">·</span><span>Increase</span></p>
+
+          <div class="pair pair-detail detail-pair">
+            <div class="pair-part">
+              <p class="pair-label">My Sentence</p>
+              <p class="mistake"><span class="quote">The number of visitors of the City Zoo increased steadily.</span></p>
+            </div>
+            <div class="pair-part">
+              <p class="pair-label">Band 7+ Upgrade</p>
+              <p class="upgrade"><span class="quote">The number of visitors <strong>to</strong> the City Zoo increased steadily.</span></p>
+            </div>
+          </div>
+
+          <div class="ornament detail-ornament" aria-hidden="true"><span></span></div>
+
+          <div class="block">
+            <p class="label-caps">Why it is better</p>
+            <p class="block-text">Use “visitors to + place”, not “visitors of + place”. The visitors travel to the zoo; they do not belong to it.</p>
+          </div>
+
+          <div class="block">
+            <p class="label-caps">Example</p>
+            <p class="block-text hang"><span class="quote">The number of visitors to the City Zoo increased steadily from 35,000 to 68,000.</span></p>
+          </div>
+
+          <div class="block">
+            <p class="label-caps">Reusable pattern</p>
+            <p class="block-text">The number of visitors to <span class="slot" role="img" aria-label="blank"></span> increased steadily from <span class="slot" role="img" aria-label="blank"></span> to <span class="slot" role="img" aria-label="blank"></span>.</p>
+          </div>
+
+          <div class="source-wrap">
+            <a class="source" href="09-model-paragraph.html">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+              <span class="source-label">From paragraph</span>
+              <span class="source-title">Task 1 — Opposite Trends</span>
+              <svg class="icon arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+          </div>
+
+          <section class="history" aria-labelledby="history-title">
+            <div class="section-head"><h2 class="section-title" id="history-title">Review history</h2><span class="section-action">Newest first</span></div>
+            <ol class="history-list">
+              <li class="history-row"><span class="h-date">Tue 6 Oct</span><span class="h-rating">Good</span><span class="h-type">Fill in the blank</span></li>
+              <li class="history-row"><span class="h-date">Sun 4 Oct</span><span class="h-rating">Hard</span><span class="h-type">Mistake → Upgrade</span></li>
+              <li class="history-row"><span class="h-date">Thu 1 Oct</span><span class="h-rating">Good</span><span class="h-type">Pattern Recall</span></li>
+              <li class="history-row"><span class="h-date">Wed 30 Sep</span><span class="h-rating">Good</span><span class="h-type">Mistake → Upgrade</span></li>
+            </ol>
+            <p class="history-note">Editing the wording keeps this history and the mastery level.</p>
+          </section>
+        </div>
+
+        <aside class="meta-col" aria-label="Note details">
+          <dl class="meta-group">
+            <div class="meta-item"><dt>Topic</dt><dd>Increase</dd></div>
+            <div class="meta-item"><dt>Task</dt><dd>Academic Task 1<span class="sub">Line Graph</span></dd></div>
+            <div class="meta-item"><dt>Note type</dt><dd>Correction</dd></div>
+            <div class="meta-item"><dt>Error type</dt><dd>Prepositions</dd></div>
+            <div class="meta-item meta-pattern"><dt>Pattern</dt><dd><span class="from">visitors of + place</span><span class="to"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg><span class="sr-only">Use instead: </span>visitors to + place</span></dd></div>
+          </dl>
+
+          <dl class="meta-group">
+            <div class="meta-item"><dt>Mastery</dt><dd><span class="mastery mastery-familiar">Familiar</span></dd></div>
+            <div class="meta-item"><dt>Next review</dt><dd>In 6 days<span class="sub">Tuesday, 13 October</span></dd></div>
+            <div class="meta-item"><dt>Reviewed</dt><dd>4 times<span class="sub">Last on 6 Oct</span></dd></div>
+            <div class="meta-item"><dt>Mistake seen</dt><dd>4 times<a class="link" href="#">Related notes<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a></dd></div>
+          </dl>
+
+          <dl class="meta-group">
+            <div class="meta-item"><dt>Tags</dt><dd class="meta-tags"><span class="tag">trends</span><span class="tag">line-graph</span></dd></div>
+            <div class="meta-item"><dt>Created</dt><dd>30 Sep</dd></div>
+            <div class="meta-item"><dt>Must Remember</dt><dd class="meta-must"><span class="star" aria-hidden="true"></span>Yes</dd></div>
+          </dl>
+        </aside>
+      </div>
+    </article>
+  </main>
+</div>
+</body>
+</html>

@@ -1,3 +1,13 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review · Session complete (mockup)</title>
+<meta name="description" content="The end of a review session on desktop: a calm summary in three plain lines, the two notes coming back soon, and the way back to Today.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* mockup.css, inlined so this file is self-contained */
 /*
  * IELTS Upgrade Notebook: shared stylesheet for the static concept mockups.
  *
@@ -1605,3 +1615,114 @@ mark,
 
 /* Motion: the real app uses 150-220ms fades and underline moves (brief §37). These static
    mockups have no transitions, so a theme switch before a screenshot is never caught mid-fade. */
+
+</style>
+<style>
+  /* ---------- Review screen (shared by 04, 05, 06, 07). Full screen: no sidebar. ---------- */
+  .rv { display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* Quiet top bar. Its bottom hairline is the progress track; here it is full. */
+  .rv-bar {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    height: 56px;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--line);
+  }
+  .rv-progress { position: absolute; left: 0; bottom: -1px; height: 1px; background: var(--indigo); }
+  .rv-end { justify-self: start; margin-left: -8px; padding: 0 10px 0 8px; }
+  .rv-end .kbd { margin-left: 4px; }
+  .rv-count { font-size: 13px; line-height: 1.5; color: var(--graphite); font-variant-numeric: tabular-nums; }
+
+  .rv-stage {
+    flex: 1;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 112px 0 80px;
+  }
+
+  /* Summary: one ornament, a serif title, three plain lines. No numbers in boxes, no charts. */
+  .done { text-align: center; }
+  .done .ornament { margin-bottom: 28px; }
+  .done-title { font-family: var(--font-serif); font-size: 32px; font-weight: 400; line-height: 1.15; letter-spacing: -0.005em; color: var(--ink); }
+  .done-lines { margin-top: 20px; font-size: 16px; line-height: 1.75; color: var(--graphite); }
+  .done-lines .lead { color: var(--ink); }
+  .done-actions { display: flex; justify-content: center; gap: 12px; margin-top: 40px; }
+
+  /* The two notes rated Again: what will come back first */
+  .again { margin-top: 80px; }
+  .again .section-head { margin-bottom: 0; }
+  .again .row-inner { align-items: center; padding: 16px 0; }
+  .again .row-topic { width: 96px; max-width: none; }
+  .again .mode .icon { width: 14px; height: 14px; }
+</style>
+</head>
+<body>
+<div class="rv">
+  <header class="rv-bar">
+    <button class="btn btn-ghost btn-sm rv-end" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>Close<kbd class="kbd" aria-hidden="true">Esc</kbd></button>
+    <p class="rv-count"><span class="sr-only">Reviewed </span>12 of 12</p>
+    <span aria-hidden="true"></span>
+    <div class="rv-progress" style="width: 100%" role="progressbar" aria-label="Session progress" aria-valuemin="0" aria-valuemax="12" aria-valuenow="12"></div>
+  </header>
+
+  <main class="rv-stage" id="main">
+    <section class="done" aria-labelledby="done-title">
+      <div class="ornament" aria-hidden="true"><span></span></div>
+      <h1 class="done-title" id="done-title">Session complete</h1>
+      <div class="done-lines">
+        <p class="lead">12 notes reviewed.</p>
+        <p>2 to see again soon.</p>
+        <p>4 days of consistent study.</p>
+      </div>
+      <div class="done-actions">
+        <a class="btn btn-primary btn-lg" href="#">Back to Today</a>
+        <a class="btn btn-secondary btn-lg" href="#">Review more</a>
+      </div>
+    </section>
+
+    <section class="again" aria-labelledby="again-title">
+      <div class="section-head">
+        <h2 class="section-title" id="again-title">To see again soon</h2>
+        <span class="section-action">Back tomorrow</span>
+      </div>
+      <ul>
+        <li>
+          <a class="row" href="#">
+            <div class="row-inner">
+              <div class="row-body">
+                <div class="pair pair-compact">
+                  <p class="mistake"><span class="sr-only">What I Said: </span>I don’t customize other factors.</p>
+                  <p class="upgrade"><span class="sr-only">Native Upgrade: </span>I’m pretty flexible about the rest.</p>
+                </div>
+              </div>
+              <div class="row-meta">
+                <span class="mode mode-speaking row-topic"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg><span class="sr-only">Speaking, </span>Drinks</span>
+              </div>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a class="row" href="#">
+            <div class="row-inner">
+              <div class="row-body">
+                <div class="pair pair-compact">
+                  <p class="mistake"><span class="sr-only">My Sentence: </span>The sales of e-books kept stable in 2 million.</p>
+                  <p class="upgrade"><span class="sr-only">Band 7+ Upgrade: </span>Sales of e-books maintained a stable level of around 2 million copies.</p>
+                </div>
+              </div>
+              <div class="row-meta">
+                <span class="mode mode-writing row-topic"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg><span class="sr-only">Writing, </span>Stability</span>
+              </div>
+            </div>
+          </a>
+        </li>
+      </ul>
+    </section>
+  </main>
+</div>
+</body>
+</html>
