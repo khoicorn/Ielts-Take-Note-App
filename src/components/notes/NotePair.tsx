@@ -67,7 +67,7 @@ export function NotePair(props: {
             <Quote text={original} highlight={highlight} />
           </p>
         ) : null}
-        <p data-testid="note-upgraded" className={cn('text-note text-ink', HANG, original && 'mt-1', WRAP)}>
+        <p data-testid="note-upgraded" className={cn('text-note text-upgrade', HANG, original && 'mt-1', WRAP)}>
           <VisuallyHidden>{`${labels.upgraded}: `}</VisuallyHidden>
           <Quote text={upgraded} highlight={highlight} />
         </p>

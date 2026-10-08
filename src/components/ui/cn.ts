@@ -7,6 +7,12 @@ export function cn(...parts: (string | false | null | undefined | 0)[]): string 
 export const WRAP = 'break-words [overflow-wrap:anywhere]'
 
 /**
+ * The 760px reading column (Today, Calendar, Must Remember, Settings). Like the mockups, it shares its
+ * left edge with the centered 1040px container that wide pages use, so pages do not jump sideways.
+ */
+export const READING_PAGE = 'mr-auto max-w-[760px] ml-[max(0px,calc((100%_-_1040px)/2))]'
+
+/**
  * The active option of a listbox (Combobox, TagInput), where focus stays in the input:
  * a 2px indigo bar at the left edge, like the active nav item, plus a light tint.
  */

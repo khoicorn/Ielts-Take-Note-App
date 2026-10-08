@@ -9,6 +9,8 @@ export interface TabItem {
   label: string
   to?: string
   count?: number
+  /** A small glyph before the label (mockup m01 mode tabs). */
+  icon?: IconType
 }
 
 /** Moves focus (and selection, for tablists) with the arrow keys. */
@@ -74,6 +76,7 @@ export function UnderlineTabs(props: {
 
   const content = (item: TabItem) => (
     <>
+      {item.icon ? <item.icon className="size-4 shrink-0 self-center" strokeWidth={ICON_STROKE} aria-hidden="true" /> : null}
       <span data-tab-label="">{item.label}</span>
       {item.count !== undefined ? <span className="text-meta text-graphite tabular-nums">{item.count}</span> : null}
     </>

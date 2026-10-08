@@ -62,13 +62,15 @@ export function Popover(props: {
   className?: string
   /** Name of the panel. Without it, the panel is named by the trigger's text. */
   'aria-label'?: string
+  /** Tallest the panel grows before it scrolls inside (default 520px). It still fits the viewport. */
+  preferredHeight?: number
 }): React.JSX.Element {
-  const { open, onOpenChange, trigger, align = 'start', children, className } = props
+  const { open, onOpenChange, trigger, align = 'start', children, className, preferredHeight = 520 } = props
   const id = useId()
   const autoTriggerId = useId()
   const wrapRef = useRef<HTMLSpanElement>(null)
   const layerRef = useRef<HTMLDivElement>(null)
-  const pos = useFloatingPosition(wrapRef, open, { align, gap: 6, preferredHeight: 520, layer: layerRef })
+  const pos = useFloatingPosition(wrapRef, open, { align, gap: 6, preferredHeight, layer: layerRef })
   const tp = triggerProps(trigger)
 
   useOutsidePointer(open, [wrapRef, layerRef], () => onOpenChange(false))

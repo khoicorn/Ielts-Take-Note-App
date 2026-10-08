@@ -16,8 +16,6 @@ import {
 import React, { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { todayKey } from '@/lib/dates'
-import { useNoteCount, useNotes, useParagraphs } from '@/lib/hooks'
-import { loadExampleData, removeExampleData } from '@/lib/repo'
 import type { MasteryStatus, Note } from '@/lib/types'
 import { MASTERY_ORDER, SPEAKING_TOPICS } from '@/lib/taxonomy'
 import { Button, ButtonLink } from '@/components/ui/Button'
@@ -213,104 +211,6 @@ const TYPE: { token: string; className: string; sample: string }[] = [
   { token: 'meta · 12', className: 'text-meta text-graphite', sample: '10 days of consistent study.' },
 ]
 
-/* ---------- TEMPORARY (Task F1): real example data. Task F2 removes this block and its imports. ---------- */
-
-function SeededNotes(): React.JSX.Element {
-  const toast = useToast()
-  const notes = useNotes()
-  const count = useNoteCount()
-  const paragraphs = useParagraphs()
-  const [busy, setBusy] = useState(false)
-  const [view, setView] = useState<'compact' | 'reading'>('compact')
-
-  const run = async (task: () => Promise<string>) => {
-    setBusy(true)
-    try {
-      toast.show(await task())
-    } catch (e) {
-      toast.show(e instanceof Error ? e.message : 'Something went wrong.')
-    } finally {
-      setBusy(false)
-    }
-  }
-  const load = () =>
-    run(async () => {
-      const r = await loadExampleData()
-      return r.notes ? `${r.notes} example notes added.` : 'Example notes are already loaded.'
-    })
-  const remove = () =>
-    run(async () => {
-      const n = await removeExampleData()
-      return n === 1 ? '1 example note removed.' : `${n} example notes removed.`
-    })
-
-  const speaking = notes?.find((n) => n.mode === 'speaking' && n.original_text.trim())
-  const writing = notes?.find((n) => n.mode === 'writing' && n.original_text.trim() && n.reusable_pattern.trim())
-  const upgradeOnly = notes?.find((n) => !n.original_text.trim())
-
-  return (
-    <Block
-      id="seeded"
-      title="Example data"
-      note="Temporary check (Task F1). Real notes from this browser's database, drawn by NotePair and NoteRow."
-    >
-      <Row label="Database">
-        <Button onClick={() => void load()} loading={busy} icon={Plus}>
-          Load example data
-        </Button>
-        <Button variant="ghost" onClick={() => void remove()} disabled={busy || !count}>
-          Remove example data
-        </Button>
-        <span className="text-small text-graphite" data-testid="seeded-count">
-          {count === undefined ? 'Loading…' : `${count} notes · ${paragraphs?.length ?? 0} model paragraphs`}
-        </span>
-      </Row>
-      {speaking ? (
-        <Row label="Detail · seeded speaking">
-          <div className="w-full max-w-[680px] py-2">
-            <NotePair note={speaking} size="detail" />
-          </div>
-        </Row>
-      ) : null}
-      {writing ? (
-        <Row label="Detail · seeded writing">
-          <div className="w-full max-w-[680px] py-2">
-            <NotePair note={writing} size="detail" />
-          </div>
-        </Row>
-      ) : null}
-      {upgradeOnly ? (
-        <Row label="Reading · seeded, upgrade only">
-          <div className="w-full min-w-0">
-            <NotePair note={upgradeOnly} size="reading" />
-          </div>
-        </Row>
-      ) : null}
-      {notes && notes.length ? (
-        <>
-          <div className="mt-6 mb-3 flex items-center justify-between gap-4">
-            <p className="text-small text-graphite">{notes.length} notes, newest first</p>
-            <SegmentedControl
-              aria-label="Seeded view"
-              value={view}
-              onChange={setView}
-              options={[
-                { value: 'compact', label: 'Compact' },
-                { value: 'reading', label: 'Reading' },
-              ]}
-            />
-          </div>
-          <div className="border-t border-line" data-testid="seeded-rows">
-            {notes.map((n) => (
-              <NoteRow key={n.id} note={n} view={view} to={`/notes/${n.id}`} />
-            ))}
-          </div>
-        </>
-      ) : null}
-    </Block>
-  )
-}
-
 /* ---------- the page ---------- */
 
 export function DesignPreview(): React.JSX.Element {
@@ -389,8 +289,6 @@ export function DesignPreview(): React.JSX.Element {
           />
         }
       />
-
-      <SeededNotes />
 
       {/* Notes come first: they are the hero of the product. */}
       <Block id="notes" title="Notes" note="Brief §18. The mistake is smaller and crimson; the upgrade is larger and stands out more.">

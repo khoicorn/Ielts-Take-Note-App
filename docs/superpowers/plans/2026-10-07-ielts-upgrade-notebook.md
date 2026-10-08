@@ -797,12 +797,12 @@ Settings (`/settings`, max 760px, sections separated by hairlines, `id`s for anc
 
 ### Task F2: Screens integration (after C1–C7)
 
-- [ ] `npm run typecheck`, `npm test`, `npm run build` all pass.
-- [ ] Promote any feature-local primitives that other screens also need into `src/components`.
-- [ ] Remove the temporary example-data button from `/design`.
-- [ ] Lazy-load each route screen with `React.lazy` + `Suspense` so the main chunk drops below 500 kB (build warning at 508 kB after Workflow 1).
+- [x] `npm run typecheck`, `npm test`, `npm run build` all pass.
+- [x] Promote any feature-local primitives that other screens also need into `src/components`.
+- [x] Remove the temporary example-data button from `/design`.
+- [x] Lazy-load each route screen with `React.lazy` + `Suspense` so the main chunk drops below 500 kB (build warning at 508 kB after Workflow 1).
 - [x] NoteRow double ✦: resolved by Design refinement 2 (Must Remember is a ribbon).
-- [ ] Playwright smoke: visit every route with example data, no console errors, no horizontal scroll at 390px.
+- [x] Playwright smoke: visit every route with example data, no console errors, no horizontal scroll at 390px.
 
 ---
 

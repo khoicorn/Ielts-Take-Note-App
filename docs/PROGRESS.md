@@ -18,12 +18,21 @@ Last updated: 2026-10-08 (morning).
 | Step | Result |
 |---|---|
 | Workflow 1, reviews + fix | 23 issues found, 21 fixed + 1 extra bug. Typecheck clean, 203/203 tests, build OK (bundle-size warning at 508 kB, fixed in Workflow 2) |
+| Design refinements v1.1 | Owner feedback applied: Must Remember ribbon, celestial dividers, lavender accent, ink reveal |
+| Workflow 2 (screens) | All 12 screens built. 3 agents (Review, Today + Calendar, Search + Settings) lost connection; integration built Review and Settings from their tests. Typecheck clean, 327/327 tests, main chunk 292 kB. Smoke: 14 routes × 2 sizes × 2 themes, 5 flows |
+| Hosting | GitHub Pages config: base path, router basename, PWA scope; tested under a Pages-like server (12/12 checks incl. offline). Vitest limited to 4 workers (21 workers on this 22-core laptop made tests flaky) |
 | Mockups | 21 screens in `docs/mockups/`: `png/` (42 PNGs, light + dark), `standalone/` (21 self-contained HTML), `index.html` gallery, `PROMPT.md` for outside AI reviewers |
+
+## Hosting (owner decision 2026-10-08)
+
+GitHub Pages at https://khoicorn.github.io/Ielts-Take-Note-App/. Deploy script: `.github/workflows/deploy.yml` (typecheck + tests gate the deploy). Owner enables Settings → Pages → Source: GitHub Actions.
+
+Done 2026-10-08: base path, basename, PWA scope, local Pages-like test. Owner set Source: GitHub Actions.
 
 ## Next steps
 
 1. Done: both workflows finished and are committed.
 2. Done: pushed.
-3. Owner sends `docs/mockups/png/*` + `docs/mockups/PROMPT.md` to other AIs and brings back their feedback.
-4. **Owner decision (2026-10-07): hold Workflow 2 (screens) until that feedback arrives.** Then add the feedback to the plan's screen tasks and start Workflow 2: 7 screen agents (Quick Add, Review, Note Detail, Today + Calendar, notebooks, My Mistakes + Model Paragraphs, Search + Settings) → integration.
+3. Done: owner feedback applied; Workflow 2 done.
+4. Workflow 3: QA. Extra focus: Review and Settings (built by integration without a mockup comparison), Today/Calendar and Search (agents lost their reports).
 5. Workflow 3: QA (visual, flows, data integrity, accessibility, microcopy) with verified findings, then final checks.

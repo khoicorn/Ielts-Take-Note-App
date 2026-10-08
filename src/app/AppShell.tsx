@@ -1,5 +1,5 @@
 import type React from 'react'
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router'
 import { BottomNav } from './BottomNav'
 import { MobileTopBar } from './MobileTopBar'
@@ -50,7 +50,10 @@ export function AppShell(): React.JSX.Element {
         className="min-w-0 pb-[calc(4rem+env(safe-area-inset-bottom))] outline-none sm:pb-0 sm:pl-16 lg:pl-58"
       >
         <div className="px-4 pt-8 pb-20 sm:px-10 sm:pt-12 lg:px-14 lg:pt-16">
-          <Outlet />
+          {/* Screens load as separate chunks. The fallback is an empty, page-colored block: no spinner flash. */}
+          <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" />}>
+            <Outlet />
+          </Suspense>
         </div>
       </main>
       <BottomNav />

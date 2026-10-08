@@ -7,18 +7,39 @@ import { IconButton } from './IconButton'
 /* ---------- open-dialog registry (GlobalHotkeys pauses while any dialog is open) ---------- */
 
 const stack: string[] = []
+/** Each open dialog's backdrop: the layer toasts move into while it is on top. */
+const layers = new Map<string, HTMLElement>()
 const subscribers = new Set<() => void>()
 function emit() {
   for (const fn of subscribers) fn()
 }
-function pushDialog(id: string) {
+function subscribe(cb: () => void): () => void {
+  subscribers.add(cb)
+  return () => subscribers.delete(cb)
+}
+function pushDialog(id: string, layer: HTMLElement | null) {
   if (!stack.includes(id)) stack.push(id)
+  if (layer) layers.set(id, layer)
   emit()
 }
 function removeDialog(id: string) {
   const i = stack.indexOf(id)
   if (i !== -1) stack.splice(i, 1)
+  layers.delete(id)
   emit()
+}
+
+/**
+ * The backdrop element of the top open dialog, or null. Toasts render inside it while a dialog is open,
+ * so their buttons (Undo, View) stay in the dialog's Tab cycle and are not hidden by aria-modal.
+ */
+export function useTopDialogLayer(): HTMLElement | null {
+  const top = useSyncExternalStore(
+    subscribe,
+    () => stack[stack.length - 1] ?? null,
+    () => null,
+  )
+  return top ? (layers.get(top) ?? null) : null
 }
 
 /** True while any Dialog is open. Read at event time by global shortcuts. */
@@ -28,14 +49,7 @@ export function isAnyDialogOpen(): boolean {
 
 /** React hook form of isAnyDialogOpen(). */
 export function useAnyDialogOpen(): boolean {
-  return useSyncExternalStore(
-    (cb) => {
-      subscribers.add(cb)
-      return () => subscribers.delete(cb)
-    },
-    () => stack.length > 0,
-    () => false,
-  )
+  return useSyncExternalStore(subscribe, () => stack.length > 0, () => false)
 }
 
 /* ---------- scroll lock ---------- */
@@ -55,6 +69,18 @@ function unlockScroll() {
   document.body.style.overflow = saved.overflow
   document.body.style.paddingRight = saved.paddingRight
   saved = null
+}
+
+/**
+ * Keeps the page behind still while `active` (dialogs, the paragraph focus editor). Locks are counted,
+ * so nested overlays restore the page only when the last one closes.
+ */
+export function useScrollLock(active: boolean): void {
+  useEffect(() => {
+    if (!active) return
+    lockScroll()
+    return unlockScroll
+  }, [active])
 }
 
 /* ---------- focus helpers ---------- */
@@ -116,6 +142,7 @@ export function Dialog(props: DialogProps): React.JSX.Element | null {
   const descId = `${id}-desc`
   const [mounted, setMounted] = useState(open)
   const [visible, setVisible] = useState(false)
+  const backdropRef = useRef<HTMLDivElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
   const footerRef = useRef<HTMLDivElement>(null)
@@ -159,7 +186,7 @@ export function Dialog(props: DialogProps): React.JSX.Element | null {
   // Register, lock scroll, and move focus inside.
   useEffect(() => {
     if (!open || !mounted) return
-    pushDialog(id)
+    pushDialog(id, backdropRef.current)
     lockScroll()
     const panel = panelRef.current
     if (panel && !panel.contains(document.activeElement)) {
@@ -189,7 +216,8 @@ export function Dialog(props: DialogProps): React.JSX.Element | null {
       return
     }
     if (e.key === 'Tab') {
-      const items = focusableIn(panelRef.current)
+      // The backdrop holds the panel and, while this dialog is on top, the toasts (their Undo stays reachable).
+      const items = focusableIn(backdropRef.current)
       if (items.length === 0) {
         e.preventDefault()
         return
@@ -211,6 +239,7 @@ export function Dialog(props: DialogProps): React.JSX.Element | null {
 
   return createPortal(
     <div
+      ref={backdropRef}
       data-dialog-backdrop=""
       className={cn(
         'fixed inset-0 z-50 flex justify-center bg-scrim/75 dark:bg-scrim transition-opacity duration-180 ease-quiet',

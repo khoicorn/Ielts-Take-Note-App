@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { cn } from './cn'
+import { focusableIn, useTopDialogLayer } from './Dialog'
 
 interface ToastOptions {
   action?: { label: string; onClick: () => void }
@@ -113,6 +114,18 @@ export function ToastProvider(props: { children: React.ReactNode }): React.JSX.E
   }, [])
 
   const api = useMemo(() => ({ show }), [show])
+  // While a dialog is open, toasts live inside its layer: Tab reaches their buttons and aria-modal does not hide them.
+  const layer = useTopDialogLayer()
+
+  // The toasts come last in the dialog layer. Tab from the last toast button goes back to the dialog's first control.
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key !== 'Tab' || e.shiftKey || !layer) return
+    const items = focusableIn(layer)
+    if (items.length > 0 && document.activeElement === items[items.length - 1]) {
+      e.preventDefault()
+      items[0].focus()
+    }
+  }
 
   return (
     <ToastContext.Provider value={api}>
@@ -122,16 +135,20 @@ export function ToastProvider(props: { children: React.ReactNode }): React.JSX.E
             <div
               role="status"
               aria-live="polite"
+              onKeyDown={onKeyDown}
               className={cn(
-                'pointer-events-none fixed inset-x-0 z-[70] flex flex-col items-center gap-2 px-4',
-                'bottom-[calc(4.75rem+env(safe-area-inset-bottom))] sm:bottom-6',
+                'pointer-events-none fixed inset-x-0 z-[70] flex flex-col items-center gap-2 px-4 sm:bottom-6',
+                // Phones: above the bottom bar. Inside a full-screen sheet the Save bar sits there, so toasts go to the top.
+                layer
+                  ? 'max-sm:top-[max(0.75rem,env(safe-area-inset-top))]'
+                  : 'bottom-[calc(4.75rem+env(safe-area-inset-bottom))]',
               )}
             >
               {items.map((t) => (
                 <ToastView key={t.id} item={t} onDismiss={dismiss} />
               ))}
             </div>,
-            document.body,
+            layer ?? document.body,
           )
         : null}
     </ToastContext.Provider>
