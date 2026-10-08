@@ -16,14 +16,15 @@ import { cn } from './cn'
 import { ICON_STROKE } from './icons'
 
 /**
- * Shared look for text controls: paper surface, hairline border, small radius.
- * Focus: the border and a 1px outline turn indigo (a crisp 2px edge, no glow).
+ * Shared look for text controls: paper surface, warm hairline border, small radius.
+ * Focus: the border and a 1px outline take the focus color (a crisp 2px edge, no glow): ink-indigo by day,
+ * amber by night (design v1.2 rule 10).
  * Under 640px the text is 16px so mobile Safari does not zoom on focus.
  */
 const controlBase = cn(
   'w-full rounded-sm border border-line-strong bg-paper text-body max-sm:text-body-lg',
   'placeholder:text-graphite transition-[border-color,background-color] duration-150',
-  'hover:border-ink/30 focus-visible:border-indigo focus-visible:outline-1 focus-visible:outline-offset-0 focus-visible:outline-indigo',
+  'hover:border-ink/30 focus-visible:border-focus focus-visible:outline-1 focus-visible:outline-offset-0 focus-visible:outline-focus',
   'aria-invalid:border-crimson/70 disabled:cursor-not-allowed disabled:opacity-50',
 )
 
@@ -313,7 +314,8 @@ export function Checkbox(props: { checked: boolean; onChange: (v: boolean) => vo
           onChange={(e) => props.onChange(e.target.checked)}
           className={cn(
             'peer size-4 cursor-pointer appearance-none rounded-xs border border-line-strong bg-paper transition-colors duration-150',
-            'checked:border-indigo checked:bg-indigo hover:border-ink/40',
+            // Filled controls use indigo-fill (design v1.2). By night the deep fill gets a gilt edge so it reads as on.
+            'checked:border-indigo-fill checked:bg-indigo-fill hover:border-ink/40 dark:checked:border-gold/75',
           )}
         />
         <Check
@@ -346,7 +348,7 @@ export function Switch(props: { checked: boolean; onChange: (v: boolean) => void
         onClick={() => props.onChange(!checked)}
         className={cn(
           'relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-sm border transition-colors duration-180',
-          checked ? 'border-indigo bg-indigo' : 'border-line-strong bg-stone',
+          checked ? 'border-indigo-fill bg-indigo-fill dark:border-gold/75' : 'border-line-strong bg-stone',
         )}
       >
         <span

@@ -42,7 +42,7 @@ export function NoteRow(props: {
           state={linkState}
           className={cn(
             // No outline-none here: in Tailwind 4 it sets --tw-outline-style to none, which also hides the focus ring.
-            'flex min-w-0 flex-1 items-start gap-6 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-indigo',
+            'flex min-w-0 flex-1 items-start gap-6 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus',
             // The link reaches into the row's 12px side padding, so the focus ring frames the hover surface, not the text edge.
             '-ml-3 pl-3',
             trailing ? null : '-mr-3 pr-3',

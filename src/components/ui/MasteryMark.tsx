@@ -11,7 +11,8 @@ export function MasteryGlyph(props: { status: MasteryStatus; className?: string 
   const { status, className } = props
   if (status === 'mastered') {
     return (
-      <svg viewBox="0 0 12 12" className={cn('size-3 shrink-0 text-gold', className)} aria-hidden="true" focusable="false">
+      // Readable brass (design v1.2 rule 9): 4.5:1 by day, where the decorative gold would be 2.9:1.
+      <svg viewBox="0 0 12 12" className={cn('size-3 shrink-0 text-brass', className)} aria-hidden="true" focusable="false">
         <path
           fill="currentColor"
           d="M6 0.6C6.25 3.6 8.4 5.75 11.4 6C8.4 6.25 6.25 8.4 6 11.4C5.75 8.4 3.6 6.25 0.6 6C3.6 5.75 5.75 3.6 6 0.6Z"

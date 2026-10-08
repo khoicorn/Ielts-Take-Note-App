@@ -128,7 +128,8 @@ describe('NotePair', () => {
     const link = screen.getByRole('link')
     // outline-none would set --tw-outline-style to none and hide the focus-visible ring (Tailwind 4).
     expect(link).not.toHaveClass('outline-none')
-    expect(link).toHaveClass('focus-visible:outline-2', 'focus-visible:outline-indigo')
+    // Design v1.2 rule 10: the ring uses the focus token (ink-indigo by day, amber by night).
+    expect(link).toHaveClass('focus-visible:outline-2', 'focus-visible:outline-focus')
     const metaMark = screen.getAllByText('Mastered')[0].parentElement as HTMLElement
     expect(metaMark).toHaveClass('text-meta')
     expect(metaMark).not.toHaveClass('text-small')

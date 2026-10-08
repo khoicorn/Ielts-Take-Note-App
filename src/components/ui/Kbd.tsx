@@ -17,11 +17,12 @@ export function modLabel(): string {
 type KbdTone = 'default' | 'on-accent'
 
 const TONE: Record<KbdTone, string> = {
-  default: 'border-line-strong text-graphite',
+  // A brass-tinted hairline (design v1.2). The text stays graphite.
+  default: 'border-[color-mix(in_srgb,var(--gold)_45%,var(--line-strong))] text-graphite',
   'on-accent': 'border-on-accent/35 text-on-accent/85',
 }
 
-/** A key cap. Quiet: hairline border, small sans text. Use tone "on-accent" inside indigo buttons. */
+/** A key cap. Quiet: hairline border, small sans text. Use tone "on-accent" inside primary (indigo-fill) buttons. */
 export function Kbd(props: { children: React.ReactNode; className?: string; tone?: KbdTone }): React.JSX.Element {
   return (
     <kbd

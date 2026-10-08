@@ -23,7 +23,7 @@ describe('theme', () => {
   beforeEach(() => {
     localStorage.clear()
     document.documentElement.setAttribute('data-theme', 'light')
-    document.head.innerHTML = '<meta name="theme-color" content="#F5F1E8" />'
+    document.head.innerHTML = '<meta name="theme-color" content="#EBE1CC" />'
   })
 
   it('Y1 setPreference("dark") sets data-theme="dark" and localStorage "ielts-theme"', async () => {
@@ -39,7 +39,7 @@ describe('theme', () => {
     expect(localStorage.getItem('ielts-theme')).toBe('dark')
     expect(screen.getByTestId('pref')).toHaveTextContent('dark')
     expect(screen.getByTestId('resolved')).toHaveTextContent('dark')
-    expect(document.querySelector('meta[name="theme-color"]')?.getAttribute('content')).toBe('#141319')
+    expect(document.querySelector('meta[name="theme-color"]')?.getAttribute('content')).toBe('#191511')
 
     await act(async () => {
       screen.getByRole('button', { name: 'Light' }).click()

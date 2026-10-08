@@ -2,6 +2,7 @@ import { Plus, Search } from 'lucide-react'
 import type React from 'react'
 import { Link, NavLink } from 'react-router'
 import { useDueCounts, useStudyStreak } from '@/lib/hooks'
+import { BRASS_RULE, SMALL_CAPS } from '@/components/ui/candlelit'
 import { cn } from '@/components/ui/cn'
 import { BrandMark, ICON_STROKE } from '@/components/ui/icons'
 import { Kbd, modLabel } from '@/components/ui/Kbd'
@@ -23,7 +24,7 @@ export function Wordmark(props: { className?: string; compact?: boolean }): Reac
     >
       <BrandMark className="size-[1.375rem] shrink-0 text-indigo" />
       {props.compact ? null : (
-        <span className="font-serif text-[1.3125rem] leading-none tracking-[-0.005em] whitespace-nowrap">
+        <span className="font-serif text-[1.375rem] leading-none tracking-[-0.005em] whitespace-nowrap">
           Upgrade Notebook
         </span>
       )}
@@ -46,7 +47,8 @@ export function SidebarLink(props: { item: NavItem; count?: number; onNavigate?:
       className={({ isActive }) =>
         cn(
           'group relative flex h-9 items-center gap-3 rounded-sm pr-2.5 pl-3 text-body transition-colors duration-150 focus-visible:outline-offset-[-2px] max-sm:h-11',
-          isActive ? 'text-ink' : 'text-graphite hover:bg-stone/60 hover:text-ink',
+          // Active: a faint lit surface (paper by day, stone by night) and a 2px brass bar (design v1.2).
+          isActive ? 'bg-paper/55 text-ink dark:bg-stone/70' : 'text-graphite hover:bg-stone/60 hover:text-ink',
         )
       }
     >
@@ -55,7 +57,7 @@ export function SidebarLink(props: { item: NavItem; count?: number; onNavigate?:
           <span
             aria-hidden="true"
             className={cn(
-              'absolute top-2 bottom-2 left-0 w-0.5 rounded-full bg-indigo transition-opacity duration-180',
+              'absolute top-[7px] bottom-[7px] left-0 w-0.5 rounded-full bg-brass transition-opacity duration-180',
               isActive ? 'opacity-100' : 'opacity-0',
             )}
           />
@@ -83,8 +85,10 @@ export function NavList(props: { onNavigate?: () => void; reviewCount?: number }
       {NAV_GROUPS.map((g, gi) => (
         <div key={gi} className={gi > 0 ? 'mt-5' : undefined}>
           {g.label ? (
-            <p className="mb-1 pl-3 font-serif text-body-lg italic text-graphite" aria-hidden="true">
+            // Like a book's table of contents: italic small caps, then a brass hairline to the edge.
+            <p className={cn('mb-1.5 flex items-center gap-2.5 pr-2 pl-3', SMALL_CAPS)} aria-hidden="true">
               {g.label}
+              <span className={cn('h-px flex-1', BRASS_RULE)} />
             </p>
           ) : null}
           <ul className="flex flex-col gap-px">
@@ -112,7 +116,7 @@ function FullSidebar(props: { style?: React.CSSProperties }): React.JSX.Element 
   return (
     <aside
       style={props.style}
-      className="fixed inset-y-0 left-0 z-30 flex w-58 flex-col border-r border-line bg-page px-3 pt-6 pb-4"
+      className="fixed inset-y-0 left-0 z-30 flex w-58 flex-col border-r border-line px-3 pt-6 pb-4"
     >
       <div className="px-2 pb-6">
         <Wordmark />
@@ -175,14 +179,14 @@ function RailItem(props: { item: NavItem; count?: number }): React.JSX.Element {
             <span
               aria-hidden="true"
               className={cn(
-                'absolute top-2.5 bottom-2.5 left-0 w-0.5 rounded-r-full bg-indigo transition-opacity duration-180',
+                'absolute top-2.5 bottom-2.5 left-0 w-0.5 rounded-r-full bg-brass transition-opacity duration-180',
                 isActive ? 'opacity-100' : 'opacity-0',
               )}
             />
             <span
               className={cn(
                 'relative flex size-10 items-center justify-center rounded-sm transition-colors duration-150',
-                !isActive && 'group-hover:bg-stone/60',
+                isActive ? 'bg-paper/55 dark:bg-stone/70' : 'group-hover:bg-stone/60',
               )}
             >
               <Icon className="size-5" strokeWidth={ICON_STROKE} aria-hidden="true" />
@@ -226,7 +230,7 @@ function Rail(props: { style?: React.CSSProperties }): React.JSX.Element {
   return (
     <aside
       style={props.style}
-      className="fixed inset-y-0 left-0 z-30 flex w-16 flex-col items-center border-r border-line bg-page pt-5 pb-3"
+      className="fixed inset-y-0 left-0 z-30 flex w-16 flex-col items-center border-r border-line pt-5 pb-3"
     >
       <Wordmark compact className="mb-5 p-2" />
       <div className="flex flex-col items-center gap-1.5">
@@ -237,7 +241,7 @@ function Rail(props: { style?: React.CSSProperties }): React.JSX.Element {
           <Search className="size-[1.125rem]" strokeWidth={ICON_STROKE} aria-hidden="true" />
         </RailButton>
       </div>
-      <div className="my-4 h-px w-8 bg-line" aria-hidden="true" />
+      <div className={cn('my-4 h-px w-8', BRASS_RULE)} aria-hidden="true" />
       <nav aria-label="Main" className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto">
         <ul className="flex flex-col">
           {NAV_GROUPS.flatMap((g) => g.keys).map((k) => (

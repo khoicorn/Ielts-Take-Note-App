@@ -19,12 +19,24 @@ import { todayKey } from '@/lib/dates'
 import type { MasteryStatus, Note } from '@/lib/types'
 import { MASTERY_ORDER, SPEAKING_TOPICS } from '@/lib/taxonomy'
 import { Button, ButtonLink } from '@/components/ui/Button'
+import {
+  BRASS_BORDER,
+  BRASS_DOUBLE_RULE,
+  BRASS_RULE,
+  FILL,
+  GILT_ROUND,
+  NUMERAL,
+  SERIF_ASIDE,
+  SMALL_CAPS,
+  SMALL_CAPS_QUIET,
+  TITLE_INITIAL,
+} from '@/components/ui/candlelit'
 import { cn } from '@/components/ui/cn'
 import { Combobox } from '@/components/ui/Combobox'
 import { useConfirm } from '@/components/ui/Confirm'
 import { Dialog } from '@/components/ui/Dialog'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { FavoriteStar } from '@/components/ui/FavoriteStar'
+import { FavoriteStar, MustRememberMark } from '@/components/ui/FavoriteStar'
 import { Checkbox, Field, Select, Switch, TextArea, TextInput } from '@/components/ui/Field'
 import { IconButton } from '@/components/ui/IconButton'
 import { BrandMark, ConstellationIcon, CrescentIcon, ICON_STROKE, QuillIcon, SparkIcon } from '@/components/ui/icons'
@@ -186,30 +198,116 @@ function Block(props: { id: string; title: string; children: React.ReactNode; no
 }
 
 const TOKENS: { name: string; role: string; swatch: string }[] = [
-  { name: 'page', role: 'Parchment. Page background', swatch: 'bg-page' },
-  { name: 'paper', role: 'Paper. Writing areas, dialogs', swatch: 'bg-paper' },
+  { name: 'page', role: 'Parchment edge tone. Page background', swatch: 'bg-page' },
+  { name: 'paper', role: 'Paper. Inputs, dialogs, rating buttons', swatch: 'bg-paper' },
   { name: 'stone', role: 'Stone. Hover, selected', swatch: 'bg-stone' },
   { name: 'ink', role: 'Primary text', swatch: 'bg-ink' },
   { name: 'graphite', role: 'Metadata, labels', swatch: 'bg-graphite' },
-  { name: 'indigo', role: 'Active nav, primary action', swatch: 'bg-indigo' },
+  { name: 'indigo', role: 'Links, active icons, thin bars', swatch: 'bg-indigo' },
+  { name: 'indigo-fill', role: 'Primary button, filled controls', swatch: 'bg-indigo-fill' },
   { name: 'plum', role: 'Speaking accent', swatch: 'bg-plum' },
   { name: 'sage', role: 'Writing accent (icons only)', swatch: 'bg-sage' },
-  { name: 'gold', role: 'Ornaments, favorites (never text)', swatch: 'bg-gold' },
+  { name: 'gold', role: 'Brass rules, ornaments, gilt (never text)', swatch: 'bg-gold' },
+  { name: 'brass', role: 'Readable brass: numerals, nav bar, ✦', swatch: 'bg-brass' },
+  { name: 'garnet', role: 'Title initial, ribbon (fill only at night)', swatch: 'bg-garnet' },
+  { name: 'rubric', role: 'Small-caps eyebrows', swatch: 'bg-rubric' },
   { name: 'crimson', role: 'The mistake', swatch: 'bg-crimson' },
   { name: 'upgrade', role: 'Deep sage. The better English', swatch: 'bg-upgrade' },
+  { name: 'focus', role: 'Focus ring: indigo by day, amber by night', swatch: 'bg-focus' },
+  { name: 'glow', role: 'Candle light behind the reading column', swatch: 'bg-glow' },
+  { name: 'vignette', role: 'Far corners only', swatch: 'bg-vignette' },
   { name: 'line', role: 'Hairlines', swatch: 'bg-line' },
+  { name: 'line-strong', role: 'Field and button borders', swatch: 'bg-line-strong' },
 ]
 
 const TYPE: { token: string; className: string; sample: string }[] = [
-  { token: 'title · serif 32', className: 'font-serif text-title', sample: 'Wednesday, 7 October' },
-  { token: 'recall · 28', className: 'text-recall', sample: 'We enjoyed the scenario.' },
-  { token: 'section · serif 21', className: 'font-serif text-section', sample: 'Recent notes' },
-  { token: 'note · 18', className: 'text-note', sample: 'The scenery was beautiful.' },
-  { token: 'body-lg · 16', className: 'text-body-lg', sample: 'The scenery along the coast was beautiful.' },
-  { token: 'body · 15', className: 'text-body', sample: 'Your notebook has 12 items waiting for review.' },
+  { token: 'title · serif 36', className: cn('font-serif text-title text-ink', TITLE_INITIAL), sample: 'Wednesday, 7 October' },
+  { token: 'numeral · serif 44', className: NUMERAL, sample: '8' },
+  { token: 'answer · serif 40', className: 'font-serif text-answer text-upgrade', sample: '“The scenery was beautiful.”' },
+  { token: 'recall · 28', className: 'text-recall text-ink', sample: 'We enjoyed the scenario.' },
+  { token: 'section · serif 22', className: 'font-serif text-section text-ink', sample: 'Recent notes' },
+  { token: 'note · 18', className: 'text-note text-ink', sample: 'The scenery was beautiful.' },
+  { token: 'body-lg · 16', className: 'text-body-lg text-ink', sample: 'The scenery along the coast was beautiful.' },
+  { token: 'body · 15', className: 'text-body text-ink', sample: 'Your notebook has 12 items waiting for review.' },
   { token: 'small · 13', className: 'text-small text-graphite', sample: 'Travel · Correction · Due today' },
   { token: 'meta · 12', className: 'text-meta text-graphite', sample: '10 days of consistent study.' },
 ]
+
+/** The pieces design v1.2 changed, in one place. Rendered twice: in the current theme and forced to night. */
+function CandlelitSpecimen(props: { idPrefix: string }): React.JSX.Element {
+  const [on, setOn] = useState(true)
+  const [check, setCheck] = useState(true)
+  const [sw, setSw] = useState(true)
+  const [tab, setTab] = useState('task1')
+  return (
+    <div className="grid gap-7">
+      <div>
+        <p className={SMALL_CAPS}>Academic Task 1</p>
+        <h3 className={cn('font-serif text-title font-normal text-ink', TITLE_INITIAL)}>Trend Language</h3>
+      </div>
+      <div className={cn('grid grid-cols-2', BRASS_DOUBLE_RULE)}>
+        {(
+          [
+            ['Speaking', 8],
+            ['Writing', 4],
+          ] as const
+        ).map(([label, n], i) => (
+          <div key={label} className={cn('border-b border-line py-3', i === 0 && 'border-r pr-4', i === 1 && 'pl-4')}>
+            <p className="text-small text-graphite">{label}</p>
+            <p className="flex items-baseline gap-2">
+              <span className={NUMERAL}>{n}</span>
+              <span className={SERIF_ASIDE}>due</span>
+            </p>
+          </div>
+        ))}
+      </div>
+      <Section title="Most repeated issue this week" mark action={<span className="text-graphite">4 notes</span>}>
+        <p className={cn('mt-3', SMALL_CAPS)}>Mistake → Upgrade</p>
+        <NotePair note={SAMPLE_NOTES[0]} size="compact" className="mt-2" />
+      </Section>
+      <div className="flex flex-wrap items-center gap-3">
+        <Button variant="primary" iconRight={ArrowRight}>
+          Begin Review
+        </Button>
+        <Button variant="primary" size="sm" kbd="N">
+          Save
+        </Button>
+        <Button>Save and add another</Button>
+        <span
+          className={cn('flex size-12 items-center justify-center rounded-full', FILL, GILT_ROUND)}
+          role="img"
+          aria-label="Mobile Add button"
+        >
+          <Plus className="size-6" strokeWidth={ICON_STROKE} aria-hidden="true" />
+        </span>
+      </div>
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+        <FavoriteStar active={on} onToggle={() => setOn(!on)} label="Must Remember" variant="field" />
+        <FavoriteStar active={on} onToggle={() => setOn(!on)} />
+        <MustRememberMark />
+        <MasteryMark status="mastered" />
+        <Checkbox id={`${props.idPrefix}-check`} checked={check} onChange={setCheck} label="Due now" />
+        <Switch id={`${props.idPrefix}-switch`} checked={sw} onChange={setSw} label="Mixed review" />
+      </div>
+      <UnderlineTabs
+        aria-label={`Writing task (${props.idPrefix})`}
+        value={tab}
+        onChange={setTab}
+        items={[
+          { value: 'task1', label: 'Academic Task 1', count: 24 },
+          { value: 'task2', label: 'Task 2', count: 9 },
+        ]}
+      />
+      <div className="relative rounded-lg border border-line-strong bg-paper px-6 pt-5 pb-14 shadow-float">
+        <span aria-hidden="true" className={cn('pointer-events-none absolute inset-1.5 rounded-sm border', BRASS_BORDER)} />
+        <p className="font-serif text-section text-ink">New Speaking note</p>
+        <p className={SMALL_CAPS_QUIET}>What I Said → Native Upgrade</p>
+        <span aria-hidden="true" className={cn('absolute inset-x-[7px] bottom-11 h-px', BRASS_RULE)} />
+      </div>
+      <Ornament variant="constellation" />
+    </div>
+  )
+}
 
 /* ---------- the page ---------- */
 
@@ -290,7 +388,23 @@ export function DesignPreview(): React.JSX.Element {
         }
       />
 
-      {/* Notes come first: they are the hero of the product. */}
+      <Block
+        id="candlelit"
+        title="Candlelit Library (v1.2)"
+        note="The pieces design v1.2 changed. First panel: the current theme. Second panel: always night, so both show in one screenshot."
+      >
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <div className="min-w-0 rounded-lg border border-line p-5 sm:p-6">
+            <CandlelitSpecimen idPrefix="day" />
+          </div>
+          {/* data-theme on a subtree switches the tokens and the dark: variant for that subtree only. */}
+          <div data-theme="dark" className="min-w-0 rounded-lg border border-line bg-page p-5 text-ink sm:p-6">
+            <CandlelitSpecimen idPrefix="night" />
+          </div>
+        </div>
+      </Block>
+
+      {/* Notes come first among the components: they are the hero of the product. */}
       <Block id="notes" title="Notes" note="Brief §18. The mistake is smaller and crimson; the upgrade is larger and stands out more.">
         <Row label="Detail · speaking">
           <div className="w-full max-w-[680px] py-2">
@@ -374,9 +488,17 @@ export function DesignPreview(): React.JSX.Element {
       <Block id="type" title="Type">
         {TYPE.map((t) => (
           <Row key={t.token} label={t.token}>
-            <p className={cn(t.className, !t.className.includes('graphite') && 'text-ink')}>{t.sample}</p>
+            <p className={t.className}>{t.sample}</p>
           </Row>
         ))}
+        <Row label="Eyebrow · small caps">
+          <p className={SMALL_CAPS}>Academic Task 1</p>
+          <p className={SMALL_CAPS}>Mistake → Upgrade</p>
+          <p className={SMALL_CAPS_QUIET}>What I Said → Native Upgrade</p>
+        </Row>
+        <Row label="Aside · italic serif">
+          <p className={SERIF_ASIDE}>How well did you recall it?</p>
+        </Row>
         <Row label="Eyebrow · italic serif">
           <p className="font-serif text-body-lg text-plum italic">Error Ledger</p>
           <p className="font-serif text-body-lg text-graphite italic">Essential Notes</p>
@@ -551,6 +673,13 @@ export function DesignPreview(): React.JSX.Element {
           <span className="inline-flex items-center gap-2 text-small text-graphite">
             Static <FavoriteStar active />
           </span>
+          <MustRememberMark />
+        </Row>
+        <Row label="Must remember, labeled">
+          <FavoriteStar active={fav} onToggle={() => setFav(!fav)} label="Must Remember" />
+          <FavoriteStar active={fav2} onToggle={() => setFav2(!fav2)} label="Must Remember" />
+          <FavoriteStar active={fav} onToggle={() => setFav(!fav)} label="Must Remember" variant="field" />
+          <FavoriteStar active={fav2} onToggle={() => setFav2(!fav2)} label="Must Remember" variant="field" />
         </Row>
         <Row label="Mode">
           <ModeMark mode="speaking" />
@@ -729,6 +858,7 @@ export function DesignPreview(): React.JSX.Element {
         <div className="mt-8 rounded-lg border border-line bg-paper p-6 sm:p-10">
           <PageHeader
             eyebrow="Error Ledger"
+            eyebrowTone="rubric"
             title="My Mistakes"
             description="Your repeated habits, grouped. Fix the most frequent first."
             actions={
@@ -739,7 +869,7 @@ export function DesignPreview(): React.JSX.Element {
           >
             <ModeTabs value="writing" />
           </PageHeader>
-          <Section title="Prepositions" action={<span className="text-graphite">4 notes</span>}>
+          <Section title="Prepositions" mark action={<span className="text-graphite">4 notes</span>}>
             <div className="py-4">
               <p className="text-body-lg text-crimson">visitors of + place</p>
               <p className="mt-1 text-small text-graphite">Seen 4 times</p>
@@ -755,7 +885,8 @@ export function DesignPreview(): React.JSX.Element {
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         title="New Speaking note"
-        description="What I said → Native upgrade"
+        description="What I Said → Native Upgrade"
+        descriptionStyle="smallcaps"
         placement="top"
         footer={
           <>

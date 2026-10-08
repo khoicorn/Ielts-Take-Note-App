@@ -1,14 +1,16 @@
 import type React from 'react'
 import { Suspense, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router'
+import { CandleLight } from '@/components/ui/CandleLight'
+import { cn } from '@/components/ui/cn'
 import { BottomNav } from './BottomNav'
 import { MobileTopBar } from './MobileTopBar'
 import { Sidebar } from './Sidebar'
 import { useTheme } from './theme'
 
 /**
- * A very faint paper grain (about 1.5% average alpha). Ink-colored specks on parchment,
- * light specks on the night theme. Plan: skip it if it ever reads as dirt or lowers contrast.
+ * A very faint paper grain (about 1.5% average alpha), tinted warm: sepia specks on parchment,
+ * candle-cream specks on the night theme. Plan: skip it if it ever reads as dirt or lowers contrast.
  */
 function grain(rgb: string, opacity: number): string {
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='${rgb} 0 0 0 1.2 -0.25'/></filter><rect width='160' height='160' filter='url(%23g)' opacity='${opacity}'/></svg>`
@@ -16,9 +18,20 @@ function grain(rgb: string, opacity: number): string {
 }
 
 const GRAIN = {
-  light: grain('0 0 0 0 0.13 0 0 0 0 0.12 0 0 0 0 0.14', 0.05),
-  dark: grain('0 0 0 0 0.92 0 0 0 0 0.9 0 0 0 0 0.86', 0.035),
+  light: grain('0 0 0 0 0.3 0 0 0 0 0.2 0 0 0 0 0.1', 0.05),
+  dark: grain('0 0 0 0 0.95 0 0 0 0 0.85 0 0 0 0 0.7', 0.03),
 }
+
+/**
+ * Centers the candle glow on the 760px reading column (READING_PAGE in cn.ts), not on the whole main area,
+ * about 310px from the top. ≥1024px: sidebar 232px + padding 56px, column offset max(0, (main - 1040px) / 2).
+ * 640–1023px: rail 64px + padding 40px. Phones: the middle of the screen.
+ */
+const GLOW_AT = cn(
+  'top-[-140px] left-1/2',
+  'sm:left-[calc(104px_+_min(760px,_100%_-_144px)_/_2)]',
+  'lg:left-[calc(288px_+_max(0px,_(100%_-_1384px)_/_2)_+_min(760px,_100%_-_344px)_/_2)]',
+)
 
 /**
  * Under 640px the sticky top bar (h-14 + 1px border) and the fixed bottom bar (h-16 + 1px border) cover
@@ -50,18 +63,22 @@ export function AppShell(): React.JSX.Element {
   }, [])
 
   return (
-    <div className="relative min-h-dvh bg-page text-ink" style={paper}>
+    // `isolate`: the candle layer (z-index -10) paints above this page-colored background and below all content.
+    // Dialogs, menus and toasts portal to <body>, outside this stacking context, so the layer never covers them.
+    <div className="relative isolate min-h-dvh bg-page text-ink" style={paper}>
+      <CandleLight glowClassName={GLOW_AT} />
       <a
         href="#main"
         className="sr-only rounded-sm bg-paper px-3 py-2 text-small text-ink shadow-float focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[90]"
       >
         Skip to content
       </a>
+      {/* The sidebar and rail are transparent: the grain, glow and vignette run under them without a seam. */}
       <div className="hidden lg:block">
-        <Sidebar variant="full" style={paper} />
+        <Sidebar variant="full" />
       </div>
       <div className="hidden sm:block lg:hidden">
-        <Sidebar variant="rail" style={paper} />
+        <Sidebar variant="rail" />
       </div>
       <MobileTopBar />
       <main

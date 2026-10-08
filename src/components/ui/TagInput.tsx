@@ -51,7 +51,7 @@ export function TagInput(props: {
       className={cn(
         'flex min-h-10 w-full cursor-text flex-wrap items-center gap-1.5 rounded-sm border border-line-strong bg-paper px-2 py-1.5',
         'transition-colors duration-150 hover:border-ink/30 max-sm:min-h-11',
-        focused && 'border-indigo outline-1 outline-indigo',
+        focused && 'border-focus outline-1 outline-focus',
       )}
     >
       {value.map((t) => (

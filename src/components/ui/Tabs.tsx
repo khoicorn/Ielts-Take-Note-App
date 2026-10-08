@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import type { Mode } from '@/lib/types'
 import { cn } from './cn'
@@ -23,8 +23,9 @@ function arrowNav(e: React.KeyboardEvent, index: number, count: number): number 
 }
 
 /**
- * Brief §4: plain text tabs. Active = ink text and a 1.5px indigo underline that slides.
- * Inactive = graphite. No pills. Items with `to` render as links (aria-current) inside a nav.
+ * Brief §4: plain text tabs. Active = ink text and a 2px brass underline that draws in from the left (200ms,
+ * design v1.2) each time a tab becomes active. Inactive = graphite. No pills.
+ * Items with `to` render as links (aria-current) inside a nav.
  */
 export function UnderlineTabs(props: {
   items: TabItem[]
@@ -37,7 +38,6 @@ export function UnderlineTabs(props: {
   const { items, value, onChange, size = 'md', className } = props
   const listRef = useRef<HTMLDivElement>(null)
   const [bar, setBar] = useState<{ x: number; w: number } | null>(null)
-  const [animate, setAnimate] = useState(false)
   const isNav = items.some((i) => i.to)
 
   useLayoutEffect(() => {
@@ -56,11 +56,6 @@ export function UnderlineTabs(props: {
     document.fonts?.ready.then(measure).catch(() => {})
     return () => ro?.disconnect()
   }, [value, items])
-
-  useEffect(() => {
-    const raf = requestAnimationFrame(() => setAnimate(true))
-    return () => cancelAnimationFrame(raf)
-  }, [])
 
   const focusTab = (i: number) => {
     const el = listRef.current?.querySelectorAll<HTMLElement>('[data-tab]')[i]
@@ -133,13 +128,14 @@ export function UnderlineTabs(props: {
         )
       })}
       {bar ? (
+        // Keyed on the active value: a new tab mounts a new bar, so the draw-in plays again. Placed with `left`,
+        // because the animation owns `transform` (scaleX). Re-measuring (resize, fonts) moves it without a replay.
         <span
+          key={value}
           aria-hidden="true"
-          className={cn(
-            'pointer-events-none absolute bottom-0 left-0 h-[1.5px] bg-indigo',
-            animate && 'transition-[transform,width] duration-180 ease-quiet',
-          )}
-          style={{ width: bar.w, transform: `translateX(${bar.x}px)` }}
+          data-tab-underline=""
+          className="pointer-events-none absolute bottom-0 h-0.5 origin-left animate-draw bg-brass"
+          style={{ left: bar.x, width: bar.w }}
         />
       ) : null}
     </div>
@@ -206,7 +202,10 @@ export function SegmentedControl<T extends string>(props: {
             }}
             className={cn(
               'inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-xs px-3 text-small whitespace-nowrap transition-colors duration-150 max-sm:h-11',
-              selected ? 'bg-stone text-ink' : 'text-graphite hover:text-ink',
+              // Selected: a stone surface with a faint brass edge (design v1.2). Text is ink, never graphite on stone.
+              selected
+                ? 'bg-stone text-ink shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--gold)_32%,transparent)]'
+                : 'text-graphite hover:text-ink',
             )}
           >
             {Icon ? <Icon className="size-3.5" strokeWidth={ICON_STROKE} aria-hidden="true" /> : null}

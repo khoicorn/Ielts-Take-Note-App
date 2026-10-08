@@ -18,6 +18,6 @@ export const READING_PAGE = 'mr-auto max-w-[760px] ml-[max(0px,calc((100%_-_1040
 
 /**
  * The active option of a listbox (Combobox, TagInput), where focus stays in the input:
- * a 2px indigo bar at the left edge, like the active nav item, plus a light tint.
+ * a 2px brass bar at the left edge, like the active nav item (design v1.2), plus a light tint.
  */
-export const ACTIVE_OPTION = 'relative bg-stone/60 before:absolute before:inset-y-1.5 before:left-0 before:w-0.5 before:bg-indigo'
+export const ACTIVE_OPTION = 'relative bg-stone/60 before:absolute before:inset-y-1.5 before:left-0 before:w-0.5 before:bg-brass'

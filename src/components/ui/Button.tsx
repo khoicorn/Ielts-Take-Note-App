@@ -1,6 +1,7 @@
 import { LoaderCircle } from 'lucide-react'
 import React, { forwardRef } from 'react'
 import { Link } from 'react-router'
+import { FILL, FILL_HOVER, GILT } from './candlelit'
 import { cn } from './cn'
 import { ICON_STROKE, type IconType } from './icons'
 import { KeyHint } from './Kbd'
@@ -19,10 +20,15 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   kbd?: string
 }
 
+/*
+ * Design v1.2: primary is deep indigo (indigo-fill) with cream text and a gilt hairline 3px inside the edge,
+ * like tooling on a book cover. No glow, no outer shadow. Hover is a touch darker by day, lighter by night.
+ */
 const VARIANT: Record<ButtonVariant, string> = {
-  primary: 'bg-indigo text-on-accent hover:bg-indigo/90 active:bg-indigo/85',
-  secondary: 'border border-line-strong bg-paper text-ink hover:bg-stone/60',
-  ghost: 'text-graphite hover:bg-stone hover:text-ink',
+  primary: cn(FILL, FILL_HOVER, GILT),
+  secondary:
+    'border border-line-strong bg-paper text-ink hover:bg-[color-mix(in_srgb,var(--stone)_55%,var(--paper))] active:bg-stone',
+  ghost: 'text-graphite hover:bg-stone/70 hover:text-ink',
   danger: 'border border-crimson/40 bg-paper text-crimson hover:border-crimson/70 hover:bg-crimson/[0.06]',
 }
 

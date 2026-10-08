@@ -1,8 +1,12 @@
 import { X } from 'lucide-react'
 import React, { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { createPortal } from 'react-dom'
+import { BRASS_BORDER, SMALL_CAPS_QUIET } from './candlelit'
 import { cn } from './cn'
 import { IconButton } from './IconButton'
+
+/** The brass hairline color on a ::before line (gold 55% by day, 38% by night). */
+const BRASS_RULE_BEFORE = 'before:bg-gold/55 dark:before:bg-gold/38'
 
 /* ---------- open-dialog registry (GlobalHotkeys pauses while any dialog is open) ---------- */
 
@@ -137,6 +141,8 @@ export interface DialogProps {
   /** Hide the header. The title still names the dialog for screen readers. Add your own close control for mobile sheets. */
   hideTitle?: boolean
   description?: string
+  /** "smallcaps": the description as a quiet italic small-caps eyebrow (design v1.2 rule 3, Quick Add). Default "plain". */
+  descriptionStyle?: 'plain' | 'smallcaps'
   /** sm 420px, md 640px, lg 720px. Under 640px wide, md and lg become full-screen sheets. */
   size?: 'sm' | 'md' | 'lg'
   placement?: 'center' | 'top'
@@ -155,6 +161,7 @@ export function Dialog(props: DialogProps): React.JSX.Element | null {
     title,
     hideTitle = false,
     description,
+    descriptionStyle = 'plain',
     size = 'md',
     placement = 'center',
     initialFocusRef,
@@ -303,7 +310,7 @@ export function Dialog(props: DialogProps): React.JSX.Element | null {
       ref={backdropRef}
       data-dialog-backdrop=""
       className={cn(
-        'fixed inset-0 z-50 flex justify-center bg-scrim/75 dark:bg-scrim transition-opacity duration-180 ease-quiet',
+        'fixed inset-0 z-50 flex justify-center bg-scrim transition-opacity duration-180 ease-quiet',
         visible && open ? 'opacity-100' : 'pointer-events-none opacity-0',
         placement === 'top' ? 'items-start p-4 sm:pt-[12vh]' : 'items-center p-4',
         sheet && 'max-sm:items-stretch max-sm:p-0',
@@ -325,7 +332,7 @@ export function Dialog(props: DialogProps): React.JSX.Element | null {
         aria-describedby={description ? descId : undefined}
         tabIndex={-1}
         className={cn(
-          'relative flex w-full flex-col overflow-hidden rounded-lg border border-line bg-paper text-ink shadow-float outline-none',
+          'relative flex w-full flex-col overflow-hidden rounded-lg border border-line-strong bg-paper text-ink shadow-float outline-none',
           'transition-[opacity,transform] duration-180 ease-quiet',
           visible && open ? 'translate-y-0 opacity-100' : 'translate-y-1 opacity-0',
           size === 'sm' && 'max-w-[420px]',
@@ -360,7 +367,10 @@ export function Dialog(props: DialogProps): React.JSX.Element | null {
                 {title}
               </h2>
               {description ? (
-                <p id={descId} className="mt-1 text-small text-graphite">
+                <p
+                  id={descId}
+                  className={descriptionStyle === 'smallcaps' ? cn('mt-0.5', SMALL_CAPS_QUIET) : 'mt-1 text-small text-graphite'}
+                >
                   {description}
                 </p>
               ) : null}
@@ -378,13 +388,23 @@ export function Dialog(props: DialogProps): React.JSX.Element | null {
           <div
             ref={footerRef}
             className={cn(
-              'flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-line px-6 py-3.5',
-              sheet && 'max-sm:px-4 max-sm:pb-[max(0.875rem,env(safe-area-inset-bottom))]',
+              'relative flex shrink-0 flex-wrap items-center justify-end gap-2 px-6 py-3.5',
+              // The footer's brass line stops at the bookplate frame (7px from each edge) instead of crossing it.
+              'before:pointer-events-none before:absolute before:inset-x-[7px] before:top-0 before:h-px',
+              BRASS_RULE_BEFORE,
+              sheet && 'max-sm:px-4 max-sm:pb-[max(0.875rem,env(safe-area-inset-bottom))] max-sm:before:inset-x-0',
             )}
           >
             {footer}
           </div>
         ) : null}
+        {/* The bookplate (design v1.2 rule 6): a brass hairline frame 6px inside the edge. Decorative only.
+            Full-screen sheets on phones have no plate edge, so the frame is hidden there. */}
+        <div
+          aria-hidden="true"
+          data-bookplate=""
+          className={cn('pointer-events-none absolute inset-1.5 rounded-sm border', BRASS_BORDER, sheet && 'max-sm:hidden')}
+        />
       </div>
     </div>,
     document.body,

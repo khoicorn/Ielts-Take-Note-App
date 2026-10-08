@@ -2,6 +2,7 @@ import { Plus } from 'lucide-react'
 import type React from 'react'
 import { NavLink } from 'react-router'
 import { useDueCounts } from '@/lib/hooks'
+import { FILL, FILL_HOVER, GILT_ROUND } from '@/components/ui/candlelit'
 import { cn } from '@/components/ui/cn'
 import { ICON_STROKE } from '@/components/ui/icons'
 import { MOBILE_TABS, navItem } from './nav'
@@ -28,7 +29,13 @@ export function BottomNav(): React.JSX.Element {
                   type="button"
                   aria-label="New note"
                   onClick={() => quickAdd.open()}
-                  className="flex size-12 cursor-pointer items-center justify-center rounded-full bg-indigo text-on-accent transition-colors duration-150 active:bg-indigo/85"
+                  // Deep indigo fill with the gilt ring 3px inside, like the primary button (design v1.2).
+                  className={cn(
+                    'flex size-12 cursor-pointer items-center justify-center rounded-full transition-colors duration-150',
+                    FILL,
+                    FILL_HOVER,
+                    GILT_ROUND,
+                  )}
                 >
                   <Plus className="size-6" strokeWidth={ICON_STROKE} aria-hidden="true" />
                 </button>
@@ -56,7 +63,7 @@ export function BottomNav(): React.JSX.Element {
                     <span
                       aria-hidden="true"
                       className={cn(
-                        'absolute top-0 left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-b-full bg-indigo transition-opacity duration-180',
+                        'absolute top-0 left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-b-full bg-brass transition-opacity duration-180',
                         isActive ? 'opacity-100' : 'opacity-0',
                       )}
                     />

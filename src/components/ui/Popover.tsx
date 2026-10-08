@@ -284,7 +284,7 @@ export function Menu(props: {
                       OPTION_FOCUS_BAR,
                       danger
                         ? 'text-crimson focus:bg-crimson/[0.07] focus:before:bg-crimson'
-                        : 'text-ink focus:bg-stone/60 focus:before:bg-indigo',
+                        : 'text-ink focus:bg-stone/60 focus:before:bg-brass',
                     )}
                   >
                     {Icon ? (

@@ -21,8 +21,8 @@ describe('Combobox', { timeout: 15_000 }, () => {
     // The active option carries a visible left bar, not only a faint tint.
     const active = screen.getByRole('option', { name: 'Transport' })
     expect(active).toHaveAttribute('aria-selected', 'true')
-    expect(active).toHaveClass('before:bg-indigo', 'before:w-0.5')
-    expect(screen.getByRole('option', { name: 'Travel' })).not.toHaveClass('before:bg-indigo')
+    expect(active).toHaveClass('before:bg-brass', 'before:w-0.5')
+    expect(screen.getByRole('option', { name: 'Travel' })).not.toHaveClass('before:bg-brass')
     await user.keyboard('{Enter}')
     expect(onChange).toHaveBeenLastCalledWith('Transport')
     expect(input).toHaveAttribute('aria-expanded', 'false')

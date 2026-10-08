@@ -42,7 +42,7 @@ describe('Popover and Menu', () => {
     const duplicate = screen.getByRole('menuitem', { name: 'Duplicate' })
     const remove = screen.getByRole('menuitem', { name: 'Delete' })
     for (const cls of ['relative', 'focus:before:absolute', 'focus:before:w-0.5']) expect(duplicate).toHaveClass(cls)
-    expect(duplicate).toHaveClass('focus:before:bg-indigo')
+    expect(duplicate).toHaveClass('focus:before:bg-brass')
     expect(remove).toHaveClass('focus:before:bg-crimson')
   })
 })
